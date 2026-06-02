@@ -1,0 +1,140 @@
+# ============================================================
+# BINARY SECURITY AUDIT TEMPLATE v1.0
+# Alle LLMs schreiben ihre Analyse-Ergebnisse in dieses Format.
+# Eine YAML-Datei pro Binary. Wird von build_site.py zu HTML.
+# ============================================================
+
+meta:
+  template_version: "1.0"
+  binary_name: ""           # z.B. fvevol.sys
+  binary_type: ""           # kernel_driver | user_exe | user_dll
+  binary_path: ""           # Pfad zur Original-Datei
+  sha256: ""                # SHA-256 Hash
+  md5: ""                   # MD5 Hash
+  file_size_bytes: 0
+  analysis_date: ""         # ISO-Format: 2026-06-02
+  analyst: ""               # Name oder LLM-Identifier
+  analysis_duration_minutes: 0
+
+binary_info:
+  architecture: ""          # x86 | x64 | armv7 | aarch64
+  base_address: ""          # z.B. 0x140000000
+  entry_point: ""           # z.B. 0x140027b30
+  function_count: 0
+  symbol_count: 0
+  compiler_hint: ""         # windows | gcc | msvc
+  subsystem: ""             # native | windows_gui | windows_cui
+
+pe_security:
+  aslr: false               # DYNAMIC_BASE (0x40)
+  dep: false                # NX_COMPAT (0x100)
+  cfg: false                # GUARD_CF (0x4000)
+  high_entropy_aslr: false  # HIGH_ENTROPY_ASLR (0x8000)
+  safe_seh: false           # nur 32-bit relevant
+  notes: ""
+
+segments:
+  - name: ".text"
+    va_start: ""
+    va_end: ""
+    permissions: ""         # R/W/X
+  - name: ".data"
+    va_start: ""
+    va_end: ""
+    permissions: ""
+
+import_risk_map:
+  high: []
+    # - api: "CreateProcessW"
+    #   risk: "Command Injection bei ungepruftem Input"
+    #   cwe: "CWE-78"
+  medium: []
+    # - api: "IoBuildPartialMdl"
+    #   risk: "Double-Fetch (TOCTOU)"
+    #   cwe: "CWE-367"
+  low: []
+    # - api: "memcpy"
+    #   risk: "Puffer-Sink, braucht Bounds-Check"
+    #   cwe: "CWE-119"
+  info: []
+    # - api: "ZwReadFile"
+    #   risk: "Disk-I/O"
+    #   cwe: "N/A"
+
+irp_handlers:  # Nur fur Kernel-Treiber relevant
+  # - irp_code: "IRP_MJ_CREATE"
+  #   address: "0x1400b88f0"
+  #   function_name: "FvevolCreate"
+  #   buffer_type: "SystemBuffer"
+  #   probe_present: true
+  #   risk: "OK"
+
+findings:
+  # - id: "FVE-001"
+  #   severity: "MEDIUM"       # CRITICAL | HIGH | MEDIUM | LOW | INFO
+  #   cwe: "CWE-119"
+  #   title: "ProbeForWrite nur bedingt aufgerufen"
+  #   function: "FvevolQueryVolumeInfo"
+  #   address: "0x1400b9b68"
+  #   description: |
+  #     Bei Flag=0 wird Irp->UserBuffer ohne vorheriges ProbeForWrite
+  #     beschrieben. Der interne Bounds-Check in FveCopyDataToUserBuffer
+  #     verhindert jedoch einen Overflow.
+  #   taint_path: "IOCTL Input -> Irp->UserBuffer -> memcpy"
+  #   recommendation: "ProbeForWrite immer vor UserBuffer-Zugriff aufrufen"
+
+taint_graph:
+  sources:
+    # - name: "Irp->UserBuffer"
+    #   type: "IOCTL METHOD_NEITHER"
+  sinks:
+    # - name: "memcpy (FveSafeMemcpy)"
+    #   address: "0x14001a9c0"
+  edges:
+    # - from: "Irp->UserBuffer"
+    #   to: "memcpy"
+    #   bounded: true
+    #   check_location: "0x14000434c"
+
+tools_output:
+  flawfinder:
+    level_0_2_hits: 0
+    level_3_hits: 0
+    level_4_hits: 0
+    level_5_hits: 0
+    false_positives: 0
+    notes: ""
+  cwe_checker:
+    total_findings: 0
+    cwe787_oob_write: 0
+    cwe125_oob_read: 0
+    cwe476_null_deref: 0
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: ""
+  gcc_analyzer:
+    compiled: false
+    warnings: 0
+    tests_passed: 0
+    tests_failed: 0
+    notes: ""
+
+artifacts:
+  # - file: "fvevol_audited.sys"
+  #   type: "patched_binary"
+  #   description: "Gepatchte Binary mit Audit-Marker"
+  #   md5: ""
+
+summary:
+  overall_risk: ""          # LOW | MEDIUM | HIGH | CRITICAL
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 0
+  low_findings: 0
+  info_findings: 0
+  recommendation: ""
+  coverage_percent: 0       # Wie viel % des Codes analysiert wurde

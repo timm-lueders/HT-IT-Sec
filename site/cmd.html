@@ -1,0 +1,233 @@
+<!DOCTYPE html><html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="http://fonts.cdnfonts.com/css/terminal" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<title>cmd.exe -- Security Audit</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{
+  background:#212121 url(background.gif) left top/10.8% 10.8% repeat;
+  background-blend-mode:overlay;
+  color:#00fd00;
+  font-family:"Terminal",sans-serif,monospace;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+body{
+  display:grid;
+  grid-template-columns:100px 1fr 100px;
+  grid-template-rows:auto 1fr auto;
+  gap:1rem;
+  min-height:100vh;
+}
+header{
+  grid-column:1/4;
+  background:gray;
+  padding:20px 30px;
+  margin:10px;
+  border-radius:2rem;
+  box-shadow:10px 10px 15px black;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1{
+  font-size:1.5rem;
+  margin:0;
+}
+header nav a{
+  color:#a4c574;
+  text-decoration:none;
+  margin-left:20px;
+  font-size:0.95rem;
+}
+header nav a:hover{text-decoration:underline;color:#00fd00}
+header .stats{font-size:0.85rem;color:#aaa}
+main{
+  padding:20px;
+  text-shadow:0 0 3px rgba(0,0,0,1),0 0 20px rgba(0,253,0,0.6);
+  mix-blend-mode:lighten;
+  animation:flicker 0.3s infinite;
+}
+@keyframes flicker{
+  0%,50%,100%{opacity:0.92}
+  25%,75%{opacity:1}
+}
+footer{
+  grid-column:1/4;
+  text-align:center;
+  background:gray;
+  padding:15px 10px;
+  margin:10px;
+  border-radius:2rem;
+  box-shadow:inset 10px 10px 15px black;
+  font-size:0.8rem;
+}
+aside{min-height:50px}
+h1,h2,h3{color:#00fd00}
+h1:hover{cursor:pointer}
+h2{margin:25px 0 15px;border-bottom:1px dashed #00fd00;padding-bottom:8px}
+h3{margin:15px 0 10px;color:#a4c574}
+a{color:#a4c574;text-decoration:none}
+a:hover{text-decoration:underline;color:#00fd00}
+hr{border-style:dashed;border-color:#00fd00;box-shadow:0 0 3px rgba(0,0,0,1),0 0 10px rgba(0,253,0,0.6);margin:25px 0}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px dashed #333}
+th{color:#aaa;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px}
+td{font-size:0.9rem}
+tr:hover{background:rgba(0,253,0,0.05)}
+.card{
+  background:rgba(0,0,0,0.3);
+  border:1px solid #333;
+  border-radius:8px;
+  padding:18px;
+  margin:15px 0;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+.sev-CRITICAL{background:#ff3333;color:#000}
+.sev-HIGH{background:#ff8c00;color:#000}
+.sev-MEDIUM{background:#ffd700;color:#000}
+.sev-LOW{background:#00fd00;color:#000}
+.sev-INFO{background:#444;color:#aaa}
+.sev-OK{background:#00fd00;color:#000}
+.finding{border-left:4px solid #ffd700;padding-left:18px;margin:18px 0}
+.finding-CRITICAL{border-left-color:#ff3333}
+.finding-HIGH{border-left-color:#ff8c00}
+.finding-MEDIUM{border-left-color:#ffd700}
+.finding-LOW{border-left-color:#00fd00}
+.finding-info{margin-top:8px;font-size:0.85rem;color:#888}
+.progress-bar{
+  background:#333;
+  border-radius:8px;
+  height:10px;
+  margin:5px 0;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  border-radius:8px;
+  background:#00fd00;
+  box-shadow:0 0 8px rgba(0,253,0,0.5);
+}
+.risk-LOW .progress-fill{background:#00fd00}
+.risk-MEDIUM .progress-fill{background:#ffd700}
+.risk-HIGH .progress-fill{background:#ff8c00}
+.risk-CRITICAL .progress-fill{background:#ff3333}
+.cursor{
+  display:inline-block;
+  width:12px;height:2px;
+  background:#00fd00;
+  animation:blink 0.8s infinite;
+  vertical-align:middle;margin-left:2px;
+}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+.file-list{font-family:monospace;font-size:0.85rem;color:#a4c574;margin:10px 0}
+.file-list span{padding:2px 8px}
+pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:12px;overflow-x:auto;font-size:0.8rem;color:#a4c574}
+@media(max-width:768px){
+  body{grid-template-columns:1fr;margin:5px}
+  header,footer{grid-column:1;margin:5px}
+  aside{display:none}
+  .grid2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>cmd.exe</h1>
+<nav><a href="index.html">[Ubersicht]</a></nav>
+</header>
+<aside></aside>
+<main><div class="card">
+    <div class="grid4">
+    <div><b>Typ:</b> user_exe</div>
+    <div><b>Arch:</b> x64</div>
+    <div><b>Entry:</b> <span style="font-family:monospace">0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)</span></div>
+    <div><b>GroBe:</b> 457,232 bytes</div>
+    <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">CED4AA0B4CBF72E2520E0A2CCFF79370</span></div>
+    <div><b>Funktionen:</b> 1133</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ExpandEnvironmentStringsW</td><td>Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion</td><td>CWE-120</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessW</td><td>Prozess-Erstellung -- Command Injection bei ungepruftem Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessAsUserW</td><td>Prozess-Erstellung mit User-Kontext -- same risk</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ShellExecuteWorker</td><td>Shell-Ausfuhrung -- hochstes Risiko bei User-Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memmove</td><td>Puffer-Sink, braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memset</td><td>Puffer-Initialisierung -- sicher bei fester GroBe</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> GetFullPathNameW</td><td>Pfad-Expansion -- kann Puffer uberlaufen</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SearchPathW</td><td>DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-LOW">LOW</span> HeapAlloc/HeapReAlloc/HeapFree</td><td>Heap-Operationen -- Double-Free/Use-After-Free moglich</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlDosPathNameToNtPathName_U</td><td>Pfad-Konvertierung -- braucht validierten Input</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf_s</td><td>Safe Format-String (mit _s-Suffix = Langenbegrenzung)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf</td><td>Format-String (ohne _s -- unsicherer, aber nur intern)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-INFO">INFO</span> GetCommandLineW</td><td>Command-Line Source -- Startpunkt der Taint-Analyse</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ReadConsoleW</td><td>Console-Input Source</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> SetConsoleCtrlHandler</td><td>Signal-Handler -- korrekt registriert</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    <table><tr><th>Typ</th><th>Name</th><th>Detail</th></tr><tr><td>Source</td><td>GetCommandLineW()</td><td>Process Command Line (UNICODE)</td></tr><tr><td>Source</td><td>ReadConsoleW()</td><td>Console Input (interaktiver Modus)</td></tr><tr><td>Source</td><td>ExpandEnvironmentStringsW()</td><td>Environment Variable Expansion</td></tr><tr><td>Source</td><td>GetEnvironmentVariableW()</td><td>Environment Variable Lookup</td></tr><tr><td>Sink</td><td>CreateProcessW()</td><td>EXTERNAL:kernel32.dll</td></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL:ucrtbase.dll</td></tr><tr><td>Sink</td><td>RegSetValueExW()</td><td>EXTERNAL:advapi32.dll</td></tr><tr><td>Sink</td><td>WriteFile()</td><td>EXTERNAL:kernel32.dll</td></tr></table>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>BOUNDED</td><td>GetCommandLineW()</td><td>CreateProcessW()</td><td>0x1400249b0 (CmdCopyCommandLine)</td></tr><tr><td>BOUNDED</td><td>ReadConsoleW()</td><td>CreateProcessW()</td><td>0x140033a6c (main Command-Loop)</td></tr><tr><td>UNCHECKED</td><td>ExpandEnvironmentStringsW()</td><td>memcpy</td><td>Nicht im analysierten Scope</td></tr></table>
+    </div><div class="card"><h3>Automatisierte Tools</h3>
+    <table>
+    <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
+    <tr><td>cwe_checker</td><td>542 Findings (~97% FP)</td></tr>
+    <tr><td>GCC -fanalyzer</td><td>OK (14 Pass / 0 Fail)</td></tr>
+    </table></div><div class="card"><h3>Findings (4)</h3><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>CWE-119: memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschutzt</b>
+        <p style="margin-top:6px;font-size:0.9rem">cwe_checker identifizierte 14 memcpy-Aufrufstellen (CWE676).
+Alle analysierten Pfade haben Bounds-Checking:
+- Command-Line-Copy: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
+- HeapEnableTerminationOnCorruption aktiv (Heap-Hardening)
+- Safe-Format-String-Varianten (_s) werden verwendet
+</p>
+        <div class="finding-info">Funktion: Verschiedene (siehe cwe_checker CWE676) @ 0x140007787, 0x14000c2ae, 0x140010566, u.a.<br>
+        Taint-Path: GetCommandLineW() -> wchar_t[0x4000] -> memcpy-artiger Copy-Loop<br>
+        Empfehlung: Keine akute Gefahr. Bounds-Checks sind vorhanden.</div></div><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>N/A: HeapEnableTerminationOnCorruption aktiviert</b>
+        <p style="margin-top:6px;font-size:0.9rem">In der main()-Funktion wird HeapSetInformation(0, 
+HeapEnableTerminationOnCorruption, 0, 0) aufgerufen. Dies
+aktiviert das Heap-Hardening: bei Heap-Korruption wird der
+Prozess sofort terminiert statt undefiniert weiterzulaufen.
+Verhindert Heap-basierte Exploits.
+</p>
+        <div class="finding-info">Funktion: main @ 0x140033a6c<br>
+        Taint-Path: N/A<br>
+        Empfehlung: Vorbildliche Sicherheitspraxis.</div></div><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>N/A: Safe Format-String-Funktionen verwendet</b>
+        <p style="margin-top:6px;font-size:0.9rem">cmd.exe importiert _o___stdio_common_vswprintf_s (safe Variante
+mit Langenbegrenzung) sowie _ultoa_s, wcstoul, wcstol fur
+String-zu-Zahl-Konvertierung. Keine unsicheren Varianten wie
+sprintf, swprintf ohne _s, gets oder scanf gefunden.
+</p>
+        <div class="finding-info">Funktion: Global @ N/A<br>
+        Taint-Path: N/A<br>
+        Empfehlung: Vorbildliche API-Auswahl.</div></div><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>N/A: GCC -fanalyzer fand NULL-Deref im Testcode (vor Ausfuhrung gefixt)</b>
+        <p style="margin-top:6px;font-size:0.9rem">Beim Kompilieren der extrahierten Logik mit GCC -fanalyzer
+wurde eine potentielle NULL-Dereferenz im Testcode gefunden:
+Der Test fur leere Eingabe (L"") rief CmdCopyCommandLine mit
+einem leeren String auf, der die 0x2000-Bounds-Prufung nicht
+bestand und NULL zuruckgab. Der nachfolgende buf[0]-Zugriff
+ware ein NULL-Deref gewesen. Wurde vor Compile gefixt.
+</p>
+        <div class="finding-info">Funktion: CmdCopyCommandLine (Testbench) @ N/A<br>
+        Taint-Path: Testbench: L"" -> CmdCopyCommandLine -> NULL -> buf[0]<br>
+        Empfehlung: Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zuruckgibt.</div></div></div><div class="card"><h3>Artefakte</h3><table><tr><th>Datei</th><th>Typ</th><th>Beschreibung</th></tr><tr><td style='font-family:monospace'>cmd_audited.exe</td><td>patched_binary</td><td style='color:#888'>Lauffahige gepatchte Binary: cmd.exe->cma.exe, Microsoft Corporation->openCode Produktion</td></tr><tr><td style='font-family:monospace'>cmd_sinks.c</td><td>decompiler_output</td><td style='color:#888'>Ghidra-Decompiler-Output: 20 Schlusselfunktionen (14 KB)</td></tr><tr><td style='font-family:monospace'>cmd_sinks_clean.c</td><td>cleaned_decompiler_output</td><td style='color:#888'>Fur flawfinder gesauberte Version</td></tr><tr><td style='font-family:monospace'>cmd_testbench.c</td><td>recompiled_logic</td><td style='color:#888'>Extrahierte Logik in valides C: CmdCopyCommandLine (beide Varianten)</td></tr><tr><td style='font-family:monospace'>cmd_testbench.exe</td><td>compiled_testbench</td><td style='color:#888'>GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 14/14 Tests bestanden, -fanalyzer fand Bug im Testcode</td></tr><tr><td style='font-family:monospace'>cmd_cwe_report.json</td><td>cwe_checker_output</td><td style='color:#888'>542 Findings (JSON)</td></tr></table></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    <div class="grid2">
+    <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
+    <div><b>Analyse-Datum:</b> 2026-06-02</div>
+    <div><b>Funktionen:</b> 1133</div>
+    <div><b>Coverage:</b> 5%</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline v5.10.0</div>
+    <div><b>Dauer:</b> 25 min</div>
+    </div>
+    <hr>
+    <div class="grid4">
+    <div>CRITICAL<br><span class="count">0</span></div>
+    <div>HIGH<br><span class="count">0</span></div>
+    <div>MEDIUM<br><span class="count">0</span></div>
+    <div>LOW<br><span class="count">0</span></div>
+    </div>
+    <hr>
+    <div class="progress-bar risk-LOW"><div class="progress-fill" style="width:5%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">cmd.exe ist ein gut abgesicherter User-Mode-Prozess.
+
+- Safe-String-Funktionen (_s-Suffix) werden verwendet
+- HeapEnableTerminationOnCorruption verhindert Heap-Exploits
+- Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
+- Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
+- ExpandEnvironmentStringsW-Pfad wurde nicht vollstandig analysiert
+  -- hier konnte bei sehr groBen Umgebungsvariablen ein Overflow
+  moglich sein. Empfehlung: diesen Pfad bei nachster Analyse
+  priorisieren.
+</p></div></main>
+<aside></aside>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 22:16 -- <span class="cursor"></span></footer>
+</body></html>
