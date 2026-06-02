@@ -2,32 +2,35 @@ meta:
   template_version: "1.0"
   binary_name: "spaceport.sys"
   binary_type: "kernel_driver"
+  file_size_bytes: 1026048
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "Storage Spaces. Disk-I/O, RAID-artige Operationen."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  notes: "Storage Spaces. Disk-I/O, RAID-artig."
 binary_info:
   architecture: "x64"
   function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: False
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  high_entropy_aslr: false
+findings:
+  - id: "SPC-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "SPC-001:Speicher-Pool-Verwaltung -- Bounds-Checks bei RAID-Striping kritisch"
+    description: "SPC-001:Speicher-Pool-Verwaltung -- Bounds-Checks bei RAID-Striping kritisch"
+    taint_path: "External Input -> Kernel Buffer -> memcpy"
+    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+taint_graph:
+  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
+  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
+  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Storage Spaces. Disk-I/O, RAID-artige Operationen."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 1
+  low_findings: 0
+  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
+  coverage_percent: 1

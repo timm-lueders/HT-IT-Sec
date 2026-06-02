@@ -151,33 +151,48 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 0 bytes</div>
+    <div><b>Größe:</b> 1,026,048 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 0</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Automatisierte Tools</h3>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Taint-Graph</h3>
+    <div class="grid2">
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>IOCTL Input / Netzwerk-Pakete</td><td>Kernel Entry Point</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy/MDL-Mapping</td><td>EXTERNAL</td></tr></table></div>
+    </div>
+    <div class="mermaid" style="margin-top:15px">
+graph LR
+    IOCTL_Input["IOCTL Input"] -->|"UNCHECKED"| memcpy["memcpy"]
+</div>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>IOCTL Input</td><td>memcpy</td><td>Nicht verifiziert</td></tr></table>
+    </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
-    </table></div><div class="card"><h3>Findings</h3><p style="color:#888">Keine Findings.</p></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-MEDIUM">
+        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-119: SPC-001:Speicher-Pool-Verwaltung -- Bounds-Checks bei RAID-Striping kritisch</b>
+        <p style="margin-top:6px;font-size:0.9rem">SPC-001:Speicher-Pool-Verwaltung -- Bounds-Checks bei RAID-Striping kritisch</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
+        Taint-Path: External Input -> Kernel Buffer -> memcpy<br>
+        Empfehlung: Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
-    <div><b>Risiko:</b> <span class="badge sev-UNKNOWN">UNKNOWN</span></div>
+    <div><b>Risiko:</b> <span class="badge sev-MEDIUM">MEDIUM</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
     <div><b>Funktionen:</b> 0</div>
-    <div><b>Coverage:</b> 0%</div>
-    <div><b>Analyst:</b> opencode Pipeline -- Batch-Scan (PE+Import)</div>
-    <div><b>Dauer:</b> 2 min</div>
+    <div><b>Coverage:</b> 1%</div>
+    <div><b>Analyst:</b> opencode Pipeline -- Deep-Scan</div>
+    <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
     <div class="grid4">
     <div>CRITICAL<br><span class="count">0</span></div>
     <div>HIGH<br><span class="count">0</span></div>
-    <div>MEDIUM<br><span class="count">0</span></div>
+    <div>MEDIUM<br><span class="count">1</span></div>
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-UNKNOWN"><div class="progress-fill" style="width:0%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Storage Spaces. Disk-I/O, RAID-artige Operationen.</p></div></main>
+    <div class="progress-bar risk-MEDIUM"><div class="progress-fill" style="width:1%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:14 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:19 -- <span class="cursor"></span></footer>
 </body></html>

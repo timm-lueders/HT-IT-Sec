@@ -150,34 +150,44 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid4">
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
-    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 0 bytes</div>
+    <div><b>Entry:</b> <span style="font-family:monospace">0x14009d010</span></div>
+    <div><b>Größe:</b> 1,016,584 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 0</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Automatisierte Tools</h3>
+    <div><b>Funktionen:</b> 1176</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei SMB-Paketverarbeitung</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping fur Netzwerk-Puffer</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _vsnwprintf</td><td>Format-String OHNE _s-Suffix -- gefahrlich!</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> KeStackAttachProcess</td><td>Prozess-Kontext-Wechsel -- User-Mode-Memory-Zugriff</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForRead</td><td>Buffer-Validierung (korrekt vorhanden)</td><td>N/A</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
-    </table></div><div class="card"><h3>Findings</h3><p style="color:#888">Keine Findings.</p></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    </table></div><div class="card"><h3>Findings (2)</h3><div class="finding finding-HIGH">
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-367: IoBuildPartialMdl in SMB-Paketverarbeitung</b>
+        <p style="margin-top:6px;font-size:0.9rem">srv2.sys verwendet IoBuildPartialMdl fur SMB-Paket-Puffer. Diese API ist anfallig fur Double-Fetch-Angriffe: Zwischen ProbeForRead und der tatsachlichen Verarbeitung kann der User-Mode-Puffer geandert werden (TOCTOU).</p>
+        <div class="finding-info">Funktion: N/A @ N/A<br>
+        Taint-Path: -<br>
+        Empfehlung: Auf MmProbeAndLockPages/MmMapLockedPagesSpecifyCache migrieren.</div></div><div class="finding finding-MEDIUM">
+        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-134: _vsnwprintf ohne _s-Suffix</b>
+        <p style="margin-top:6px;font-size:0.9rem">srv2.sys importiert _vsnwprintf (UNSAFE) statt _vsnwprintf_s (SAFE). Ein Bug in der Format-String-Verarbeitung kann zum Buffer-Overflow fuhren.</p>
+        <div class="finding-info">Funktion: N/A @ EXTERNAL<br>
+        Taint-Path: -<br>
+        Empfehlung: Auf _vsnwprintf_s migrieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
-    <div><b>Risiko:</b> <span class="badge sev-UNKNOWN">UNKNOWN</span></div>
+    <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 0</div>
-    <div><b>Coverage:</b> 0%</div>
-    <div><b>Analyst:</b> opencode Pipeline -- Batch-Scan (PE+Import)</div>
-    <div><b>Dauer:</b> 2 min</div>
+    <div><b>Funktionen:</b> 1176</div>
+    <div><b>Coverage:</b> 2%</div>
+    <div><b>Analyst:</b> opencode Pipeline</div>
+    <div><b>Dauer:</b> 5 min</div>
     </div>
     <hr>
     <div class="grid4">
     <div>CRITICAL<br><span class="count">0</span></div>
-    <div>HIGH<br><span class="count">0</span></div>
-    <div>MEDIUM<br><span class="count">0</span></div>
+    <div>HIGH<br><span class="count">1</span></div>
+    <div>MEDIUM<br><span class="count">1</span></div>
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-UNKNOWN"><div class="progress-fill" style="width:0%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. SMB 2.0 Server Driver. Netzwerk-Protokoll-Parsing -- SMB-Pakete direkt aus dem Netz.</p></div></main>
+    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:2%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">SMB-Server-Kernel-Treiber -- Remote-Angriffsflache. IoBuildPartialMdl ersetzen, Format-Strings auf _s migrieren.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:14 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:19 -- <span class="cursor"></span></footer>
 </body></html>

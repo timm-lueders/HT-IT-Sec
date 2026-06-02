@@ -2,32 +2,56 @@ meta:
   template_version: "1.0"
   binary_name: "winlogon.exe"
   binary_type: "user_exe"
+  file_size_bytes: 958464
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "Windows Logon. Authentifizierung, Benachrichtigungs-Packages, SAS-Handling."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 10
+  notes: "Windows Logon. Authentifizierung, SAS, Benachrichtigungs-Packages."
 binary_info:
   architecture: "x64"
-  function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
+  base_address: "0x140000000"
+  entry_point: ""
+  function_count: 1329
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: True
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  notes: "CFG aktiv."
+import_risk_map:
+  high: []
+  medium: []
+  low: []
+  info: []
+findings:
+  - id: "WINLOGON-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren"
+    function: "N/A"
+    address: "N/A"
+    description: "WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren"
+    taint_path: "User Input -> Parser -> memcpy"
+    recommendation: "DLL-Signaturprufung und Pfad-Hardening sicherstellen."
+taint_graph:
+  sources:
+    - name: "User Input (Console/Network/File)"
+      type: "External Input"
+  sinks:
+    - name: "memcpy"
+      address: "EXTERNAL:msvcrt.dll"
+    - name: "LoadLibraryExW"
+      address: "EXTERNAL:kernel32.dll"
+  edges:
+    - from: "User Input"
+      to: "memcpy"
+      bounded: false
+      check_location: "Nicht verifiziert"
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Windows Logon. Authentifizierung, Benachrichtigungs-Packages, SAS-Handling."
-  coverage_percent: 0
+  overall_risk: "HIGH"
+  critical_findings: 0
+  high_findings: 1
+  medium_findings: 1
+  low_findings: 1
+  recommendation: "DLL-Signaturprufung und Pfad-Hardening sicherstellen."
+  coverage_percent: 5

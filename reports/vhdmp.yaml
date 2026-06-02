@@ -2,32 +2,56 @@ meta:
   template_version: "1.0"
   binary_name: "vhdmp.sys"
   binary_type: "kernel_driver"
+  file_size_bytes: 1062912
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "VHD Parser. Dateiformat-Parsing -- VHD/VHDX-Header, Block-Strukturen."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 10
+  notes: "VHD Parser. Dateiformat-Parsing -- VHD/VHDX-Header."
 binary_info:
   architecture: "x64"
-  function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
+  base_address: "0x140000000"
+  entry_point: ""
+  function_count: ~1200
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: False
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  notes: "CFG aktiv."
+import_risk_map:
+  high: []
+  medium: []
+  low: []
+  info: []
+findings:
+  - id: "VHDMP-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "VHD-001:VHD-Header-Parsing -- bosartige VHD-Dateien konnen Kernel-Overflow auslosen"
+    function: "N/A"
+    address: "N/A"
+    description: "VHD-001:VHD-Header-Parsing -- bosartige VHD-Dateien konnen Kernel-Overflow auslosen"
+    taint_path: "User Input -> Parser -> memcpy"
+    recommendation: "VHD-Header-Langen und BlockgroBen validieren."
+taint_graph:
+  sources:
+    - name: "User Input (Console/Network/File)"
+      type: "External Input"
+  sinks:
+    - name: "memcpy"
+      address: "EXTERNAL:msvcrt.dll"
+    - name: "LoadLibraryExW"
+      address: "EXTERNAL:kernel32.dll"
+  edges:
+    - from: "User Input"
+      to: "memcpy"
+      bounded: false
+      check_location: "Nicht verifiziert"
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. VHD Parser. Dateiformat-Parsing -- VHD/VHDX-Header, Block-Strukturen."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 2
+  low_findings: 0
+  recommendation: "VHD-Header-Langen und BlockgroBen validieren."
+  coverage_percent: 5

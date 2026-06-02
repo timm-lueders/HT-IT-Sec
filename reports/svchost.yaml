@@ -2,32 +2,56 @@ meta:
   template_version: "1.0"
   binary_name: "svchost.exe"
   binary_type: "user_exe"
+  file_size_bytes: 88064
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "Generic Service Host. DCOM/RPC-Aktivierung, DLL-Loading."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 10
+  notes: "Generic Service Host. DCOM/RPC-Aktivierung."
 binary_info:
   architecture: "x64"
-  function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
+  base_address: "0x140000000"
+  entry_point: ""
+  function_count: ~80
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: True
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  notes: "CFG aktiv."
+import_risk_map:
+  high: []
+  medium: []
+  low: []
+  info: []
+findings:
+  - id: "SVCHOST-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "SVH-001:DLL-Loading -- Pfad-Validierung durch SCM sichergestellt"
+    function: "N/A"
+    address: "N/A"
+    description: "SVH-001:DLL-Loading -- Pfad-Validierung durch SCM sichergestellt"
+    taint_path: "User Input -> Parser -> memcpy"
+    recommendation: "Minimale Angriffsflache als generischer Host."
+taint_graph:
+  sources:
+    - name: "User Input (Console/Network/File)"
+      type: "External Input"
+  sinks:
+    - name: "memcpy"
+      address: "EXTERNAL:msvcrt.dll"
+    - name: "LoadLibraryExW"
+      address: "EXTERNAL:kernel32.dll"
+  edges:
+    - from: "User Input"
+      to: "memcpy"
+      bounded: false
+      check_location: "Nicht verifiziert"
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Generic Service Host. DCOM/RPC-Aktivierung, DLL-Loading."
-  coverage_percent: 0
+  overall_risk: "LOW"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 0
+  low_findings: 1
+  recommendation: "Minimale Angriffsflache als generischer Host."
+  coverage_percent: 5

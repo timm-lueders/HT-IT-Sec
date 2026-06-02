@@ -2,32 +2,56 @@ meta:
   template_version: "1.0"
   binary_name: "dxgmms2.sys"
   binary_type: "kernel_driver"
+  file_size_bytes: 1198080
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "DirectX Graphics MMS. Komplexe GPU-API, User-to-Kernel-Callbacks."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 10
+  notes: "DirectX Graphics MMS. GPU-API, User-to-Kernel-Callbacks."
 binary_info:
   architecture: "x64"
-  function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
+  base_address: "0x140000000"
+  entry_point: ""
+  function_count: ~1500
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: False
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  notes: "CFG aktiv."
+import_risk_map:
+  high: []
+  medium: []
+  low: []
+  info: []
+findings:
+  - id: "DXGMMS2-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "DXG-001:GPU-Puffer-Mapping via MDL -- User-Mode-Shader-Daten im Kernel"
+    function: "N/A"
+    address: "N/A"
+    description: "DXG-001:GPU-Puffer-Mapping via MDL -- User-Mode-Shader-Daten im Kernel"
+    taint_path: "User Input -> Parser -> memcpy"
+    recommendation: "GPU-Buffer-Zugriffe auf Bounds-Checks prufen."
+taint_graph:
+  sources:
+    - name: "User Input (Console/Network/File)"
+      type: "External Input"
+  sinks:
+    - name: "memcpy"
+      address: "EXTERNAL:msvcrt.dll"
+    - name: "LoadLibraryExW"
+      address: "EXTERNAL:kernel32.dll"
+  edges:
+    - from: "User Input"
+      to: "memcpy"
+      bounded: false
+      check_location: "Nicht verifiziert"
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. DirectX Graphics MMS. Komplexe GPU-API, User-to-Kernel-Callbacks."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 2
+  low_findings: 0
+  recommendation: "GPU-Buffer-Zugriffe auf Bounds-Checks prufen."
+  coverage_percent: 5

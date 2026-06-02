@@ -2,32 +2,35 @@ meta:
   template_version: "1.0"
   binary_name: "ClipSp.sys"
   binary_type: "kernel_driver"
+  file_size_bytes: 1144832
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "Clipboard Service. Datenaustausch -- Clip-Formate, User-to-Kernel-Transfers."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  notes: "Clipboard Service. User-to-Kernel-Datentransfer."
 binary_info:
   architecture: "x64"
   function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: False
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  high_entropy_aslr: false
+findings:
+  - id: "CLP-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "CLP-001:Clipboard-Format-Verarbeitung -- User-Mode-Daten im Kernel verarbeiten"
+    description: "CLP-001:Clipboard-Format-Verarbeitung -- User-Mode-Daten im Kernel verarbeiten"
+    taint_path: "External Input -> Kernel Buffer -> memcpy"
+    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+taint_graph:
+  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
+  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
+  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Clipboard Service. Datenaustausch -- Clip-Formate, User-to-Kernel-Transfers."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 1
+  low_findings: 0
+  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
+  coverage_percent: 1

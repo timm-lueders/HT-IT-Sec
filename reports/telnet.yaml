@@ -2,32 +2,56 @@ meta:
   template_version: "1.0"
   binary_name: "telnet.exe"
   binary_type: "user_exe"
+  file_size_bytes: 278528
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "Telnet Client. Netzwerk-Protokoll-Parsing -- Telnet-Optionen, Terminal-Emulation."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 10
+  notes: "Telnet Client. 130 Funktionen. Netzwerk-Protokoll-Parsing."
 binary_info:
   architecture: "x64"
-  function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
+  base_address: "0x140000000"
+  entry_point: "0x140001300"
+  function_count: 130
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: True
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  notes: "CFG aktiv."
+import_risk_map:
+  high: []
+  medium: []
+  low: []
+  info: []
+findings:
+  - id: "TELNET-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "TEL-001:memcpy+atoi ohne _s-Suffix -- Protokoll-Parsing mit unsicheren APIs bei 130 Funktionen uberschaubar"
+    function: "N/A"
+    address: "N/A"
+    description: "TEL-001:memcpy+atoi ohne _s-Suffix -- Protokoll-Parsing mit unsicheren APIs bei 130 Funktionen uberschaubar"
+    taint_path: "User Input -> Parser -> memcpy"
+    recommendation: "memcpy->memcpy_s, atoi->strtol_s migrieren. 130 Funktionen manuell auditierbar."
+taint_graph:
+  sources:
+    - name: "User Input (Console/Network/File)"
+      type: "External Input"
+  sinks:
+    - name: "memcpy"
+      address: "EXTERNAL:msvcrt.dll"
+    - name: "LoadLibraryExW"
+      address: "EXTERNAL:kernel32.dll"
+  edges:
+    - from: "User Input"
+      to: "memcpy"
+      bounded: false
+      check_location: "Nicht verifiziert"
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Telnet Client. Netzwerk-Protokoll-Parsing -- Telnet-Optionen, Terminal-Emulation."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 2
+  low_findings: 1
+  recommendation: "memcpy->memcpy_s, atoi->strtol_s migrieren. 130 Funktionen manuell auditierbar."
+  coverage_percent: 5

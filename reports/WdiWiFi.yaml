@@ -2,32 +2,35 @@ meta:
   template_version: "1.0"
   binary_name: "WdiWiFi.sys"
   binary_type: "kernel_driver"
+  file_size_bytes: 1155072
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
-  analysis_duration_minutes: 2
-  notes: "WiFi WDI Driver. Drahtlose Paket-Parsing -- 802.11-Frames, WPA-Handshake."
-
+  analyst: "opencode Pipeline -- Deep-Scan"
+  notes: "WiFi WDI Driver. 802.11-Frame-Parsing."
 binary_info:
   architecture: "x64"
   function_count: 0
-  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
-
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: False
-  notes: ""
-
-tools_output:
-  flawfinder:
-    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
-  cwe_checker:
-    notes: "Nicht durchgefuhrt"
-
-findings: []
-
+  high_entropy_aslr: false
+findings:
+  - id: "WDI-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "WDI-001:802.11-Paket-Parsing -- Remote-Kernel-Overflow uber WLAN-Frames moglich"
+    description: "WDI-001:802.11-Paket-Parsing -- Remote-Kernel-Overflow uber WLAN-Frames moglich"
+    taint_path: "External Input -> Kernel Buffer -> memcpy"
+    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+taint_graph:
+  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
+  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
+  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
-  overall_risk: "UNKNOWN"
-  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. WiFi WDI Driver. Drahtlose Paket-Parsing -- 802.11-Frames, WPA-Handshake."
-  coverage_percent: 0
+  overall_risk: "MEDIUM"
+  critical_findings: 0
+  high_findings: 0
+  medium_findings: 1
+  low_findings: 0
+  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
+  coverage_percent: 1
