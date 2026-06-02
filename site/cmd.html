@@ -172,7 +172,7 @@ graph LR
     <tr><td>cwe_checker</td><td>542 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>OK (14 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (4)</h3><div class="finding finding-INFO">
-        <span class="badge sev-INFO">INFO</span> <b>CWE-119: memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschutzt</b>
+        <span class="badge sev-INFO">INFO</span> <b>CWE-119: memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschützt</b>
         <p style="margin-top:6px;font-size:0.9rem">cwe_checker identifizierte 14 memcpy-Aufrufstellen (CWE676).
 Alle analysierten Pfade haben Bounds-Checking:
 - Command-Line-Copy: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
@@ -211,7 +211,7 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
 </p>
         <div class="finding-info">Funktion: CmdCopyCommandLine (Testbench) @ N/A<br>
         Taint-Path: Testbench: L"" -> CmdCopyCommandLine -> NULL -> buf[0]<br>
-        Empfehlung: Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zurückgibt.</div></div></div><div class="card"><h3>Artefakte</h3><table><tr><th>Datei</th><th>Typ</th><th>Beschreibung</th></tr><tr><td style='font-family:monospace'>cmd_audited.exe</td><td>patched_binary</td><td style='color:#888'>Lauffahige gepatchte Binary: cmd.exe->cma.exe, Microsoft Corporation->openCode Produktion</td></tr><tr><td style='font-family:monospace'>cmd_sinks.c</td><td>decompiler_output</td><td style='color:#888'>Ghidra-Decompiler-Output: 20 Schlusselfunktionen (14 KB)</td></tr><tr><td style='font-family:monospace'>cmd_sinks_clean.c</td><td>cleaned_decompiler_output</td><td style='color:#888'>für flawfinder gesaüberte Version</td></tr><tr><td style='font-family:monospace'>cmd_testbench.c</td><td>recompiled_logic</td><td style='color:#888'>Extrahierte Logik in valides C: CmdCopyCommandLine (beide Varianten)</td></tr><tr><td style='font-family:monospace'>cmd_testbench.exe</td><td>compiled_testbench</td><td style='color:#888'>GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 14/14 Tests bestanden, -fanalyzer fand Bug im Testcode</td></tr><tr><td style='font-family:monospace'>cmd_cwe_report.json</td><td>cwe_checker_output</td><td style='color:#888'>542 Findings (JSON)</td></tr></table></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Empfehlung: Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zurückgibt.</div></div></div><div class="card"><h3>Artefakte</h3><table><tr><th>Datei</th><th>Typ</th><th>Beschreibung</th></tr><tr><td style='font-family:monospace'>cmd_audited.exe</td><td>patched_binary</td><td style='color:#888'>Lauffahige gepatchte Binary: cmd.exe->cma.exe, Microsoft Corporation->openCode Produktion</td></tr><tr><td style='font-family:monospace'>cmd_sinks.c</td><td>decompiler_output</td><td style='color:#888'>Ghidra-Decompiler-Output: 20 Schlusselfunktionen (14 KB)</td></tr><tr><td style='font-family:monospace'>cmd_sinks_clean.c</td><td>cleaned_decompiler_output</td><td style='color:#888'>für flawfinder gesäuberte Version</td></tr><tr><td style='font-family:monospace'>cmd_testbench.c</td><td>recompiled_logic</td><td style='color:#888'>Extrahierte Logik in valides C: CmdCopyCommandLine (beide Varianten)</td></tr><tr><td style='font-family:monospace'>cmd_testbench.exe</td><td>compiled_testbench</td><td style='color:#888'>GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 14/14 Tests bestanden, -fanalyzer fand Bug im Testcode</td></tr><tr><td style='font-family:monospace'>cmd_cwe_report.json</td><td>cwe_checker_output</td><td style='color:#888'>542 Findings (JSON)</td></tr></table></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
@@ -236,10 +236,10 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
 - Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
 - Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
 - ExpandEnvironmentStringsW-Pfad wurde nicht vollständig analysiert
-  -- hier könnte bei sehr Größen Umgebungsvariablen ein Overflow
+  -- hier könnte bei sehr großen Umgebungsvariablen ein Overflow
   möglich sein. Empfehlung: diesen Pfad bei nächster Analyse
   priorisieren.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:42 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:57 -- <span class="cursor"></span></footer>
 </body></html>

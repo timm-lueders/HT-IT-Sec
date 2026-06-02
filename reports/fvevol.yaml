@@ -495,7 +495,7 @@ artifacts:
     md5: ""
   - file: "fvevol_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "für flawfinder gesaüberte Version (undefined->char, CONCAT->Makro)"
+    description: "für flawfinder gesäuberte Version (undefined->char, CONCAT->Makro)"
     md5: ""
   - file: "fvevol_testbench.c"
     type: "recompiled_logic"

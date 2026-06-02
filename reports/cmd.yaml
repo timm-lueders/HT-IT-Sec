@@ -139,7 +139,7 @@ findings:
   - id: "CMD-001"
     severity: "INFO"
     cwe: "CWE-119"
-    title: "memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschutzt"
+    title: "memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschützt"
     function: "Verschiedene (siehe cwe_checker CWE676)"
     address: "0x140007787, 0x14000c2ae, 0x140010566, u.a."
     description: |
@@ -278,7 +278,7 @@ artifacts:
     md5: ""
   - file: "cmd_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "für flawfinder gesaüberte Version"
+    description: "für flawfinder gesäuberte Version"
     md5: ""
   - file: "cmd_testbench.c"
     type: "recompiled_logic"
@@ -308,7 +308,7 @@ summary:
     - Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
     - Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
     - ExpandEnvironmentStringsW-Pfad wurde nicht vollständig analysiert
-      -- hier könnte bei sehr Größen Umgebungsvariablen ein Overflow
+      -- hier könnte bei sehr großen Umgebungsvariablen ein Overflow
       möglich sein. Empfehlung: diesen Pfad bei nächster Analyse
       priorisieren.
   coverage_percent: 5
