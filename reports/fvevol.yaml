@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # fvevol.sys Audit Report
 # BitLocker Full Volume Encryption Driver
 # Microsoft Windows Kernel Driver
@@ -37,7 +37,7 @@ pe_security:
   cfg: true
   high_entropy_aslr: false
   safe_seh: false
-  notes: "High-Entropy-ASLR fur Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall aktiv."
+  notes: "High-Entropy-ASLR für Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall aktiv."
 
 segments:
   - name: ".text"
@@ -122,10 +122,10 @@ import_risk_map:
       risk: "Crypto -- kein User-Buffer direkt, interner Pfad"
       cwe: "N/A"
     - api: "ZwWriteFile"
-      risk: "Disk-I/O Sink fur verschlusselte Daten"
+      risk: "Disk-I/O Sink für verschlusselte Daten"
       cwe: "N/A"
     - api: "ZwReadFile"
-      risk: "Disk-I/O Source fur verschlusselte Daten"
+      risk: "Disk-I/O Source für verschlusselte Daten"
       cwe: "N/A"
     - api: "ZwDeviceIoControlFile"
       risk: "Weitergeleitete IOCTLs an lower device"
@@ -257,7 +257,7 @@ analyzed_functions:
     role: "Bounds-geprufte Kopie in UserBuffer"
   - name: "FveValidateBufferHeader"
     address: "0x140004e00"
-    role: "Validierung: Puffer-Header enthalt korrekte GroBen-Info"
+    role: "Validierung: Puffer-Header enthalt korrekte Größen-Info"
   - name: "FvevolDeviceControl"
     address: "0x1400b87e0"
     role: "IRP_MJ_DEVICE_CONTROL Handler"
@@ -287,7 +287,7 @@ analyzed_functions:
     role: "Registry-Pfad mit User-String bauen"
   - name: "FvevolDefaultDispatch"
     address: "0x140026550"
-    role: "Default IRP-Handler fur nicht-registrierte MJ-Codes"
+    role: "Default IRP-Handler für nicht-registrierte MJ-Codes"
 
 findings:
   - id: "FVE-001"
@@ -300,7 +300,7 @@ findings:
       Bei Flag=0 (do_not_probe=true) wird Irp->UserBuffer OHNE vorheriges
       ProbeForWrite beschrieben, obwohl Daten in den User-Buffer kopiert werden.
       Der Code-Pfad: Irp->UserBuffer (0x70) wird gelesen, OutputBufferLength
-      aus dem IO_STACK_LOCATION (0xb8+0x08) wird als GroBe verwendet.
+      aus dem IO_STACK_LOCATION (0xb8+0x08) wird als Größe verwendet.
       ProbeForWrite(UserBuffer, OutputBufferLength, 2) wird NUR aufgerufen
       wenn das Flag != 0 ist. Danach kopiert FveCopyDataToUserBuffer die Daten.
       
@@ -324,18 +324,18 @@ findings:
     description: |
       Wenn der OutputBuffer zu klein ist (GroBe < 8 oder tatsachliche
       DatengroBe > OutputBufferLength), werden TROTZDEM 8 Bytes in den
-      UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zuruckgegeben wird.
+      UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zurückgegeben wird.
       
       Code: *puVar2 = *(undefined8 *)puVar4;  // Kopiert 8 Bytes
       Danach: return STATUS_BUFFER_TOO_SMALL;
       
-      Die 8 Bytes enthalten den GroBen-Header der FVE-Datenstruktur --
+      Die 8 Bytes enthalten den Größen-Header der FVE-Datenstruktur --
       keine sensitiven Daten wie kryptografische Schlussel. Dieses
-      Muster ist in Windows-Treibern ublich (Caller erfahrt benotigte GroBe),
+      Muster ist in Windows-Treibern ublich (Caller erfahrt benotigte Größe),
       stellt aber technisch eine Informationspreisgabe dar.
     taint_path: "Internal Buffer -> Irp->UserBuffer (8 bytes, always)"
     recommendation: |
-      Nur die benotigte GroBe im IoStatus.Information-Feld zuruckgeben,
+      Nur die benotigte Größe im IoStatus.Information-Feld zurückgeben,
       KEINE Daten in den UserBuffer kopieren wenn der Puffer zu klein ist.
   - id: "FVE-003"
     severity: "INFO"
@@ -349,10 +349,10 @@ findings:
       2. InputBufferLength == erstes uint32 im Input-Buffer (Double-Validation)
       
       Dieses Pattern verhindert: Structure-Size-Mismatch-Angriffe,
-      Buffer-Uberlaufe durch falsche GroBenangaben, NULL-Dereferenzen
+      Buffer-überlaufe durch falsche Größenangaben, NULL-Dereferenzen
       durch zu kleine Puffer.
     taint_path: "IOCTL Input -> InputBufferLength -> Bounds-Check"
-    recommendation: "Vorbildliche Implementierung -- keine Anderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
   - id: "FVE-004"
     severity: "INFO"
     cwe: "N/A"
@@ -365,10 +365,10 @@ findings:
       2. Offset > CopySize -> Fehler  
       3. BufferSize + Offset < TotalNeeded -> Fehler
       
-      Alle drei Checks haben Integer-Uberlauf-Guards. Erst danach wird
+      Alle drei Checks haben Integer-überlauf-Guards. Erst danach wird
       MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgefuhrt.
     taint_path: "Irp->MdlAddress -> MmMapLockedPages -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Anderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
   - id: "FVE-005"
     severity: "INFO"
     cwe: "N/A"
@@ -380,11 +380,11 @@ findings:
       1. ZwQueryValueKey(NULL) -> RequiredSize ermitteln
       2. ExAllocatePool2(RequiredSize) -> Puffer allozieren
       3. ZwQueryValueKey(buffer, RequiredSize) -> Daten lesen
-      4. Vor Kopie in Ausgabepuffer: GroBenvergleich
+      4. Vor Kopie in Ausgabepuffer: Größenvergleich
       
       TOCTOU-sicher durch atomare Allokation zwischen Query-Aufrufen.
     taint_path: "Registry Key -> ZwQueryValueKey -> ExAllocatePool2 -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Anderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
   - id: "FVE-006"
     severity: "INFO"
     cwe: "N/A"
@@ -394,7 +394,7 @@ findings:
     description: |
       Die Import-Liste enthalt KEINE unsicheren String-Funktionen:
       - Kein strcpy, strcat, sprintf, gets
-      - Kein wcscpy, wcscat (nur wcsstr, wcschr fur Suche)
+      - Kein wcscpy, wcscat (nur wcsstr, wcschr für Suche)
       - Kein scanf/sscanf
       - Stattdessen: _snwprintf, _vsnwprintf (safe mit Langenbegrenzung)
       
@@ -423,10 +423,10 @@ taint_graph:
       type: "memmove mit Overlap-Handling"
     - name: "ZwWriteFile"
       address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Sink fur verschlusselte Daten"
+      type: "Disk-I/O Sink für verschlusselte Daten"
     - name: "ZwReadFile"
       address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Source fur verschlusselte Daten"
+      type: "Disk-I/O Source für verschlusselte Daten"
     - name: "BCryptEncrypt"
       address: "EXTERNAL:bcrypt.dll"
       type: "AES-XTS Encryption"
@@ -495,7 +495,7 @@ artifacts:
     md5: ""
   - file: "fvevol_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "Fur flawfinder gesauberte Version (undefined->char, CONCAT->Makro)"
+    description: "Fur flawfinder gesaüberte Version (undefined->char, CONCAT->Makro)"
     md5: ""
   - file: "fvevol_testbench.c"
     type: "recompiled_logic"
@@ -511,7 +511,7 @@ artifacts:
     md5: ""
   - file: "audit_irp_buffers.py"
     type: "ghidra_script"
-    description: "Audit-Skript fur IRP-Handler-Prufung (in Ghidra Script Manager ausfuhrbar)"
+    description: "Audit-Skript für IRP-Handler-Prufung (in Ghidra Script Manager ausfuhrbar)"
     md5: ""
 
 summary:
@@ -530,10 +530,10 @@ summary:
     - Alle IOCTL-Pfade haben mehrstufige Input-Validierung
     - Keine unsicheren String-Funktionen (strcpy/sprintf/wcscpy)
     - Heap-Hardening nicht anwendbar (Kernel-Treiber nutzen PoolAlloc)
-    - BCrypt fur Kryptographie (FIPS-konform)
+    - BCrypt für Kryptographie (FIPS-konform)
     
     Handlungsempfehlung: FVE-001 beheben (ProbeForWrite immer aufrufen).
-    Keine weiteren MaBnahmen erforderlich.
+    Keine weiteren Maßnahmen erforderlich.
   coverage_percent: 7
   analyzed_function_count: 104
   total_function_count: 1558

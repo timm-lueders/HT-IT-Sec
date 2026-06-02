@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # cmd.exe Audit Report
 # Windows Command Prompt
 # Microsoft Windows User-Mode Executable
@@ -81,16 +81,16 @@ import_risk_map:
       risk: "Puffer-Sink, braucht Bounds-Check"
       cwe: "CWE-119"
     - api: "memset"
-      risk: "Puffer-Initialisierung -- sicher bei fester GroBe"
+      risk: "Puffer-Initialisierung -- sicher bei fester Größe"
       cwe: "N/A"
     - api: "GetFullPathNameW"
-      risk: "Pfad-Expansion -- kann Puffer uberlaufen"
+      risk: "Pfad-Expansion -- kann Puffer überlaufen"
       cwe: "CWE-120"
     - api: "SearchPathW"
       risk: "DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking"
       cwe: "CWE-426"
     - api: "HeapAlloc/HeapReAlloc/HeapFree"
-      risk: "Heap-Operationen -- Double-Free/Use-After-Free moglich"
+      risk: "Heap-Operationen -- Double-Free/Use-After-Free möglich"
       cwe: "CWE-415/CWE-416"
     - api: "RtlDosPathNameToNtPathName_U"
       risk: "Pfad-Konvertierung -- braucht validierten Input"
@@ -186,12 +186,12 @@ findings:
     description: |
       Beim Kompilieren der extrahierten Logik mit GCC -fanalyzer
       wurde eine potentielle NULL-Dereferenz im Testcode gefunden:
-      Der Test fur leere Eingabe (L"") rief CmdCopyCommandLine mit
+      Der Test für leere Eingabe (L"") rief CmdCopyCommandLine mit
       einem leeren String auf, der die 0x2000-Bounds-Prufung nicht
-      bestand und NULL zuruckgab. Der nachfolgende buf[0]-Zugriff
-      ware ein NULL-Deref gewesen. Wurde vor Compile gefixt.
+      bestand und NULL zurückgab. Der nachfolgende buf[0]-Zugriff
+      wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
     taint_path: "Testbench: L\"\" -> CmdCopyCommandLine -> NULL -> buf[0]"
-    recommendation: "Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zuruckgibt."
+    recommendation: "Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zurückgibt."
 
 taint_graph:
   sources:
@@ -278,7 +278,7 @@ artifacts:
     md5: ""
   - file: "cmd_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "Fur flawfinder gesauberte Version"
+    description: "Fur flawfinder gesaüberte Version"
     md5: ""
   - file: "cmd_testbench.c"
     type: "recompiled_logic"
@@ -308,8 +308,8 @@ summary:
     - Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
     - Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
     - ExpandEnvironmentStringsW-Pfad wurde nicht vollstandig analysiert
-      -- hier konnte bei sehr groBen Umgebungsvariablen ein Overflow
-      moglich sein. Empfehlung: diesen Pfad bei nachster Analyse
+      -- hier konnte bei sehr Größen Umgebungsvariablen ein Overflow
+      möglich sein. Empfehlung: diesen Pfad bei nächster Analyse
       priorisieren.
   coverage_percent: 5
   analyzed_function_count: 50
