@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # BINARY SECURITY AUDIT TEMPLATE v1.0
 # Alle LLMs schreiben ihre Analyse-Ergebnisse in dieses Format.
 # Eine YAML-Datei pro Binary. Wird von build_site.py zu HTML.
@@ -46,7 +46,7 @@ segments:
 import_risk_map:
   high: []
     # - api: "CreateProcessW"
-    #   risk: "Command Injection bei ungepruftem Input"
+    #   risk: "Command Injection bei ungeprüftem Input"
     #   cwe: "CWE-78"
   medium: []
     # - api: "IoBuildPartialMdl"

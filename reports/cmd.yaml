@@ -97,7 +97,7 @@ import_risk_map:
       cwe: "CWE-120"
   info:
     - api: "_o___stdio_common_vswprintf_s"
-      risk: "Safe Format-String (mit _s-Suffix = Langenbegrenzung)"
+      risk: "Safe Format-String (mit _s-Suffix = Längenbegrenzung)"
       cwe: "N/A"
     - api: "_o___stdio_common_vswprintf"
       risk: "Format-String (ohne _s -- unsicherer, aber nur intern)"
@@ -172,7 +172,7 @@ findings:
     address: "N/A"
     description: |
       cmd.exe importiert _o___stdio_common_vswprintf_s (safe Variante
-      mit Langenbegrenzung) sowie _ultoa_s, wcstoul, wcstol für
+      mit Längenbegrenzung) sowie _ultoa_s, wcstoul, wcstol für
       String-zu-Zahl-Konvertierung. Keine unsicheren Varianten wie
       sprintf, swprintf ohne _s, gets oder scanf gefunden.
     taint_path: "N/A"
@@ -235,7 +235,7 @@ taint_graph:
       to: "memcpy"
       bounded: false
       check_location: "Nicht im analysierten Scope"
-      check_type: "Unbekannt -- weitere Analyse notig"
+      check_type: "Unbekannt -- weitere Analyse nötig"
 
 tools_output:
   flawfinder:
@@ -274,7 +274,7 @@ artifacts:
     md5: "B3C5DF425573C807A2E3B711549CA0B0"
   - file: "cmd_sinks.c"
     type: "decompiler_output"
-    description: "Ghidra-Decompiler-Output: 20 Schlusselfunktionen (14 KB)"
+    description: "Ghidra-Decompiler-Output: 20 Schlüsselfunktionen (14 KB)"
     md5: ""
   - file: "cmd_sinks_clean.c"
     type: "cleaned_decompiler_output"

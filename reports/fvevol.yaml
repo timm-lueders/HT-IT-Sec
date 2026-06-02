@@ -17,7 +17,7 @@ meta:
   analysis_duration_minutes: 45
   ghidra_version: "12.0.4"
   ghidra_mcp_version: "5.10.0"
-  notes: "BitLocker-Verschlusselungstreiber. 15 Memory-Blocks, 1558 Funktionen."
+  notes: "BitLocker-VerSchlüsselungstreiber. 15 Memory-Blocks, 1558 Funktionen."
 
 binary_info:
   architecture: "x64"
@@ -103,10 +103,10 @@ import_risk_map:
       risk: "Pool-Allokation (legacy API statt ExAllocatePool2)"
       cwe: "N/A"
     - api: "_vsnwprintf"
-      risk: "Format-String (safe Variante mit Langenbegrenzung)"
+      risk: "Format-String (safe Variante mit Längenbegrenzung)"
       cwe: "CWE-134"
     - api: "_snwprintf"
-      risk: "Format-String (safe Variante mit Langenbegrenzung)"
+      risk: "Format-String (safe Variante mit Längenbegrenzung)"
       cwe: "CWE-134"
     - api: "RtlCopyUnicodeString"
       risk: "String-Kopie -- braucht validierten Zielpuffer"
@@ -122,10 +122,10 @@ import_risk_map:
       risk: "Crypto -- kein User-Buffer direkt, interner Pfad"
       cwe: "N/A"
     - api: "ZwWriteFile"
-      risk: "Disk-I/O Sink für verschlusselte Daten"
+      risk: "Disk-I/O Sink für verSchlüsselte Daten"
       cwe: "N/A"
     - api: "ZwReadFile"
-      risk: "Disk-I/O Source für verschlusselte Daten"
+      risk: "Disk-I/O Source für verSchlüsselte Daten"
       cwe: "N/A"
     - api: "ZwDeviceIoControlFile"
       risk: "Weitergeleitete IOCTLs an lower device"
@@ -305,14 +305,14 @@ findings:
       wenn das Flag != 0 ist. Danach kopiert FveCopyDataToUserBuffer die Daten.
       
       Der interne Bounds-Check in FveCopyDataToUserBuffer (0x14000434c)
-      pruft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
-      und verhindert so einen Overflow. Ein invalider Pointer fuhrt zum
+      prüft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
+      und verhindert so einen Overflow. Ein invalider Pointer führt zum
       sofortigen Bluescreen (DoS), nicht zur Code Execution.
       
       Betroffene Adressen: 0x1400b9b68 (Funktion), 0x1400b9d06 (ProbeForWrite-Call)
     taint_path: "IOCTL Input -> Irp->UserBuffer -> FveSafeMemcpy"
     recommendation: |
-      ProbeForWrite unabhangig vom Flag immer vor UserBuffer-Zugriff
+      ProbeForWrite unabhängig vom Flag immer vor UserBuffer-Zugriff
       aufrufen. Alternativ: Parameter als METHOD_BUFFERED deklarieren,
       dann validiert der I/O-Manager den Puffer automatisch.
   - id: "FVE-002"
@@ -322,20 +322,20 @@ findings:
     function: "FvevolQueryVolumeInfo"
     address: "0x1400b9b68"
     description: |
-      Wenn der OutputBuffer zu klein ist (GroBe < 8 oder tatsachliche
-      DatengroBe > OutputBufferLength), werden TROTZDEM 8 Bytes in den
+      Wenn der OutputBuffer zu klein ist (Größe < 8 oder tatsachliche
+      DatenGröße > OutputBufferLength), werden TROTZDEM 8 Bytes in den
       UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zurückgegeben wird.
       
       Code: *puVar2 = *(undefined8 *)puVar4;  // Kopiert 8 Bytes
       Danach: return STATUS_BUFFER_TOO_SMALL;
       
       Die 8 Bytes enthalten den Größen-Header der FVE-Datenstruktur --
-      keine sensitiven Daten wie kryptografische Schlussel. Dieses
-      Muster ist in Windows-Treibern ublich (Caller erfahrt benotigte Größe),
+      keine sensitiven Daten wie kryptografische Schlüssel. Dieses
+      Muster ist in Windows-Treibern ublich (Caller erfahrt benötigte Größe),
       stellt aber technisch eine Informationspreisgabe dar.
     taint_path: "Internal Buffer -> Irp->UserBuffer (8 bytes, always)"
     recommendation: |
-      Nur die benotigte Größe im IoStatus.Information-Feld zurückgeben,
+      Nur die benötigte Größe im IoStatus.Information-Feld zurückgeben,
       KEINE Daten in den UserBuffer kopieren wenn der Puffer zu klein ist.
   - id: "FVE-003"
     severity: "INFO"
@@ -352,7 +352,7 @@ findings:
       Buffer-überlaufe durch falsche Größenangaben, NULL-Dereferenzen
       durch zu kleine Puffer.
     taint_path: "IOCTL Input -> InputBufferLength -> Bounds-Check"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
   - id: "FVE-004"
     severity: "INFO"
     cwe: "N/A"
@@ -360,15 +360,15 @@ findings:
     function: "FvevolIoWorkItemCallback"
     address: "0x14005c3a0"
     description: |
-      Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgefuhrt:
+      Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgeführt:
       1. BufferSize < CopySize -> Fehler
       2. Offset > CopySize -> Fehler  
       3. BufferSize + Offset < TotalNeeded -> Fehler
       
       Alle drei Checks haben Integer-überlauf-Guards. Erst danach wird
-      MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgefuhrt.
+      MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgeführt.
     taint_path: "Irp->MdlAddress -> MmMapLockedPages -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
   - id: "FVE-005"
     severity: "INFO"
     cwe: "N/A"
@@ -384,7 +384,7 @@ findings:
       
       TOCTOU-sicher durch atomare Allokation zwischen Query-Aufrufen.
     taint_path: "Registry Key -> ZwQueryValueKey -> ExAllocatePool2 -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung notig."
+    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
   - id: "FVE-006"
     severity: "INFO"
     cwe: "N/A"
@@ -396,7 +396,7 @@ findings:
       - Kein strcpy, strcat, sprintf, gets
       - Kein wcscpy, wcscat (nur wcsstr, wcschr für Suche)
       - Kein scanf/sscanf
-      - Stattdessen: _snwprintf, _vsnwprintf (safe mit Langenbegrenzung)
+      - Stattdessen: _snwprintf, _vsnwprintf (safe mit Längenbegrenzung)
       
       Dies eliminiert die gesamte Klasse der klassischen Buffer-Overflows
       durch String-Operationen.
@@ -423,10 +423,10 @@ taint_graph:
       type: "memmove mit Overlap-Handling"
     - name: "ZwWriteFile"
       address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Sink für verschlusselte Daten"
+      type: "Disk-I/O Sink für verSchlüsselte Daten"
     - name: "ZwReadFile"
       address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Source für verschlusselte Daten"
+      type: "Disk-I/O Source für verSchlüsselte Daten"
     - name: "BCryptEncrypt"
       address: "EXTERNAL:bcrypt.dll"
       type: "AES-XTS Encryption"
@@ -491,7 +491,7 @@ artifacts:
     md5: "695CA1FE51370FB940AD9EB145D5B3BC"
   - file: "fvevol_sinks.c"
     type: "decompiler_output"
-    description: "Ghidra-Decompiler-Output: 33 Schlusselfunktionen (117 KB)"
+    description: "Ghidra-Decompiler-Output: 33 Schlüsselfunktionen (117 KB)"
     md5: ""
   - file: "fvevol_sinks_clean.c"
     type: "cleaned_decompiler_output"
@@ -511,7 +511,7 @@ artifacts:
     md5: ""
   - file: "audit_irp_buffers.py"
     type: "ghidra_script"
-    description: "Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausfuhrbar)"
+    description: "Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausführbar)"
     md5: ""
 
 summary:

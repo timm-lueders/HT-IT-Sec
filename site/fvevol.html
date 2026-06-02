@@ -151,10 +151,10 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">0x1400d1010 -> 0x1400d1700 (FvevolDriverEntry)</span></div>
-    <div><b>GroBe:</b> 968,176 bytes</div>
+    <div><b>Größe:</b> 968,176 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">93C4BD73092F7147C446FED5DEBACDDB</span></div>
     <div><b>Funktionen:</b> 1558</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">High-Entropy-ASLR für Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei MDL-Manipulation</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ProbeForWrite</td><td>Buffer Probing -- nur bedingt aufgerufen (siehe FVE-001)</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping -- braucht Bounds-Check vor memcpy</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmProbeAndLockPages</td><td>MDL-Locking -- korrekte Page-Count-Validierung erforderlich</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmMapLockedPagesWithReservedMapping</td><td>MDL-Mapping mit Reserved-Mapping</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExAllocatePoolWithTag</td><td>Pool-Allokation (legacy API statt ExAllocatePool2)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _vsnwprintf</td><td>Format-String (safe Variante mit Langenbegrenzung)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _snwprintf</td><td>Format-String (safe Variante mit Langenbegrenzung)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlCopyUnicodeString</td><td>String-Kopie -- braucht validierten Zielpuffer</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> IoAllocateMdl</td><td>MDL-Allokation -- muss mit IoFreeMdl gepaart sein</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> BCryptEncrypt</td><td>Crypto -- kein User-Buffer direkt, interner Pfad</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> BCryptDecrypt</td><td>Crypto -- kein User-Buffer direkt, interner Pfad</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwWriteFile</td><td>Disk-I/O Sink für verschlusselte Daten</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwReadFile</td><td>Disk-I/O Source für verschlusselte Daten</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwDeviceIoControlFile</td><td>Weitergeleitete IOCTLs an lower device</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwFsControlFile</td><td>File-System-Control an lower device</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ExAllocatePool2</td><td>Pool-Allokation (moderne API, safe)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> EtwWrite</td><td>ETW-Tracing -- kein Sicherheitsrisiko</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> KeBugCheckEx</td><td>Bluescreen bei kritischen Fehlern -- korrekt</td><td>N/A</td></tr></table></div><div class="card"><h3>IRP Handler Audit</h3><table><tr><th>IRP Code</th><th>Adresse</th><th>Funktion</th><th>Buffer-Typ</th><th>Risiko</th></tr><tr><td>IRP_MJ_CREATE (0x00)</td><td style='font-family:monospace'>0x1400b88f0</td><td>FvevolCreate</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_CLOSE (0x02)</td><td style='font-family:monospace'>0x1400b86d0</td><td>FvevolClose</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_READ (0x03)</td><td style='font-family:monospace'>0x14001f1a0</td><td>FvevolRead</td><td>MDL (MmMapLockedPagesSpecifyCache)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_WRITE (0x04)</td><td style='font-family:monospace'>0x14001ee90</td><td>FvevolWrite</td><td>MDL (MmMapLockedPagesSpecifyCache)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_DEVICE_CONTROL (0x0E)</td><td style='font-family:monospace'>0x1400b87e0</td><td>FvevolDeviceControl</td><td>IO_STACK_LOCATION (METHOD_BUFFERED)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_PNP (0x12)</td><td style='font-family:monospace'>0x1400290a0</td><td>FvevolPnp</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_POWER (0x16)</td><td style='font-family:monospace'>0x140024120</td><td>FvevolPower</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_SYSTEM_CONTROL (0x17)</td><td style='font-family:monospace'>0x1400c4760</td><td>FvevolSystemControl</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_SHUTDOWN (0x10)</td><td style='font-family:monospace'>0x1400a12d0</td><td>FvevolShutdown</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_CLEANUP (0x01)</td><td style='font-family:monospace'>0x1400a1a20</td><td>FvevolCleanup</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">High-Entropy-ASLR für Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei MDL-Manipulation</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ProbeForWrite</td><td>Buffer Probing -- nur bedingt aufgerufen (siehe FVE-001)</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping -- braucht Bounds-Check vor memcpy</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmProbeAndLockPages</td><td>MDL-Locking -- korrekte Page-Count-Validierung erforderlich</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> MmMapLockedPagesWithReservedMapping</td><td>MDL-Mapping mit Reserved-Mapping</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExAllocatePoolWithTag</td><td>Pool-Allokation (legacy API statt ExAllocatePool2)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _vsnwprintf</td><td>Format-String (safe Variante mit Längenbegrenzung)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _snwprintf</td><td>Format-String (safe Variante mit Längenbegrenzung)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlCopyUnicodeString</td><td>String-Kopie -- braucht validierten Zielpuffer</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> IoAllocateMdl</td><td>MDL-Allokation -- muss mit IoFreeMdl gepaart sein</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> BCryptEncrypt</td><td>Crypto -- kein User-Buffer direkt, interner Pfad</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> BCryptDecrypt</td><td>Crypto -- kein User-Buffer direkt, interner Pfad</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwWriteFile</td><td>Disk-I/O Sink für verSchlüsselte Daten</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwReadFile</td><td>Disk-I/O Source für verSchlüsselte Daten</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwDeviceIoControlFile</td><td>Weitergeleitete IOCTLs an lower device</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ZwFsControlFile</td><td>File-System-Control an lower device</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ExAllocatePool2</td><td>Pool-Allokation (moderne API, safe)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> EtwWrite</td><td>ETW-Tracing -- kein Sicherheitsrisiko</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> KeBugCheckEx</td><td>Bluescreen bei kritischen Fehlern -- korrekt</td><td>N/A</td></tr></table></div><div class="card"><h3>IRP Handler Audit</h3><table><tr><th>IRP Code</th><th>Adresse</th><th>Funktion</th><th>Buffer-Typ</th><th>Risiko</th></tr><tr><td>IRP_MJ_CREATE (0x00)</td><td style='font-family:monospace'>0x1400b88f0</td><td>FvevolCreate</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_CLOSE (0x02)</td><td style='font-family:monospace'>0x1400b86d0</td><td>FvevolClose</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_READ (0x03)</td><td style='font-family:monospace'>0x14001f1a0</td><td>FvevolRead</td><td>MDL (MmMapLockedPagesSpecifyCache)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_WRITE (0x04)</td><td style='font-family:monospace'>0x14001ee90</td><td>FvevolWrite</td><td>MDL (MmMapLockedPagesSpecifyCache)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_DEVICE_CONTROL (0x0E)</td><td style='font-family:monospace'>0x1400b87e0</td><td>FvevolDeviceControl</td><td>IO_STACK_LOCATION (METHOD_BUFFERED)</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_PNP (0x12)</td><td style='font-family:monospace'>0x1400290a0</td><td>FvevolPnp</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_POWER (0x16)</td><td style='font-family:monospace'>0x140024120</td><td>FvevolPower</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_SYSTEM_CONTROL (0x17)</td><td style='font-family:monospace'>0x1400c4760</td><td>FvevolSystemControl</td><td>SystemBuffer</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_SHUTDOWN (0x10)</td><td style='font-family:monospace'>0x1400a12d0</td><td>FvevolShutdown</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr><tr><td>IRP_MJ_CLEANUP (0x01)</td><td style='font-family:monospace'>0x1400a1a20</td><td>FvevolCleanup</td><td>N/A</td><td><span class="badge sev-OK">OK</span></td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
     <div class="grid2">
     <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>Irp->UserBuffer</td><td>IOCTL METHOD_NEITHER (offset 0x70 im IRP)</td></tr><tr><td>Source</td><td>Irp->AssociatedIrp.SystemBuffer</td><td>IOCTL METHOD_BUFFERED (via IO_STACK_LOCATION)</td></tr><tr><td>Source</td><td>Irp->MdlAddress</td><td>Read/Write DIRECT_IO (via MmMapLockedPages)</td></tr><tr><td>Source</td><td>IO_STACK_LOCATION->Parameters</td><td>IOCTL Control Codes + Buffer Lengths</td></tr></table></div>
     <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>FveSafeMemcpy (memmove)</td><td>0x14001a9c0</td></tr><tr><td>Sink</td><td>ZwWriteFile</td><td>EXTERNAL:ntoskrnl.exe</td></tr><tr><td>Sink</td><td>ZwReadFile</td><td>EXTERNAL:ntoskrnl.exe</td></tr><tr><td>Sink</td><td>BCryptEncrypt</td><td>EXTERNAL:bcrypt.dll</td></tr><tr><td>Sink</td><td>BCryptDecrypt</td><td>EXTERNAL:bcrypt.dll</td></tr></table></div>
@@ -181,34 +181,34 @@ ProbeForWrite(UserBuffer, OutputBufferLength, 2) wird NUR aufgerufen
 wenn das Flag != 0 ist. Danach kopiert FveCopyDataToUserBuffer die Daten.
 
 Der interne Bounds-Check in FveCopyDataToUserBuffer (0x14000434c)
-pruft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
-und verhindert so einen Overflow. Ein invalider Pointer fuhrt zum
+prüft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
+und verhindert so einen Overflow. Ein invalider Pointer führt zum
 sofortigen Bluescreen (DoS), nicht zur Code Execution.
 
 Betroffene Adressen: 0x1400b9b68 (Funktion), 0x1400b9d06 (ProbeForWrite-Call)
 </p>
         <div class="finding-info">Funktion: FvevolQueryVolumeInfo @ 0x1400b9b68<br>
         Taint-Path: IOCTL Input -> Irp->UserBuffer -> FveSafeMemcpy<br>
-        Empfehlung: ProbeForWrite unabhangig vom Flag immer vor UserBuffer-Zugriff
+        Empfehlung: ProbeForWrite unabhängig vom Flag immer vor UserBuffer-Zugriff
 aufrufen. Alternativ: Parameter als METHOD_BUFFERED deklarieren,
 dann validiert der I/O-Manager den Puffer automatisch.
 </div></div><div class="finding finding-LOW">
         <span class="badge sev-LOW">LOW</span> <b>CWE-200: 8-Byte Information Disclosure bei zu kleinem Ausgabepuffer</b>
-        <p style="margin-top:6px;font-size:0.9rem">Wenn der OutputBuffer zu klein ist (GroBe < 8 oder tatsachliche
-DatengroBe > OutputBufferLength), werden TROTZDEM 8 Bytes in den
+        <p style="margin-top:6px;font-size:0.9rem">Wenn der OutputBuffer zu klein ist (Größe < 8 oder tatsachliche
+DatenGröße > OutputBufferLength), werden TROTZDEM 8 Bytes in den
 UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zurückgegeben wird.
 
 Code: *puVar2 = *(undefined8 *)puVar4;  // Kopiert 8 Bytes
 Danach: return STATUS_BUFFER_TOO_SMALL;
 
 Die 8 Bytes enthalten den Größen-Header der FVE-Datenstruktur --
-keine sensitiven Daten wie kryptografische Schlussel. Dieses
-Muster ist in Windows-Treibern ublich (Caller erfahrt benotigte Größe),
+keine sensitiven Daten wie kryptografische Schlüssel. Dieses
+Muster ist in Windows-Treibern ublich (Caller erfahrt benötigte Größe),
 stellt aber technisch eine Informationspreisgabe dar.
 </p>
         <div class="finding-info">Funktion: FvevolQueryVolumeInfo @ 0x1400b9b68<br>
         Taint-Path: Internal Buffer -> Irp->UserBuffer (8 bytes, always)<br>
-        Empfehlung: Nur die benotigte Größe im IoStatus.Information-Feld zurückgeben,
+        Empfehlung: Nur die benötigte Größe im IoStatus.Information-Feld zurückgeben,
 KEINE Daten in den UserBuffer kopieren wenn der Puffer zu klein ist.
 </div></div><div class="finding finding-INFO">
         <span class="badge sev-INFO">INFO</span> <b>N/A: Sichere IOCTL-Eingabevalidierung</b>
@@ -222,19 +222,19 @@ durch zu kleine Puffer.
 </p>
         <div class="finding-info">Funktion: FvevolIoHandler @ 0x1400ba64c<br>
         Taint-Path: IOCTL Input -> InputBufferLength -> Bounds-Check<br>
-        Empfehlung: Vorbildliche Implementierung -- keine Änderung notig.</div></div><div class="finding finding-INFO">
+        Empfehlung: Vorbildliche Implementierung -- keine Änderung nötig.</div></div><div class="finding finding-INFO">
         <span class="badge sev-INFO">INFO</span> <b>N/A: Dreifacher Bounds-Check im MDL-I/O-Pfad</b>
-        <p style="margin-top:6px;font-size:0.9rem">Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgefuhrt:
+        <p style="margin-top:6px;font-size:0.9rem">Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgeführt:
 1. BufferSize < CopySize -> Fehler
 2. Offset > CopySize -> Fehler  
 3. BufferSize + Offset < TotalNeeded -> Fehler
 
 Alle drei Checks haben Integer-überlauf-Guards. Erst danach wird
-MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgefuhrt.
+MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgeführt.
 </p>
         <div class="finding-info">Funktion: FvevolIoWorkItemCallback @ 0x14005c3a0<br>
         Taint-Path: Irp->MdlAddress -> MmMapLockedPages -> memcpy<br>
-        Empfehlung: Vorbildliche Implementierung -- keine Änderung notig.</div></div><div class="finding finding-INFO">
+        Empfehlung: Vorbildliche Implementierung -- keine Änderung nötig.</div></div><div class="finding finding-INFO">
         <span class="badge sev-INFO">INFO</span> <b>N/A: Registry-Zugriff mit Double-Query-Pattern</b>
         <p style="margin-top:6px;font-size:0.9rem">Registry-Werte werden mit dem sicheren Double-Query-Pattern gelesen:
 1. ZwQueryValueKey(NULL) -> RequiredSize ermitteln
@@ -246,20 +246,20 @@ TOCTOU-sicher durch atomare Allokation zwischen Query-Aufrufen.
 </p>
         <div class="finding-info">Funktion: FvevolReadRegistryValue @ 0x1400cacb4<br>
         Taint-Path: Registry Key -> ZwQueryValueKey -> ExAllocatePool2 -> memcpy<br>
-        Empfehlung: Vorbildliche Implementierung -- keine Änderung notig.</div></div><div class="finding finding-INFO">
+        Empfehlung: Vorbildliche Implementierung -- keine Änderung nötig.</div></div><div class="finding finding-INFO">
         <span class="badge sev-INFO">INFO</span> <b>N/A: Keine gefahrlichen String-Funktionen verwendet</b>
         <p style="margin-top:6px;font-size:0.9rem">Die Import-Liste enthalt KEINE unsicheren String-Funktionen:
 - Kein strcpy, strcat, sprintf, gets
 - Kein wcscpy, wcscat (nur wcsstr, wcschr für Suche)
 - Kein scanf/sscanf
-- Stattdessen: _snwprintf, _vsnwprintf (safe mit Langenbegrenzung)
+- Stattdessen: _snwprintf, _vsnwprintf (safe mit Längenbegrenzung)
 
 Dies eliminiert die gesamte Klasse der klassischen Buffer-Overflows
 durch String-Operationen.
 </p>
         <div class="finding-info">Funktion: Global @ N/A<br>
         Taint-Path: N/A<br>
-        Empfehlung: Vorbildliche API-Auswahl.</div></div></div><div class="card"><h3>Artefakte</h3><table><tr><th>Datei</th><th>Typ</th><th>Beschreibung</th></tr><tr><td style='font-family:monospace'>fvevol_audited.sys</td><td>patched_binary</td><td style='color:#888'>Name fvevol->fveaud, Audit-Marker [AUDITED: 2026-06-02 by opencode pipeline] in .data</td></tr><tr><td style='font-family:monospace'>fvevol_noprobed.sys</td><td>patched_binary</td><td style='color:#888'>ProbeForWrite-Call (FF 15 ...) in FvevolQueryVolumeInfo bei 0xB9D06 durch 6x NOP (0x90) ersetzt -- Test-Variante ohne Buffer-Validierung</td></tr><tr><td style='font-family:monospace'>fvevol_sinks.c</td><td>decompiler_output</td><td style='color:#888'>Ghidra-Decompiler-Output: 33 Schlusselfunktionen (117 KB)</td></tr><tr><td style='font-family:monospace'>fvevol_sinks_clean.c</td><td>cleaned_decompiler_output</td><td style='color:#888'>für flawfinder gesäuberte Version (undefined->char, CONCAT->Makro)</td></tr><tr><td style='font-family:monospace'>fvevol_testbench.c</td><td>recompiled_logic</td><td style='color:#888'>Extrahierte Logik in valides C: FveCopyDataToUserBuffer, FvevolQueryVolumeInfo, FvevolIoHandler, FveSafeMemcpy</td></tr><tr><td style='font-family:monospace'>fvevol_testbench.exe</td><td>compiled_testbench</td><td style='color:#888'>GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 21/21 Tests bestanden</td></tr><tr><td style='font-family:monospace'>cwe_report.json</td><td>cwe_checker_output</td><td style='color:#888'>969 Findings (470 KB JSON)</td></tr><tr><td style='font-family:monospace'>audit_irp_buffers.py</td><td>ghidra_script</td><td style='color:#888'>Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausfuhrbar)</td></tr></table></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Empfehlung: Vorbildliche API-Auswahl.</div></div></div><div class="card"><h3>Artefakte</h3><table><tr><th>Datei</th><th>Typ</th><th>Beschreibung</th></tr><tr><td style='font-family:monospace'>fvevol_audited.sys</td><td>patched_binary</td><td style='color:#888'>Name fvevol->fveaud, Audit-Marker [AUDITED: 2026-06-02 by opencode pipeline] in .data</td></tr><tr><td style='font-family:monospace'>fvevol_noprobed.sys</td><td>patched_binary</td><td style='color:#888'>ProbeForWrite-Call (FF 15 ...) in FvevolQueryVolumeInfo bei 0xB9D06 durch 6x NOP (0x90) ersetzt -- Test-Variante ohne Buffer-Validierung</td></tr><tr><td style='font-family:monospace'>fvevol_sinks.c</td><td>decompiler_output</td><td style='color:#888'>Ghidra-Decompiler-Output: 33 Schlüsselfunktionen (117 KB)</td></tr><tr><td style='font-family:monospace'>fvevol_sinks_clean.c</td><td>cleaned_decompiler_output</td><td style='color:#888'>für flawfinder gesäuberte Version (undefined->char, CONCAT->Makro)</td></tr><tr><td style='font-family:monospace'>fvevol_testbench.c</td><td>recompiled_logic</td><td style='color:#888'>Extrahierte Logik in valides C: FveCopyDataToUserBuffer, FvevolQueryVolumeInfo, FvevolIoHandler, FveSafeMemcpy</td></tr><tr><td style='font-family:monospace'>fvevol_testbench.exe</td><td>compiled_testbench</td><td style='color:#888'>GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 21/21 Tests bestanden</td></tr><tr><td style='font-family:monospace'>cwe_report.json</td><td>cwe_checker_output</td><td style='color:#888'>969 Findings (470 KB JSON)</td></tr><tr><td style='font-family:monospace'>audit_irp_buffers.py</td><td>ghidra_script</td><td style='color:#888'>Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausführbar)</td></tr></table></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
@@ -291,5 +291,5 @@ Handlungsempfehlung: FVE-001 beheben (ProbeForWrite immer aufrufen).
 Keine weiteren Maßnahmen erforderlich.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:57 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:59 -- <span class="cursor"></span></footer>
 </body></html>

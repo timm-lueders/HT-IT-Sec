@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 build_site.py -- YAML Reports zu Terminal-Style HTML-Website
 Holy-Grail-Layout, Grun-auf-Schwarz, Flicker-Effekt, Blink-Cursor
@@ -311,7 +311,7 @@ def build_detail(report):
     <div><b>Typ:</b> {m.get('binary_type','?')}</div>
     <div><b>Arch:</b> {bi.get('architecture','?')}</div>
     <div><b>Entry:</b> <span style="font-family:monospace">{bi.get('entry_point','?')}</span></div>
-    <div><b>GroBe:</b> {m.get('file_size_bytes',0):,} bytes</div>
+    <div><b>Größe:</b> {m.get('file_size_bytes',0):,} bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">{m.get('md5','?')}</span></div>
     <div><b>Funktionen:</b> {bi.get('function_count',0)}</div>
     </div></div>"""
