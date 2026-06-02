@@ -161,9 +161,9 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
-    GetCommandLineW["GetCommandLineW()"] -->|"BOUNDED"| CreateProcessW["CreateProcessW()"]
-    ReadConsoleW["ReadConsoleW()"] -->|"BOUNDED"| CreateProcessW["CreateProcessW()"]
-    ExpandEnvironmentStringsW["ExpandEnvironmentStringsW()"] -->|"UNCHECKED"| memcpy["memcpy"]
+    GetCommandLineW__["GetCommandLineW()"] -->|"BOUNDED"| CreateProcessW__["CreateProcessW()"]
+    ReadConsoleW__["ReadConsoleW()"] -->|"BOUNDED"| CreateProcessW__["CreateProcessW()"]
+    ExpandEnvironmentStringsW__["ExpandEnvironmentStringsW()"] -->|"UNCHECKED"| memcpy["memcpy"]
 </div>
     <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>BOUNDED</td><td>GetCommandLineW()</td><td>CreateProcessW()</td><td>0x1400249b0 (CmdCopyCommandLine)</td></tr><tr><td>BOUNDED</td><td>ReadConsoleW()</td><td>CreateProcessW()</td><td>0x140033a6c (main Command-Loop)</td></tr><tr><td>UNCHECKED</td><td>ExpandEnvironmentStringsW()</td><td>memcpy</td><td>Nicht im analysierten Scope</td></tr></table>
     </div><div class="card"><h3>Automatisierte Tools</h3>
@@ -241,5 +241,5 @@ ware ein NULL-Deref gewesen. Wurde vor Compile gefixt.
   priorisieren.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:15 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:23 -- <span class="cursor"></span></footer>
 </body></html>

@@ -278,8 +278,12 @@ def taint_section(d):
     # Build Mermaid graph from edges
     mm_edges = []
     for e in tg.get("edges", []):
-        src_id = e.get('from','?').replace(' ','_').replace('(','').replace(')','').replace('.','_')[:30]
-        snk_id = e.get('to','?').replace(' ','_').replace('(','').replace(')','').replace('.','_')[:30]
+        def clean_id(s):
+            for ch in ['>','<','-','.',' ','(',')',':','\\','/']:
+                s = s.replace(ch, '_')
+            return s[:30]
+        src_id = clean_id(e.get('from','?'))
+        snk_id = clean_id(e.get('to','?'))
         label = "BOUNDED" if e.get('bounded') else "UNCHECKED"
         mm_edges.append(f"    {src_id}[\"{e.get('from','?')[:40]}\"] -->|\"{label}\"| {snk_id}[\"{e.get('to','?')[:40]}\"]")
     

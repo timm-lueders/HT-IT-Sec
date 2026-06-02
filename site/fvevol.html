@@ -161,9 +161,9 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
-    Irp->UserBuffer["Irp->UserBuffer"] -->|"BOUNDED"| FveSafeMemcpy_memmove["FveSafeMemcpy (memmove)"]
-    Irp->MdlAddress["Irp->MdlAddress"] -->|"BOUNDED"| FveSafeMemcpy_memmove["FveSafeMemcpy (memmove)"]
-    IO_STACK_LOCATION->Parameters["IO_STACK_LOCATION->Parameters"] -->|"BOUNDED"| FveSafeMemcpy_memmove["FveSafeMemcpy (memmove)"]
+    Irp__UserBuffer["Irp->UserBuffer"] -->|"BOUNDED"| FveSafeMemcpy__memmove_["FveSafeMemcpy (memmove)"]
+    Irp__MdlAddress["Irp->MdlAddress"] -->|"BOUNDED"| FveSafeMemcpy__memmove_["FveSafeMemcpy (memmove)"]
+    IO_STACK_LOCATION__Parameters["IO_STACK_LOCATION->Parameters"] -->|"BOUNDED"| FveSafeMemcpy__memmove_["FveSafeMemcpy (memmove)"]
 </div>
     <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>BOUNDED</td><td>Irp->UserBuffer</td><td>FveSafeMemcpy (memmove)</td><td>0x14000434c (FveCopyDataToUserBuffer)</td></tr><tr><td>BOUNDED</td><td>Irp->MdlAddress</td><td>FveSafeMemcpy (memmove)</td><td>0x14005c3a0 (FvevolIoWorkItemCallback)</td></tr><tr><td>BOUNDED</td><td>IO_STACK_LOCATION->Parameters</td><td>FveSafeMemcpy (memmove)</td><td>0x1400ba64c (FvevolIoHandler)</td></tr></table>
     </div><div class="card"><h3>Automatisierte Tools</h3>
@@ -291,5 +291,5 @@ Handlungsempfehlung: FVE-001 beheben (ProbeForWrite immer aufrufen).
 Keine weiteren MaBnahmen erforderlich.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:15 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-02 23:23 -- <span class="cursor"></span></footer>
 </body></html>
