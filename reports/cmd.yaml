@@ -68,13 +68,13 @@ import_risk_map:
       risk: "Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion"
       cwe: "CWE-120"
     - api: "CreateProcessW"
-      risk: "Prozess-Erstellung -- Command Injection bei ungepruftem Input"
+      risk: "Prozess-Erstellung -- Command Injection bei ungeprüftem Input"
       cwe: "CWE-78"
     - api: "CreateProcessAsUserW"
       risk: "Prozess-Erstellung mit User-Kontext -- same risk"
       cwe: "CWE-78"
     - api: "ShellExecuteWorker"
-      risk: "Shell-Ausfuhrung -- hochstes Risiko bei User-Input"
+      risk: "Shell-Ausführung -- hochstes Risiko bei User-Input"
       cwe: "CWE-78"
   low:
     - api: "memmove"
@@ -133,7 +133,7 @@ analyzed_functions:
     role: "Command-Executor mit Dispatch-Tabelle"
   - name: "CmdExpandAndRun"
     address: "0x14000a298"
-    role: "Environment-Variable-Expansion + Ausfuhrung"
+    role: "Environment-Variable-Expansion + Ausführung"
 
 findings:
   - id: "CMD-001"
@@ -172,7 +172,7 @@ findings:
     address: "N/A"
     description: |
       cmd.exe importiert _o___stdio_common_vswprintf_s (safe Variante
-      mit Langenbegrenzung) sowie _ultoa_s, wcstoul, wcstol fur
+      mit Langenbegrenzung) sowie _ultoa_s, wcstoul, wcstol für
       String-zu-Zahl-Konvertierung. Keine unsicheren Varianten wie
       sprintf, swprintf ohne _s, gets oder scanf gefunden.
     taint_path: "N/A"
@@ -180,14 +180,14 @@ findings:
   - id: "CMD-004"
     severity: "INFO"
     cwe: "N/A"
-    title: "GCC -fanalyzer fand NULL-Deref im Testcode (vor Ausfuhrung gefixt)"
+    title: "GCC -fanalyzer fand NULL-Deref im Testcode (vor Ausführung gefixt)"
     function: "CmdCopyCommandLine (Testbench)"
     address: "N/A"
     description: |
       Beim Kompilieren der extrahierten Logik mit GCC -fanalyzer
       wurde eine potentielle NULL-Dereferenz im Testcode gefunden:
       Der Test für leere Eingabe (L"") rief CmdCopyCommandLine mit
-      einem leeren String auf, der die 0x2000-Bounds-Prufung nicht
+      einem leeren String auf, der die 0x2000-Bounds-Prüfung nicht
       bestand und NULL zurückgab. Der nachfolgende buf[0]-Zugriff
       wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
     taint_path: "Testbench: L\"\" -> CmdCopyCommandLine -> NULL -> buf[0]"
@@ -230,7 +230,7 @@ taint_graph:
       to: "CreateProcessW()"
       bounded: true
       check_location: "0x140033a6c (main Command-Loop)"
-      check_type: "Console-Mode-Validierung vor Ausfuhrung"
+      check_type: "Console-Mode-Validierung vor Ausführung"
     - from: "ExpandEnvironmentStringsW()"
       to: "memcpy"
       bounded: false
@@ -265,7 +265,7 @@ tools_output:
     tests_passed: 14
     tests_failed: 0
     flags_used: "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror -Wformat=2 -Wnull-dereference -fanalyzer -O2"
-    notes: "GCC 13.2.0 -fanalyzer fand NULL-Deref im Testcode (vor Ausfuhrung gefixt). Alle 14 Tests bestanden. 0 Compiler-Warnungen."
+    notes: "GCC 13.2.0 -fanalyzer fand NULL-Deref im Testcode (vor Ausführung gefixt). Alle 14 Tests bestanden. 0 Compiler-Warnungen."
 
 artifacts:
   - file: "cmd_audited.exe"
@@ -278,7 +278,7 @@ artifacts:
     md5: ""
   - file: "cmd_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "Fur flawfinder gesaüberte Version"
+    description: "für flawfinder gesaüberte Version"
     md5: ""
   - file: "cmd_testbench.c"
     type: "recompiled_logic"
@@ -307,8 +307,8 @@ summary:
     - HeapEnableTerminationOnCorruption verhindert Heap-Exploits
     - Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
     - Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
-    - ExpandEnvironmentStringsW-Pfad wurde nicht vollstandig analysiert
-      -- hier konnte bei sehr Größen Umgebungsvariablen ein Overflow
+    - ExpandEnvironmentStringsW-Pfad wurde nicht vollständig analysiert
+      -- hier könnte bei sehr Größen Umgebungsvariablen ein Overflow
       möglich sein. Empfehlung: diesen Pfad bei nächster Analyse
       priorisieren.
   coverage_percent: 5

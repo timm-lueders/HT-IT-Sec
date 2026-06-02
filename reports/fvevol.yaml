@@ -254,7 +254,7 @@ analyzed_functions:
     role: "memmove-Implementierung mit Overlap-Handling"
   - name: "FveCopyDataToUserBuffer"
     address: "0x14000434c"
-    role: "Bounds-geprufte Kopie in UserBuffer"
+    role: "Bounds-geprüfte Kopie in UserBuffer"
   - name: "FveValidateBufferHeader"
     address: "0x140004e00"
     role: "Validierung: Puffer-Header enthalt korrekte Größen-Info"
@@ -478,7 +478,7 @@ tools_output:
     tests_passed: 21
     tests_failed: 0
     flags_used: "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror -Wformat=2 -Wnull-dereference -fanalyzer -O2"
-    notes: "GCC 13.2.0 -fanalyzer fand keine Bugs in der extrahierten Logik. Alle 21 Tests bestanden (Normal-Pfad, Overflow-Pfad, NULL-Input, Truncation). Der -fanalyzer fand einen echten NULL-Deref-Bug im Testcode selbst (vor Ausfuhrung gefixt)."
+    notes: "GCC 13.2.0 -fanalyzer fand keine Bugs in der extrahierten Logik. Alle 21 Tests bestanden (Normal-Pfad, Overflow-Pfad, NULL-Input, Truncation). Der -fanalyzer fand einen echten NULL-Deref-Bug im Testcode selbst (vor Ausführung gefixt)."
 
 artifacts:
   - file: "fvevol_audited.sys"
@@ -495,7 +495,7 @@ artifacts:
     md5: ""
   - file: "fvevol_sinks_clean.c"
     type: "cleaned_decompiler_output"
-    description: "Fur flawfinder gesaüberte Version (undefined->char, CONCAT->Makro)"
+    description: "für flawfinder gesaüberte Version (undefined->char, CONCAT->Makro)"
     md5: ""
   - file: "fvevol_testbench.c"
     type: "recompiled_logic"
@@ -511,7 +511,7 @@ artifacts:
     md5: ""
   - file: "audit_irp_buffers.py"
     type: "ghidra_script"
-    description: "Audit-Skript für IRP-Handler-Prufung (in Ghidra Script Manager ausfuhrbar)"
+    description: "Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausfuhrbar)"
     md5: ""
 
 summary:
