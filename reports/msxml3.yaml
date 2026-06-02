@@ -1,0 +1,28 @@
+meta:
+  template_version: "1.0"
+  binary_name: "msxml3.dll"
+  binary_type: "user_dll"
+  file_size_bytes: 1593152
+  analysis_date: "2026-06-02"
+  analyst: "opencode Pipeline"
+  notes: "MSXML 3.0 XML Parser. Klassische CWE-Quelle: XSLT, Schema, DOM. 1,5 MB."
+binary_info: { architecture: "x64", function_count: 0 }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: false }
+import_risk_map:
+  high:
+    - { api: "memcpy", risk: "UNSAFE -- XML-Parsing mit rohen memcpy-Operationen", cwe: "CWE-119" }
+  medium:
+    - { api: "malloc/free/realloc", risk: "Heap -- UAF bei DOM-Manipulation", cwe: "CWE-416" }
+    - { api: "CreateFileW/ReadFile", risk: "XML-Datei einlesen -- Pfad-Traversal", cwe: "CWE-22" }
+findings:
+  - id: "MSX-001"
+    severity: "HIGH"
+    cwe: "CWE-119"
+    title: "XML-Parser -- Buffer-Overflow bei bösartigen XML-Dokumenten"
+    description: "MSXML3 parst XML-Dokumente. Bösartige XML-Strukturen (tiefe Verschachtelung, große Entitaten) konnen zu Buffer-Overflows fuhren."
+    recommendation: "XML-Bomben-Mitigation, Entity-Expansion-Limits prufen."
+summary:
+  overall_risk: "HIGH"
+  high_findings: 1
+  recommendation: "XML-Parser-Angriffsflache -- fuzzing mit AFL/libFuzzer empfohlen."
+  coverage_percent: 0

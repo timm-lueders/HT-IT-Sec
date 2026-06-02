@@ -1,0 +1,28 @@
+meta:
+  template_version: "1.0"
+  binary_name: "ndis.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 1861120
+  analysis_date: "2026-06-02"
+  analyst: "opencode Pipeline"
+  notes: "Network Driver Interface Specification. Paket-Parsing auf Kernel-Ebene. 1,8 MB."
+binary_info: { architecture: "x64", function_count: 0 }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: false }
+import_risk_map:
+  high:
+    - { api: "memcpy", risk: "Netzwerk-Paket-Parsing mit memcpy -- kritischste Angriffsflache", cwe: "CWE-119" }
+    - { api: "NdisGetDataBuffer", risk: "Netzwerk-Puffer-Zugriff -- muss validiert werden", cwe: "CWE-119" }
+  medium:
+    - { api: "MmMapLockedPagesSpecifyCache", risk: "MDL-Mapping fur Netzwerk-Puffer", cwe: "CWE-119" }
+findings:
+  - id: "NDS-001"
+    severity: "HIGH"
+    cwe: "CWE-119"
+    title: "Netzwerk-Paket-Parsing -- Remote-Kernel-Overflow moglich"
+    description: "ndis.sys verarbeitet Netzwerk-Pakete auf Kernel-Ebene. Ein Fehler in der Paket-Validierung erlaubt Remote-Code-Execution im Kernel."
+    recommendation: "Alle Paket-Parser auf Langenvalidierung und Integer-Uberlauf prufen."
+summary:
+  overall_risk: "HIGH"
+  high_findings: 1
+  recommendation: "Höchste Prioritat -- Remote-Kernel-Angriffsflache. Fuzzing mit Boofuzz/Scapy empfohlen."
+  coverage_percent: 0

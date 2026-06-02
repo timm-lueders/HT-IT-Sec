@@ -1,0 +1,35 @@
+meta:
+  template_version: "1.0"
+  binary_name: "spoolsv.exe"
+  binary_type: "user_exe"
+  file_size_bytes: 987584
+  analysis_date: "2026-06-02"
+  analyst: "opencode Pipeline"
+  analysis_duration_minutes: 5
+  notes: "Windows Print Spooler. PrintNightmare-Klasse (CVE-2021-34527). 2.223 Funktionen. RPC-basiert."
+binary_info: { architecture: "x64", base_address: "0x140000000", function_count: 2223 }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true, notes: "Alle Schutzmechanismen aktiv." }
+import_risk_map:
+  high:
+    - { api: "LoadLibraryExW", risk: "Druckertreiber-Laden -- potenzielle DLL-Hijacking", cwe: "CWE-426" }
+  medium:
+    - { api: "memcpy", risk: "UNSAFE -- memcpy_s existiert parallel", cwe: "CWE-119" }
+  low:
+    - { api: "malloc/free/realloc", risk: "Heap -- Double-Free/UAF moglich", cwe: "CWE-415/CWE-416" }
+findings:
+  - id: "SPL-001"
+    severity: "HIGH"
+    cwe: "CWE-426"
+    title: "Druckertreiber-Laden via LoadLibraryExW"
+    function: "N/A"
+    address: "N/A"
+    description: "PrintNightmare: spoolsv.exe ladt Druckertreiber-DLLs mit SYSTEM-Rechten. Angreifer konnen bösartige DLLs als Treiber installieren."
+    recommendation: "Treiber-Signaturprufung und Pfad-Validierung sicherstellen."
+summary:
+  overall_risk: "HIGH"
+  critical_findings: 0
+  high_findings: 1
+  medium_findings: 0
+  low_findings: 0
+  recommendation: "PrintNightmare-Mitigationen prufen. RPC-Schnittstelle auf Authentifizierung testen."
+  coverage_percent: 2

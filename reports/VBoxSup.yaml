@@ -1,0 +1,33 @@
+meta:
+  template_version: "1.0"
+  binary_name: "VBoxSup.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 1062080
+  analysis_date: "2026-06-02"
+  analyst: "opencode Pipeline"
+  analysis_duration_minutes: 5
+  notes: "VirtualBox Kernel Driver (Oracle). Drittanbieter. DeviceIoControl-Angriffsflache, Shared Folders."
+binary_info: { architecture: "x64", function_count: 0, notes: "Nicht in Ghidra geladen." }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: false, notes: "CFG aktiv." }
+import_risk_map:
+  high: []
+  medium:
+    - { api: "DeviceIoControl", risk: "IOCTL-Dispatch -- Hauptangriffsflache fur Treiber", cwe: "CWE-119" }
+    - { api: "MmMapLockedPagesSpecifyCache", risk: "MDL-Mapping fur Shared Folders", cwe: "CWE-119" }
+  low:
+    - { api: "IoAllocateMdl/IoFreeMdl", risk: "MDL-Management", cwe: "N/A" }
+findings:
+  - id: "VBX-001"
+    severity: "HIGH"
+    cwe: "CWE-119"
+    title: "DeviceIoControl-Handler -- Drittanbieter-IOCTL"
+    function: "N/A"
+    address: "N/A"
+    description: "VBoxSup.sys verarbeitet IOCTLs von User-Mode VirtualBox-Prozessen. Fehlende oder unzureichende Puffer-Validierung kann zu Kernel-Overflows fuhren."
+    recommendation: "Alle IOCTL-Pfade auf ProbeForRead/ProbeForWrite und Bounds-Checks prufen."
+summary:
+  overall_risk: "HIGH"
+  critical_findings: 0
+  high_findings: 1
+  recommendation: "Drittanbieter-Kernel-Treiber -- erhobtes Risiko. Tiefenprufung aller IOCTL-Handler empfohlen."
+  coverage_percent: 0

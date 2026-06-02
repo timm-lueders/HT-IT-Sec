@@ -1,0 +1,33 @@
+meta:
+  template_version: "1.0"
+  binary_name: "telnet.exe"
+  binary_type: "user_exe"
+  analysis_date: "2026-06-02"
+  analyst: "opencode Pipeline -- Batch-Scan (PE+Import)"
+  analysis_duration_minutes: 2
+  notes: "Telnet Client. Netzwerk-Protokoll-Parsing -- Telnet-Optionen, Terminal-Emulation."
+
+binary_info:
+  architecture: "x64"
+  function_count: 0
+  notes: "Nicht in Ghidra geladen -- Funktionen unbekannt"
+
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+  high_entropy_aslr: True
+  notes: ""
+
+tools_output:
+  flawfinder:
+    notes: "Nicht durchgefuhrt -- kein Decompiler-Output"
+  cwe_checker:
+    notes: "Nicht durchgefuhrt"
+
+findings: []
+
+summary:
+  overall_risk: "UNKNOWN"
+  recommendation: "PE-Security aktiv. Tiefenanalyse mit Ghidra empfohlen. Telnet Client. Netzwerk-Protokoll-Parsing -- Telnet-Optionen, Terminal-Emulation."
+  coverage_percent: 0
