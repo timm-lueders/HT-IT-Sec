@@ -146,6 +146,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
   aside{display:none}
   .grid2{grid-template-columns:1fr}
 }
+.mermaid{background:rgba(0,0,0,0.3);border:1px solid #333;border-radius:8px;padding:15px;margin:10px 0;overflow-x:auto}
 """
 
 INDEX_CSS_EXTRA = """
@@ -273,8 +274,28 @@ def taint_section(d):
         f"<tr><td>{'BOUNDED' if e.get('bounded') else 'UNCHECKED'}</td><td>{e.get('from','?')}</td><td>{e.get('to','?')}</td><td>{e.get('check_location','-')}</td></tr>"
         for e in tg.get("edges",[])
     )
+    
+    # Build Mermaid graph from edges
+    mm_edges = []
+    for e in tg.get("edges", []):
+        src_id = e.get('from','?').replace(' ','_').replace('(','').replace(')','').replace('.','_')[:30]
+        snk_id = e.get('to','?').replace(' ','_').replace('(','').replace(')','').replace('.','_')[:30]
+        label = "BOUNDED" if e.get('bounded') else "UNCHECKED"
+        mm_edges.append(f"    {src_id}[\"{e.get('from','?')[:40]}\"] -->|\"{label}\"| {snk_id}[\"{e.get('to','?')[:40]}\"]")
+    
+    mermaid = ""
+    if mm_edges:
+        mermaid = f"""<div class="mermaid" style="margin-top:15px">
+graph LR
+{chr(10).join(mm_edges)}
+</div>"""
+    
     return f"""<div class="card"><h3>Taint-Graph</h3>
-    <table><tr><th>Typ</th><th>Name</th><th>Detail</th></tr>{srcs}{snks}</table>
+    <div class="grid2">
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr>{srcs}</table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr>{snks}</table></div>
+    </div>
+    {mermaid}
     {"<hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr>"+edges+"</table>" if edges else ""}
     </div>"""
 
@@ -306,6 +327,8 @@ PAGE = """<!DOCTYPE html><html lang="de">
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link href="http://fonts.cdnfonts.com/css/terminal" rel="stylesheet">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#00fd00',primaryTextColor:'#000',primaryBorderColor:'#00fd00',lineColor:'#00fd00',secondaryColor:'#333',tertiaryColor:'#212121'}});</script>
 <title>""" + "{title}" + """ -- Security Audit</title>
 <style>""" + CSS + """</style>
 </head>
@@ -341,6 +364,8 @@ def build_index(reports):
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link href="http://fonts.cdnfonts.com/css/terminal" rel="stylesheet">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#00fd00',primaryTextColor:'#000',primaryBorderColor:'#00fd00',lineColor:'#00fd00',secondaryColor:'#333',tertiaryColor:'#212121'}});</script>
 <title>Binary Security Audit -- Ubersicht</title>
 <style>""" + CSS + INDEX_CSS_EXTRA + """</style>
 </head><body>
