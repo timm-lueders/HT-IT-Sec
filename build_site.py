@@ -339,7 +339,7 @@ PAGE = """<!DOCTYPE html><html lang="de">
 <body>
 <header>
 <h1>""" + "{name}" + """</h1>
-<nav><a href="index.html">[Ubersicht]</a></nav>
+<nav><a href="index.html">[Übersicht]</a></nav>
 </header>
 <aside></aside>
 <main>""" + "{content}" + """</main>
@@ -370,14 +370,14 @@ def build_index(reports):
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#00fd00',primaryTextColor:'#000',primaryBorderColor:'#00fd00',lineColor:'#00fd00',secondaryColor:'#333',tertiaryColor:'#212121'}});</script>
-<title>Binary Security Audit -- Ubersicht</title>
+<title>Binary Security Audit -- Übersicht</title>
 <style>""" + CSS + INDEX_CSS_EXTRA + """</style>
 </head><body>
 <header><h1>Binary Security Audit Pipeline<span class="cursor"></span></h1>
 <nav><span class="stats">""" + str(len(reports)) + """ Binaries analysiert</span></nav></header>
 <aside></aside>
 <main>
-<div class="card"><h3>Ubersicht</h3>
+<div class="card"><h3>Übersicht</h3>
 <table><tr><th>Binary</th><th>Typ</th><th>Arch</th><th>Risiko</th><th>Findings (C/H/M/L)</th><th>Datum</th></tr>
 """ + rows + """</table></div>
 </main><aside></aside>
