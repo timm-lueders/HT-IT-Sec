@@ -1,27 +1,103 @@
-﻿meta:
-  binary_name: "jscript9.dll"
-  binary_type: "user_dll"  
+meta:
+  binary_name: jscript9.dll
+  binary_type: user_dll
   file_size_bytes: 4829184
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  notes: "Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X). GC mit WriteWatch. ChakraCore."
-binary_info: { architecture: "x64", base_address: "0x180000000", function_count: 16719 }
-pe_security: { aslr: true, dep: true, cfg: true }
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
+  notes: Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X).
+    GC mit WriteWatch. ChakraCore.
+binary_info:
+  architecture: x64
+  base_address: '0x180000000'
+  function_count: 16719
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 import_risk_map:
   high:
-    - { api: "VirtualProtect", risk: "JIT: W+X-Speicher fur generierten Code", cwe: "CWE-122" }
-    - { api: "FlushInstructionCache", risk: "JIT: I-Cache-Flush nach Code-Gen", cwe: "CWE-122" }
-    - { api: "memcpy", risk: "UNSAFE parallel zu memcpy_s", cwe: "CWE-119" }
+  - api: VirtualProtect
+    risk: 'JIT: W+X-Speicher fur generierten Code'
+    cwe: CWE-122
+  - api: FlushInstructionCache
+    risk: 'JIT: I-Cache-Flush nach Code-Gen'
+    cwe: CWE-122
+  - api: memcpy
+    risk: UNSAFE parallel zu memcpy_s
+    cwe: CWE-119
   medium:
-    - { api: "VirtualAlloc/VirtualFree", risk: "GC-Heap", cwe: "CWE-416" }
-    - { api: "GetWriteWatch/ResetWriteWatch", risk: "GC Write-Barrier", cwe: "CWE-416" }
-    - { api: "LoadLibraryExA", risk: "DLL-Laden", cwe: "CWE-426" }
+  - api: VirtualAlloc/VirtualFree
+    risk: GC-Heap
+    cwe: CWE-416
+  - api: GetWriteWatch/ResetWriteWatch
+    risk: GC Write-Barrier
+    cwe: CWE-416
+  - api: LoadLibraryExA
+    risk: DLL-Laden
+    cwe: CWE-426
 findings:
-  - id: "JS9-001"
-    severity: "HIGH"
-    cwe: "CWE-122"
-    title: "JIT-Code-Generator -- W+X-Speicher im Browser-Kontext"
-    description: "Chakra JIT erzeugt W+X-Seiten via VirtualProtect. 16.719 Funktionen. Bug in Code-Gen = beliebige Code-Ausfuhrung. GC mit WriteWatch. JIT-Spraying moglich."
-    recommendation: "Constant-Blinding. NOP-Sled-Detection. JIT-Mitigationen aktivieren."
-summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, coverage_percent: 1 }
-
+- id: JS9-001
+  severity: HIGH
+  cwe: CWE-122
+  title: JIT-Code-Generator -- W+X-Speicher im Browser-Kontext
+  description: Chakra JIT erzeugt W+X-Seiten via VirtualProtect. 16.719 Funktionen.
+    Bug in Code-Gen = beliebige Code-Ausfuhrung. GC mit WriteWatch. JIT-Spraying moglich.
+  recommendation: Constant-Blinding. NOP-Sled-Detection. JIT-Mitigationen aktivieren.
+summary:
+  overall_risk: HIGH
+  high_findings: 1
+  medium_findings: 3
+  coverage_percent: 1
+taint_graph:
+  sources:
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  - id: com
+    name: COM/DCOM Activation
+    type: RPC/COM Input
+    function: DllGetClassObject
+  - id: exports
+    name: Exported API Calls
+    type: Function Parameters
+    function: Various Exports
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+  sinks:
+  - id: memcpy
+    name: memcpy
+    type: Memory Copy
+    address: EXTERNAL
+    risk: CWE-119
+  - id: dll
+    name: LoadLibraryExA
+    type: DLL Loading
+    address: EXTERNAL
+    risk: CWE-426
+  edges:
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: memcpy
+    label: Memory Copy
+    status: CONDITIONAL
+  - from: unknown
+    to: dll
+    label: DLL Loading
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n    com[\"COM/DCOM Activation\"]\n    exports[\"\
+    Exported API Calls\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"memcpy\"\
+    ]\n    dll[\"LoadLibraryExA\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n\
+    \    unknown -.->|\"Memory Copy\"| memcpy\n    unknown -.->|\"DLL Loading\"| dll\n\
+    \    style memcpy fill:#ff8c00,stroke:#333\n    style dll fill:#ff8c00,stroke:#333"

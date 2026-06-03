@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   template_version: '1.0'
   binary_name: ndis.sys
   binary_type: kernel_driver
@@ -92,22 +92,43 @@ findings:
   recommendation: Best Practices beibehalten.
 taint_graph:
   sources:
-  - name: Netzwerk-Pakete (Ethernet/IP/TCP)
-    type: Remote Input -- NDIS-Miniport
-  - name: IOCTL / Registry
-    type: Local Configuration
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: pm
+    name: ExGetPreviousMode
+    type: Mode Check
+    note: Prüft ob Caller User oder Kernel Mode
   sinks:
-  - name: MmMapLockedPages
+  - id: mdl
+    name: MmMapLockedPages
+    type: MDL Mapping
     address: EXTERNAL
-    type: MDL-Mapping
-  - name: HalPrivateDispatchTable
-    address: EXTERNAL
-    type: HAL Direct Access
+    risk: CWE-119
   edges:
-  - from: Netzwerk-Pakete
-    to: MmMapLockedPages
-    bounded: false
-    check_location: NDIS-interne Validierung
+  - from: ioctl
+    to: pm
+    label: Mode Check
+    status: BOUNDED
+  - from: pm
+    to: mdl
+    label: MDL Mapping
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Validation Layer\"\n    pm{{ExGetPreviousMode}}\n\
+    \  end\n  subgraph \"Data Sinks\"\n    mdl[\"MmMapLockedPages\"]\n  end\n    ioctl\
+    \ -->|\"Mode Check\"| pm\n    pm -.->|\"MDL Mapping\"| mdl\n    style mdl fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   critical_findings: 0
@@ -130,5 +151,3 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 2484 Findings.
-
-

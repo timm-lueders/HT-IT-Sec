@@ -431,50 +431,175 @@ findings:
   recommendation: Vorbildliche API-Auswahl.
 taint_graph:
   sources:
-  - name: Irp->UserBuffer
-    type: IOCTL METHOD_NEITHER (offset 0x70 im IRP)
-    function: FvevolQueryVolumeInfo
-  - name: Irp->AssociatedIrp.SystemBuffer
-    type: IOCTL METHOD_BUFFERED (via IO_STACK_LOCATION)
-    function: FvevolIoHandler
-  - name: Irp->MdlAddress
-    type: Read/Write DIRECT_IO (via MmMapLockedPages)
-    function: FvevolRead / FvevolWrite
-  - name: IO_STACK_LOCATION->Parameters
-    type: IOCTL Control Codes + Buffer Lengths
-    function: FvevolDeviceControl
+    - id: "IOCTL_Input"
+      name: "DeviceIoControl Input Buffer"
+      type: "METHOD_NEITHER"
+      irp_field: "Irp->UserBuffer (offset 0x70)"
+      function: "FvevolDeviceControl"
+      address: "0x1400b87e0"
+      data_flow: "User-Mode Caller -> IOCTL -> Irp->UserBuffer"
+    - id: "IRP_Read_MDL"
+      name: "IRP_MJ_READ MdlAddress"
+      type: "METHOD_DIRECT"
+      irp_field: "Irp->MdlAddress (offset 0x10)"
+      function: "FvevolRead"
+      address: "0x14001f1a0"
+    - id: "IRP_Write_MDL"
+      name: "IRP_MJ_WRITE MdlAddress"
+      type: "METHOD_DIRECT"
+      irp_field: "Irp->MdlAddress (offset 0x10)"
+      function: "FvevolWrite"
+      address: "0x14001ee90"
+  validators:
+    - id: "ProbeForWrite"
+      name: "ProbeForWrite"
+      type: "Buffer Probe"
+      condition: "NUR wenn Flag != 0"
+      function: "FvevolQueryVolumeInfo"
+      address: "0x1400b9b68 + 0x19E"
+      note: "FEHLT bei Flag=0 -- FVE-001"
+    - id: "ExGetPreviousMode"
+      name: "ExGetPreviousMode"
+      type: "Mode Check"
+      note: "Prüft ob Caller User oder Kernel"
+    - id: "DoubleValidation"
+      name: "InputBufferLength == *UserBuffer"
+      type: "Structure Size Check"
+      function: "FvevolIoHandler"
+      address: "0x1400ba64c"
+    - id: "TripleBoundCheck"
+      name: "Size + Offset + Total Check"
+      type: "MDL Bounds Validation"
+      function: "FvevolIoWorkItemCallback"
+      address: "0x14005c3a0"
+      checks:
+        - "BufferSize < CopySize -> Error"
+        - "Offset > CopySize -> Error"
+        - "BufferSize + Offset < TotalNeeded -> Error"
+  transformations:
+    - id: "MDL_Lock"
+      name: "MmProbeAndLockPages"
+      type: "MDL Locking"
+      note: "Lockt User-Puffer in physischen Speicher"
+    - id: "MDL_Map"
+      name: "MmMapLockedPagesSpecifyCache"
+      type: "MDL Mapping"
+      function: "FvevolIoWorkItemCallback"
+      address: "0x14005c3a0"
+    - id: "Buffer_Encode"
+      name: "BCryptEncrypt"
+      type: "AES-XTS Encryption"
+      note: "Verschlüsselt Daten vor Disk-Schreiben"
   sinks:
-  - name: FveSafeMemcpy (memmove)
-    address: '0x14001a9c0'
-    type: memmove mit Overlap-Handling
-  - name: ZwWriteFile
-    address: EXTERNAL:ntoskrnl.exe
-    type: Disk-I/O Sink für verSchlüsselte Daten
-  - name: ZwReadFile
-    address: EXTERNAL:ntoskrnl.exe
-    type: Disk-I/O Source für verSchlüsselte Daten
-  - name: BCryptEncrypt
-    address: EXTERNAL:bcrypt.dll
-    type: AES-XTS Encryption
-  - name: BCryptDecrypt
-    address: EXTERNAL:bcrypt.dll
-    type: AES-XTS Decryption
+    - id: "memcpy_sink"
+      name: "FveSafeMemcpy"
+      type: "memmove (optimized)"
+      function: "FveSafeMemcpy"
+      address: "0x14001a9c0"
+      note: "Mit Overlap-Handling und SSE/AVX-Optimierung"
+    - id: "disk_write"
+      name: "ZwWriteFile"
+      type: "Disk I/O Write"
+      address: "EXTERNAL:ntoskrnl.exe"
+    - id: "disk_read"
+      name: "ZwReadFile"
+      type: "Disk I/O Read"
+      address: "EXTERNAL:ntoskrnl.exe"
+    - id: "crypto_sink"
+      name: "BCryptEncrypt / BCryptDecrypt"
+      type: "Crypto Engine"
+      address: "EXTERNAL:bcrypt.dll"
   edges:
-  - from: Irp->UserBuffer
-    to: FveSafeMemcpy (memmove)
-    bounded: true
-    check_location: 0x14000434c (FveCopyDataToUserBuffer)
-    check_type: 'Bounds-Check: actual_size <= max_size - offset'
-  - from: Irp->MdlAddress
-    to: FveSafeMemcpy (memmove)
-    bounded: true
-    check_location: 0x14005c3a0 (FvevolIoWorkItemCallback)
-    check_type: 'Triple-Check: Size/Offset/Total vor memcpy'
-  - from: IO_STACK_LOCATION->Parameters
-    to: FveSafeMemcpy (memmove)
-    bounded: true
-    check_location: 0x1400ba64c (FvevolIoHandler)
-    check_type: 'Double-Validation: InputBufferLength == *UserBuffer'
+    - from: "IOCTL_Input"
+      to: "ProbeForWrite"
+      label: "ProbeForWrite(UserBuffer, Size, 2)"
+      status: "CONDITIONAL"
+      finding: "FVE-001"
+      note: "Nur wenn Flag != 0. Fehlt bei Flag=0."
+    - from: "ProbeForWrite"
+      to: "DoubleValidation"
+      label: "InputBufferLength == *UserBuffer"
+      status: "BOUNDED"
+      note: "Verhindert Structure-Size-Mismatch"
+    - from: "DoubleValidation"
+      to: "memcpy_sink"
+      label: "FveCopyDataToUserBuffer(Dst, MaxSize, Offset, Src, &Written)"
+      status: "BOUNDED"
+      check: "(int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)"
+      address: "0x14000434c"
+    - from: "IRP_Read_MDL"
+      to: "MDL_Lock"
+      label: "MmProbeAndLockPages(MDL, UserMode, IoReadAccess)"
+      status: "BOUNDED"
+    - from: "IRP_Write_MDL"
+      to: "MDL_Lock"
+      label: "MmProbeAndLockPages(MDL, UserMode, IoWriteAccess)"
+      status: "BOUNDED"
+    - from: "MDL_Lock"
+      to: "MDL_Map"
+      label: "MmMapLockedPagesSpecifyCache(MDL, KernelMode, MmCached)"
+      status: "BOUNDED"
+    - from: "MDL_Map"
+      to: "TripleBoundCheck"
+      label: "3 Bounds-Checks vor memcpy"
+      status: "BOUNDED"
+      address: "0x14005c3a0"
+    - from: "TripleBoundCheck"
+      to: "memcpy_sink"
+      label: "memcpy(Dst, MDL_Buffer, Size)"
+      status: "BOUNDED"
+      note: "Erst nach erfolgreichen Checks"
+    - from: "memcpy_sink"
+      to: "Buffer_Encode"
+      label: "Daten vorbereitet fur Verschlüsselung"
+      status: "INFO"
+    - from: "Buffer_Encode"
+      to: "disk_write"
+      label: "ZwWriteFile(Handle, ..., EncryptedData, ...)"
+      status: "INFO"
+  graph_mermaid: |
+    graph TD
+      subgraph "User-Mode Input Sources"
+        A[DeviceIoControl Input<br/>Irp->UserBuffer @ 0x70]
+        B[IRP_MJ_READ<br/>Irp->MdlAddress @ 0x10]
+        C[IRP_MJ_WRITE<br/>Irp->MdlAddress @ 0x10]
+      end
+      subgraph "Validation Layer"
+        D{{ProbeForWrite?<br/>⚠️ NUR bei Flag=1<br/>FVE-001}}
+        E[ExGetPreviousMode<br/>User/Kernel Check]
+        F[Double Validation<br/>InputBufferLength == *Buf]
+        G[Triple Bounds Check<br/>Size+Offset+Total]
+      end
+      subgraph "MDL / Memory Operations"
+        H[MmProbeAndLockPages<br/>Lock Pages in RAM]
+        I[MmMapLockedPagesSpecifyCache<br/>Map to Kernel VA]
+      end
+      subgraph "Data Processing"
+        J[FveCopyDataToUserBuffer<br/>@ 0x14000434c<br/>Bounds: size <= max-offset]
+        K[FveSafeMemcpy<br/>@ 0x14001a9c0<br/>memmove + SSE/AVX]
+        L[BCryptEncrypt<br/>AES-XTS Encryption]
+      end
+      subgraph "I/O Sinks"
+        M[(ZwWriteFile<br/>Encrypted Disk)]
+        N[(ZwReadFile<br/>Decrypted Disk)]
+      end
+      A -->|"IOCTL Input"| D
+      D -->|"Flag=1 ✅"| F
+      D -.->|"Flag=0 ❌"| J
+      F -->|"Validated"| J
+      J -->|"Copied"| K
+      B --> H
+      C --> H
+      H --> I
+      I --> G
+      G -->|"Checks passed"| K
+      K --> L
+      L --> M
+      N --> K
+      style D fill:#ffc107,stroke:#333
+      style F fill:#00fd00,stroke:#333
+      style G fill:#00fd00,stroke:#333
+      style J fill:#00fd00,stroke:#333
 tools_output:
   flawfinder:
     level_3_hits: 0
@@ -560,6 +685,7 @@ summary:
   total_function_count: 1558
   analyzed_functions: DriverEntry, alle IRP-Handler, IOCTL-Dispatcher, Buffer-Copy-Funktionen,
     Registry-Pfade, Crypto-Pfade, Work-Item-Callbacks
+
 
 
 

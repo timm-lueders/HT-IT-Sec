@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   template_version: '1.0'
   binary_name: telnet.exe
   binary_type: user_exe
@@ -38,18 +38,37 @@ findings:
     auditierbar.
 taint_graph:
   sources:
-  - name: User Input (Console/Network/File)
-    type: External Input
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: memcpy
-    address: EXTERNAL:msvcrt.dll
-  - name: LoadLibraryExW
-    address: EXTERNAL:kernel32.dll
+  - id: unknown
+    name: Unbekannte Sinks
+    type: Unknown
+    note: Keine spezifischen Sinks via Import-Analyse identifiziert
   edges:
-  - from: User Input
-    to: memcpy
-    bounded: false
-    check_location: Nicht verifiziert
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: unknown
+    label: Unknown
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"\
+    Unbekannte Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown\
+    \ -->|\"Unknown\"| unknown"
 summary:
   overall_risk: MEDIUM
   critical_findings: 0
@@ -72,6 +91,3 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 163 Findings.
-
-
-

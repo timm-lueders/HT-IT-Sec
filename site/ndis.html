@@ -154,17 +154,30 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Größe:</b> 1,861,104 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 3697</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> HalPrivateDispatchTable</td><td>Direkter HAL-Zugriff -- undokumentierte Schnittstelle</td><td>CWE-676</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages + MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping fur Netzwerk-Puffer -- muss validiert sein</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _vsnwprintf</td><td>Format-String OHNE _s -- gefahrlich</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmUserProbeAddress + ExGetPreviousMode</td><td>User-Mode-Validierung vorhanden -- korrekt</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> wcscpy_s</td><td>Safe String-Variante</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlCopyUnicodeString</td><td>String-Kopie -- braucht validierten Puffer</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> MmIsDriverVerifying + MmBadPointer</td><td>Driver-Verifier-Support -- lobenswert</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> IoConnectInterruptEx</td><td>Interrupt-Handling</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> KeQueryDpcWatchdogInformation</td><td>DPC-Watchdog -- Timeout-Erkennung</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ExAllocatePool3</td><td>Pool-Allokation (modernste API)</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
-    <div class="grid2">
-    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>Netzwerk-Pakete (Ethernet/IP/TCP)</td><td>Remote Input -- NDIS-Miniport</td></tr><tr><td>Source</td><td>IOCTL / Registry</td><td>Local Configuration</td></tr></table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>MmMapLockedPages</td><td>EXTERNAL</td></tr><tr><td>Sink</td><td>HalPrivateDispatchTable</td><td>EXTERNAL</td></tr></table></div>
-    </div>
-    <div class="mermaid" style="margin-top:15px">
-graph LR
-    Netzwerk_Pakete["Netzwerk-Pakete"] -->|"UNCHECKED"| MmMapLockedPages["MmMapLockedPages"]
-</div>
-    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>Netzwerk-Pakete</td><td>MmMapLockedPages</td><td>NDIS-interne Validierung</td></tr></table>
-    </div><div class="card"><h3>Automatisierte Tools</h3>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> HalPrivateDispatchTable</td><td>Direkter HAL-Zugriff -- undokumentierte Schnittstelle</td><td>CWE-676</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages + MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping fur Netzwerk-Puffer -- muss validiert sein</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _vsnwprintf</td><td>Format-String OHNE _s -- gefahrlich</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmUserProbeAddress + ExGetPreviousMode</td><td>User-Mode-Validierung vorhanden -- korrekt</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> wcscpy_s</td><td>Safe String-Variante</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlCopyUnicodeString</td><td>String-Kopie -- braucht validierten Puffer</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> MmIsDriverVerifying + MmBadPointer</td><td>Driver-Verifier-Support -- lobenswert</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> IoConnectInterruptEx</td><td>Interrupt-Handling</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> KeQueryDpcWatchdogInformation</td><td>DPC-Watchdog -- Timeout-Erkennung</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ExAllocatePool3</td><td>Pool-Allokation (modernste API)</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
+        <div class="mermaid" style="margin:15px 0">graph TD
+  subgraph "Input Sources"
+    ioctl["DeviceIoControl Input"]
+    mdl_read["IRP_MJ_READ MdlAddress"]
+    mdl_write["IRP_MJ_WRITE MdlAddress"]
+  end
+  subgraph "Validation Layer"
+    pm{{ExGetPreviousMode}}
+  end
+  subgraph "Data Sinks"
+    mdl["MmMapLockedPages"]
+  end
+    ioctl -->|"Mode Check"| pm
+    pm -.->|"MDL Mapping"| mdl
+    style mdl fill:#ff8c00,stroke:#333</div>
+        <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
+        <div class="grid2" style="margin-top:10px">
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl Input</td><td>IOCTL (METHOD_NEITHER)</td><td style='font-family:monospace;font-size:0.75rem'>Irp->UserBuffer @ 0x70</td></tr><tr><td>IRP_MJ_READ MdlAddress</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>Irp->MdlAddress @ 0x10</td></tr><tr><td>IRP_MJ_WRITE MdlAddress</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>Irp->MdlAddress @ 0x10</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>MmMapLockedPages</td><td>MDL Mapping</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL</td></tr></table></div>
+        </div>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ExGetPreviousMode</td><td>Mode Check</td><td style='font-size:0.8rem'>Prüft ob Caller User oder Kernel Mode</td></tr></table>
+        <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Mode Check</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-MEDIUM'>CONDITIONAL</span></td><td>MDL Mapping</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
+        </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>2484 Findings (~97% FP)</td></tr>
@@ -210,5 +223,5 @@ fur User-Mode-Validierung und MmIsDriverVerifying fur Test-Support.
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:2%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">Hochste Prioritat. Remote-Kernel-Angriffsflache. 3.697 Funktionen. Netzwerk-Fuzzing dringend empfohlen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:10 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:54 -- <span class="cursor"></span></footer>
 </body></html>

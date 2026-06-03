@@ -1,23 +1,69 @@
-﻿meta:
-  binary_name: "VBoxVMM.dll"
-  binary_type: "user_dll"
+meta:
+  binary_name: VBoxVMM.dll
+  binary_type: user_dll
   file_size_bytes: 5153136
-  analysis_date: "2026-06-03"
-  analyst: "opencode Pipeline"
-  notes: "Ghidra-Schatzt: ~8000 Funktionen (basierend auf DateigroBe). VirtualBox Hypervisor Core -- Ring-0 VM-Monitor"
-binary_info: { architecture: "x64", function_count: 8000 }
-pe_security: { aslr: true, dep: true, cfg: true }
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: 'Ghidra-Schatzt: ~8000 Funktionen (basierend auf DateigroBe). VirtualBox
+    Hypervisor Core -- Ring-0 VM-Monitor'
+binary_info:
+  architecture: x64
+  function_count: 8000
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "VBOXVMM-001"
-    severity: "HIGH"
-    cwe: "CWE-119"
-    title: "VirtualBox Hypervisor Core -- Ring-0 VM-Monitor"
-    description: "VirtualBox Hypervisor Core -- Ring-0 VM-Monitor"
-    taint_path: "External -> Parser -> Sink"
-    recommendation: "Ghidra-Tiefenprufung empfohlen."
+- id: VBOXVMM-001
+  severity: HIGH
+  cwe: CWE-119
+  title: VirtualBox Hypervisor Core -- Ring-0 VM-Monitor
+  description: VirtualBox Hypervisor Core -- Ring-0 VM-Monitor
+  taint_path: External -> Parser -> Sink
+  recommendation: Ghidra-Tiefenprufung empfohlen.
 taint_graph:
-  sources: [{name: "Input", type: "External"}]
-  sinks: [{name: "memcpy", address: "EXTERNAL"}]
-  edges: [{from: "Input", to: "memcpy", bounded: false}]
-summary: { overall_risk: "HIGH", recommendation: "VirtualBox Hypervisor Core -- Ring-0 VM-Monitor", coverage_percent: 1 }
-
+  sources:
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  - id: com
+    name: COM/DCOM Activation
+    type: RPC/COM Input
+    function: DllGetClassObject
+  - id: exports
+    name: Exported API Calls
+    type: Function Parameters
+    function: Various Exports
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+  sinks:
+  - id: unknown
+    name: Unbekannte Sinks
+    type: Unknown
+    note: Keine spezifischen Sinks via Import-Analyse identifiziert
+  edges:
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: unknown
+    label: Unknown
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n    com[\"COM/DCOM Activation\"]\n    exports[\"\
+    Exported API Calls\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"Unbekannte\
+    \ Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown -->|\"Unknown\"\
+    | unknown"
+summary:
+  overall_risk: HIGH
+  recommendation: VirtualBox Hypervisor Core -- Ring-0 VM-Monitor
+  coverage_percent: 1

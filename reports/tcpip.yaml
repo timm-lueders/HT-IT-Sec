@@ -1,22 +1,33 @@
-﻿meta:
-  binary_name: "tcpip.sys"
-  binary_type: "kernel_driver"
+meta:
+  binary_name: tcpip.sys
+  binary_type: kernel_driver
   file_size_bytes: 3479000
-  analysis_date: "2026-06-03"
-  analyst: "opencode + GhidraMCP"
-  notes: "TCP/IP Stack. ~5.000 Funktionen. Gesamter Windows-Netzwerk-Stack."
+  analysis_date: '2026-06-03'
+  analyst: opencode + GhidraMCP
+  notes: TCP/IP Stack. ~5.000 Funktionen. Gesamter Windows-Netzwerk-Stack.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
+  architecture: x64
+  base_address: '0x140000000'
   function_count: 5000
-pe_security: { aslr: true, dep: true, cfg: true }
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 import_risk_map:
   high:
-    - { api: "IoBuildPartialMdl", risk: "MDL-Double-Fetch", cwe: "CWE-367" }
-    - { api: "RtlIpv4AddressToStringExW", risk: "IP-String-Parsing", cwe: "CWE-120" }
+  - api: IoBuildPartialMdl
+    risk: MDL-Double-Fetch
+    cwe: CWE-367
+  - api: RtlIpv4AddressToStringExW
+    risk: IP-String-Parsing
+    cwe: CWE-120
   medium:
-    - { api: "KeExpandKernelStackAndCalloutEx", risk: "Stack-Expansion", cwe: "CWE-674" }
-    - { api: "strcpy_s", risk: "Safe String (korrekt)", cwe: "N/A" }
+  - api: KeExpandKernelStackAndCalloutEx
+    risk: Stack-Expansion
+    cwe: CWE-674
+  - api: strcpy_s
+    risk: Safe String (korrekt)
+    cwe: N/A
 tools_output:
   cwe_checker:
     total_findings: 3216
@@ -26,20 +37,56 @@ tools_output:
     cwe676_dangerous_func: 0
     notes: 'cwe_checker: 3216 Findings.'
 findings:
-  - id: "TCPIP-001"
-    severity: "HIGH"
-    cwe: "CWE-367"
-    title: "TCP/IP-Paket-Parsing -- Remote-Kernel-Code-Execution"
-    description: "tcpip.sys ist DER TCP/IP-Stack. ~5.000 Funktionen. IoBuildPartialMdl. Hash-Tables fur Connections. strcpy_s (safe)."
-    taint_path: "Netzwerk-Pakete -> TCP/IP -> Kernel"
-    recommendation: "Netzwerk-Fuzzing. TCP-Options-Validierung, IP-Fragment-Reassembly."
+- id: TCPIP-001
+  severity: HIGH
+  cwe: CWE-367
+  title: TCP/IP-Paket-Parsing -- Remote-Kernel-Code-Execution
+  description: tcpip.sys ist DER TCP/IP-Stack. ~5.000 Funktionen. IoBuildPartialMdl.
+    Hash-Tables fur Connections. strcpy_s (safe).
+  taint_path: Netzwerk-Pakete -> TCP/IP -> Kernel
+  recommendation: Netzwerk-Fuzzing. TCP-Options-Validierung, IP-Fragment-Reassembly.
 taint_graph:
-  sources: [{name: "Netzwerk-Pakete", type: "Remote"}]
-  sinks: [{name: "IoBuildPartialMdl", address: "EXTERNAL"}]
-  edges: [{from: "Netzwerk-Pakete", to: "IoBuildPartialMdl", bounded: false}]
+  sources:
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+  sinks:
+  - id: mdl
+    name: MmMapLockedPages
+    type: MDL Mapping
+    address: EXTERNAL
+    risk: CWE-119
+  edges:
+  - from: ioctl
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: mdl
+    label: MDL Mapping
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Data Sinks\"\n    mdl[\"MmMapLockedPages\"\
+    ]\n  end\n    ioctl ==>|\"Unknown\"| unknown\n    unknown -.->|\"MDL Mapping\"\
+    | mdl\n    style mdl fill:#ff8c00,stroke:#333"
 summary:
-  overall_risk: "HIGH"
+  overall_risk: HIGH
   high_findings: 1
   medium_findings: 2
-  recommendation: "Kritischster Netzwerk-Treiber. Volle Fuzzing-Abdeckung."
+  recommendation: Kritischster Netzwerk-Treiber. Volle Fuzzing-Abdeckung.
   coverage_percent: 1

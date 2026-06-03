@@ -1,20 +1,30 @@
-﻿meta:
-  binary_name: "lsass.exe"
-  binary_type: "user_exe"
+meta:
+  binary_name: lsass.exe
+  binary_type: user_exe
   file_size_bytes: 84200
-  analysis_date: "2026-06-03"
-  analyst: "opencode + GhidraMCP"
-  notes: "Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI."
+  analysis_date: '2026-06-03'
+  analyst: opencode + GhidraMCP
+  notes: Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI.
 binary_info:
-  architecture: "x64"
+  architecture: x64
   function_count: 100
-pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true }
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+  high_entropy_aslr: true
 import_risk_map:
   high:
-    - { api: "NdrServerCallAll", risk: "RPC-Server Remote", cwe: "CWE-20" }
-    - { api: "LoadLibraryExW", risk: "Auth-Package-DLL-Laden", cwe: "CWE-426" }
+  - api: NdrServerCallAll
+    risk: RPC-Server Remote
+    cwe: CWE-20
+  - api: LoadLibraryExW
+    risk: Auth-Package-DLL-Laden
+    cwe: CWE-426
   medium:
-    - { api: "SspirProcessSecurityContext", risk: "SSPI-Token-Validierung", cwe: "CWE-287" }
+  - api: SspirProcessSecurityContext
+    risk: SSPI-Token-Validierung
+    cwe: CWE-287
 tools_output:
   cwe_checker:
     total_findings: 44
@@ -24,19 +34,49 @@ tools_output:
     cwe676_dangerous_func: 15
     notes: 'cwe_checker: 44 Findings.'
 findings:
-  - id: "LSA-001"
-    severity: "HIGH"
-    cwe: "CWE-20"
-    title: "RPC-Server + SSPI -- Remote-Angriffsflache"
-    description: "lsass.exe ist RPC-Server mit SSPI. NdrServerCallAll + SspirProcessSecurityContext."
-    taint_path: "RPC -> SSPI -> Token -> SYSTEM"
-    recommendation: "RPC-Input-Validierung. Token-Parsing absichern."
+- id: LSA-001
+  severity: HIGH
+  cwe: CWE-20
+  title: RPC-Server + SSPI -- Remote-Angriffsflache
+  description: lsass.exe ist RPC-Server mit SSPI. NdrServerCallAll + SspirProcessSecurityContext.
+  taint_path: RPC -> SSPI -> Token -> SYSTEM
+  recommendation: RPC-Input-Validierung. Token-Parsing absichern.
 taint_graph:
-  sources: [{name: "RPC-Clients", type: "Remote"}]
-  sinks: [{name: "SSPI/LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "RPC-Clients", to: "SSPI", bounded: false}]
+  sources:
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+  sinks:
+  - id: dll
+    name: LoadLibraryExW
+    type: DLL Loading
+    address: EXTERNAL
+    risk: CWE-426
+  edges:
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: dll
+    label: DLL Loading
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    dll[\"\
+    LoadLibraryExW\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown -.->|\"\
+    DLL Loading\"| dll\n    style dll fill:#ff8c00,stroke:#333"
 summary:
-  overall_risk: "HIGH"
+  overall_risk: HIGH
   high_findings: 1
-  recommendation: "RPC+SSPI. Token-Validierung hart absichern."
+  recommendation: RPC+SSPI. Token-Validierung hart absichern.
   coverage_percent: 15

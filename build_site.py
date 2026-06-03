@@ -274,40 +274,28 @@ def handlers_section(d):
 def taint_section(d):
     tg = d.get("taint_graph", {})
     if not tg: return ""
-    srcs = "".join(f"<tr><td>Source</td><td>{s.get('name','?')}</td><td>{s.get('type','?')}</td></tr>" for s in tg.get("sources",[]))
-    snks = "".join(f"<tr><td>Sink</td><td>{s.get('name','?')}</td><td>{s.get('address','?')}</td></tr>" for s in tg.get("sinks",[]))
-    edges = "".join(
-        f"<tr><td>{'BOUNDED' if e.get('bounded') else 'UNCHECKED'}</td><td>{e.get('from','?')}</td><td>{e.get('to','?')}</td><td>{e.get('check_location','-')}</td></tr>"
-        for e in tg.get("edges",[])
-    )
     
-    # Build Mermaid graph from edges
-    mm_edges = []
-    for e in tg.get("edges", []):
-        def clean_id(s):
-            for ch in ['>','<','-','.',' ','(',')',':','\\','/']:
-                s = s.replace(ch, '_')
-            return s[:30]
-        src_id = clean_id(e.get('from','?'))
-        snk_id = clean_id(e.get('to','?'))
-        label = "BOUNDED" if e.get('bounded') else "UNCHECKED"
-        mm_edges.append(f"    {src_id}[\"{e.get('from','?')[:40]}\"] -->|\"{label}\"| {snk_id}[\"{e.get('to','?')[:40]}\"]")
-    
-    mermaid = ""
-    if mm_edges:
-        mermaid = f"""<div class="mermaid" style="margin-top:15px">
-graph LR
-{chr(10).join(mm_edges)}
-</div>"""
-    
-    return f"""<div class="card"><h3>Taint-Graph</h3>
-    <div class="grid2">
-    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr>{srcs}</table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr>{snks}</table></div>
-    </div>
-    {mermaid}
-    {"<hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr>"+edges+"</table>" if edges else ""}
-    </div>"""
+    # Use explicit Mermaid diagram if provided
+    mm = tg.get("graph_mermaid", "")
+    if mm:
+        # Get sources/sinks tables
+        srcs = "".join(f"<tr><td>{s.get('name','?')}</td><td>{s.get('type','?')}</td><td style='font-family:monospace;font-size:0.75rem'>{s.get('irp_field','-')}</td></tr>" for s in tg.get("sources",[]))
+        snks = "".join(f"<tr><td>{s.get('name','?')}</td><td>{s.get('type','?')}</td><td style='font-family:monospace;font-size:0.75rem'>{s.get('address','?')}</td></tr>" for s in tg.get("sinks",[]))
+        vals = "".join(f"<tr><td>{v.get('name','?')}</td><td>{v.get('type','?')}</td><td style='font-size:0.8rem'>{v.get('note','-')}</td></tr>" for v in tg.get("validators",[]))
+        edges = "".join(
+            f"<tr><td><span class='badge sev-{'LOW' if e.get('status')=='BOUNDED' else 'MEDIUM' if e.get('status')=='CONDITIONAL' else 'HIGH'}'>{e.get('status','?')}</span></td><td>{e.get('label','?')}</td><td style='font-size:0.8rem'>{e.get('note','-')}</td><td style='font-family:monospace;font-size:0.75rem'>{e.get('address','-')}</td></tr>"
+            for e in tg.get("edges",[]))
+        
+        return f"""<div class="card"><h3>Taint-Graph (Detail)</h3>
+        <div class="mermaid" style="margin:15px 0">{mm}</div>
+        <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
+        <div class="grid2" style="margin-top:10px">
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr>{srcs}</table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr>{snks}</table></div>
+        </div>
+        {"<h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr>"+vals+"</table>" if vals else ""}
+        {"<h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr>"+edges+"</table>" if edges else ""}
+        </details></div>"""
 
 def build_detail(report):
     name = report["meta"].get("binary_name", report["_file"])
@@ -324,7 +312,7 @@ def build_detail(report):
     content += pe_section(report)
     content += import_section(report)
     content += handlers_section(report)
-    content += taint_section(report)
+    content += taint_section(report) or ""
     content += tools_section(report)
     content += findings_section(report)
     content += artifacts_section(report)

@@ -1,28 +1,63 @@
-﻿meta:
-  binary_name: "msiscsi.sys"
-  binary_type: "kernel_driver"
+meta:
+  binary_name: msiscsi.sys
+  binary_type: kernel_driver
   file_size_bytes: 333240
-  analysis_date: "2026-06-03"
-  analyst: "opencode Pipeline"
-  notes: "Ghidra-Schatzt: ~600 Funktionen (basierend auf DateigroBe). iSCSI Initiator"
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: 'Ghidra-Schatzt: ~600 Funktionen (basierend auf DateigroBe). iSCSI Initiator'
 binary_info:
-  architecture: "x64"
+  architecture: x64
   function_count: 600
-pe_security: { aslr: true, dep: true, cfg: true }
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "MSISCSI-001"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "iSCSI Initiator"
-    description: "iSCSI Initiator"
-    taint_path: "External -> Parser -> Sink"
-    recommendation: "Ghidra-Tiefenprufung empfohlen."
+- id: MSISCSI-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: iSCSI Initiator
+  description: iSCSI Initiator
+  taint_path: External -> Parser -> Sink
+  recommendation: Ghidra-Tiefenprufung empfohlen.
 taint_graph:
-  sources: [{name: "Input", type: "External"}]
-  sinks: [{name: "memcpy/MDL", address: "EXTERNAL"}]
-  edges: [{from: "Input", to: "memcpy", bounded: false}]
+  sources:
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+  sinks:
+  - id: unknown
+    name: Unbekannte Sinks
+    type: Unknown
+    note: Keine spezifischen Sinks via Import-Analyse identifiziert
+  edges:
+  - from: ioctl
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: unknown
+    label: Unknown
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"Unbekannte Sinks\"\
+    ]\n  end\n    ioctl ==>|\"Unknown\"| unknown\n    unknown -->|\"Unknown\"| unknown"
 summary:
-  overall_risk: "MEDIUM"
-  recommendation: "iSCSI Initiator"
+  overall_risk: MEDIUM
+  recommendation: iSCSI Initiator
   coverage_percent: 1
-

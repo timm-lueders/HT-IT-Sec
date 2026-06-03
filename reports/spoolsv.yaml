@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   binary_name: spoolsv.exe
   binary_type: user_exe
   file_size_bytes: 983040
@@ -55,22 +55,48 @@ findings:
   recommendation: RPC-Authentifizierung prufen. Treiber-Signaturvalidierung vor LoadLibraryExW.
 taint_graph:
   sources:
-  - name: RPC-Clients
-    type: Remote via NdrServerCall
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: LoadLibraryExW
+  - id: memcpy
+    name: memcpy
+    type: Memory Copy
     address: EXTERNAL
-  - name: RpcImpersonateClient
+    risk: CWE-119
+  - id: dll
+    name: LoadLibraryExW
+    type: DLL Loading
     address: EXTERNAL
+    risk: CWE-426
   edges:
-  - from: RPC-Clients
-    to: LoadLibraryExW
-    bounded: false
-    check_location: RPC-Marshalling -> DLL-Pfad
-  - from: RPC-Clients
-    to: RpcImpersonateClient
-    bounded: false
-    check_location: Token-Validierung
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: memcpy
+    label: Memory Copy
+    status: CONDITIONAL
+  - from: unknown
+    to: dll
+    label: DLL Loading
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"\
+    memcpy\"]\n    dll[\"LoadLibraryExW\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n\
+    \    unknown -.->|\"Memory Copy\"| memcpy\n    unknown -.->|\"DLL Loading\"| dll\n\
+    \    style memcpy fill:#ff8c00,stroke:#333\n    style dll fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   high_findings: 1
@@ -91,6 +117,3 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 1261 Findings.
-
-
-

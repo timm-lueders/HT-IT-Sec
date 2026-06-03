@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   binary_name: cht4vx64.sys
   binary_type: kernel_driver
   file_size_bytes: 1854880
@@ -64,16 +64,51 @@ findings:
     prufen.
 taint_graph:
   sources:
-  - name: Netzwerk-Pakete
-    type: Chelsio Firmware/NDIS
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: Vf_read_reg/Vf_write_reg
-    address: INTERNAL
-    type: Hardware Register
+  - id: memcpy
+    name: memcpy_s
+    type: Memory Copy
+    address: EXTERNAL
+    risk: N/A
+  - id: read
+    name: ZwReadFile/ReadFile
+    type: Disk I/O Read
+    address: EXTERNAL
   edges:
-  - from: Netzwerk-Pakete
-    to: Vf_write_reg
-    bounded: false
+  - from: ioctl
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: memcpy
+    label: Memory Copy
+    status: BOUNDED
+  - from: unknown
+    to: read
+    label: Disk I/O Read
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"memcpy_s\"]\n\
+    \    read[\"ZwReadFile/ReadFile\"]\n  end\n    ioctl ==>|\"Unknown\"| unknown\n\
+    \    unknown -->|\"Memory Copy\"| memcpy\n    unknown -->|\"Disk I/O Read\"| read"
 summary:
   overall_risk: LOW
   high_findings: 0
@@ -94,5 +129,3 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 387 Findings.
-
-

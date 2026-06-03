@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   template_version: '1.0'
   binary_name: srv2.sys
   binary_type: kernel_driver
@@ -78,5 +78,42 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 699 Findings.
-
-
+taint_graph:
+  sources:
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: pr
+    name: ProbeForRead
+    type: Buffer Probe
+    note: Validiert User-Buffer vor Lesezugriff
+  sinks:
+  - id: mdl
+    name: MmMapLockedPages
+    type: MDL Mapping
+    address: EXTERNAL
+    risk: CWE-119
+  edges:
+  - from: ioctl
+    to: pr
+    label: Buffer Probe
+    status: BOUNDED
+  - from: pr
+    to: mdl
+    label: MDL Mapping
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Validation Layer\"\n    pr{{ProbeForRead}}\n\
+    \  end\n  subgraph \"Data Sinks\"\n    mdl[\"MmMapLockedPages\"]\n  end\n    ioctl\
+    \ -->|\"Buffer Probe\"| pr\n    pr -.->|\"MDL Mapping\"| mdl\n    style mdl fill:#ff8c00,stroke:#333"

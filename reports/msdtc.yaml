@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   binary_name: msdtc.exe
   binary_type: user_exe
   file_size_bytes: 172032
@@ -23,19 +23,38 @@ findings:
   recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
-  - name: Input
-    type: External
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: memcpy
-    address: EXTERNAL
+  - id: unknown
+    name: Unbekannte Sinks
+    type: Unknown
+    note: Keine spezifischen Sinks via Import-Analyse identifiziert
   edges:
-  - from: Input
-    to: memcpy
-    bounded: false
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: unknown
+    label: Unknown
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"\
+    Unbekannte Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown\
+    \ -->|\"Unknown\"| unknown"
 summary:
   overall_risk: MEDIUM
   recommendation: MS DTC -- 168KB. Distributed Transactions.
   coverage_percent: 3
-
-
-

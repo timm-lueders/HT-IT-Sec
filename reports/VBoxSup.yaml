@@ -1,151 +1,277 @@
-﻿meta:
-  template_version: "1.0"
-  binary_name: "VBoxSup.sys"
-  binary_type: "kernel_driver"
+meta:
+  template_version: '1.0'
+  binary_name: VBoxSup.sys
+  binary_type: kernel_driver
   file_size_bytes: 1062048
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   analysis_duration_minutes: 20
-  notes: "VirtualBox Supervisor Kernel Driver (Oracle). 1.863 Funktionen, 4.406 Symbole, hunderte Exports. Vollstandige VMM-Integration."
-
+  notes: VirtualBox Supervisor Kernel Driver (Oracle). 1.863 Funktionen, 4.406 Symbole,
+    hunderte Exports. Vollstandige VMM-Integration.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  entry_point: "0x140019190 (DriverEntry)"
+  architecture: x64
+  base_address: '0x140000000'
+  entry_point: 0x140019190 (DriverEntry)
   function_count: 1863
   symbol_count: 4406
-  compiler_hint: "msvc + custom"
-  subsystem: "native"
-
+  compiler_hint: msvc + custom
+  subsystem: native
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: false
-  notes: "CFG aktiv. High-Entropy fur Kernel-Treiber irrelevant."
-
+  notes: CFG aktiv. High-Entropy fur Kernel-Treiber irrelevant.
 import_risk_map:
   high:
-    - { api: "IoBuildPartialMdl", risk: "Double-Fetch (TOCTOU) bei MDL-Manipulation", cwe: "CWE-367" }
+  - api: IoBuildPartialMdl
+    risk: Double-Fetch (TOCTOU) bei MDL-Manipulation
+    cwe: CWE-367
   medium:
-    - { api: "MmProbeAndLockPages", risk: "User-Mode-Puffer in Kernel locken -- braucht Bounds-Check", cwe: "CWE-119" }
-    - { api: "MmMapLockedPages", risk: "MDL-Mapping -- Zugriff auf User-Puffer im Kernel", cwe: "CWE-119" }
-    - { api: "ZwCreateFile/ZwReadFile/ZwQueryDirectoryFile", risk: "File-System-Zugriff aus Kernel -- Pfad-Traversal moglich", cwe: "CWE-22" }
-    - { api: "ObReferenceObjectByHandle", risk: "Handle-Validierung -- muss vor Zugriff erfolgen", cwe: "CWE-416" }
+  - api: MmProbeAndLockPages
+    risk: User-Mode-Puffer in Kernel locken -- braucht Bounds-Check
+    cwe: CWE-119
+  - api: MmMapLockedPages
+    risk: MDL-Mapping -- Zugriff auf User-Puffer im Kernel
+    cwe: CWE-119
+  - api: ZwCreateFile/ZwReadFile/ZwQueryDirectoryFile
+    risk: File-System-Zugriff aus Kernel -- Pfad-Traversal moglich
+    cwe: CWE-22
+  - api: ObReferenceObjectByHandle
+    risk: Handle-Validierung -- muss vor Zugriff erfolgen
+    cwe: CWE-416
   low:
-    - { api: "ProbeForRead", risk: "Buffer-Validierung (KORREKT vorhanden)", cwe: "N/A" }
-    - { api: "ProbeForWrite", risk: "Buffer-Validierung (KORREKT vorhanden)", cwe: "N/A" }
-    - { api: "ExGetPreviousMode", risk: "User/Kernel-Mode-Check (KORREKT vorhanden)", cwe: "N/A" }
-    - { api: "SeCaptureSubjectContext", risk: "Security-Token-Prufung (KORREKT vorhanden)", cwe: "N/A" }
+  - api: ProbeForRead
+    risk: Buffer-Validierung (KORREKT vorhanden)
+    cwe: N/A
+  - api: ProbeForWrite
+    risk: Buffer-Validierung (KORREKT vorhanden)
+    cwe: N/A
+  - api: ExGetPreviousMode
+    risk: User/Kernel-Mode-Check (KORREKT vorhanden)
+    cwe: N/A
+  - api: SeCaptureSubjectContext
+    risk: Security-Token-Prufung (KORREKT vorhanden)
+    cwe: N/A
   info:
-    - { api: "ASM* (asm helpers)", risk: "Kritische Sektionen, atomare Operationen, CPUID", cwe: "N/A" }
-
+  - api: ASM* (asm helpers)
+    risk: Kritische Sektionen, atomare Operationen, CPUID
+    cwe: N/A
 exports_key:
-  - { name: "SUPR0IoCtlPerform", address: "0x140019700", role: "HAUPT-IOCTL-HANDLER -- Dispatch fur alle VirtualBox-IOCTLs" }
-  - { name: "SUPR0IoCtlSetupForHandle", address: "0x140019990", role: "IOCTL-Session-Setup pro Handle" }
-  - { name: "SUPR0IoCtlCleanup", address: "0x140019680", role: "IOCTL-Session-Cleanup" }
-  - { name: "SUPR0ObjRegister/AddRef/Release", address: "0x140001760+", role: "Objekt-Lebenszyklus-Management" }
-  - { name: "SUPR0LockMem/UnlockMem", address: "0x140001fe0", role: "User-Memory Lock/Unlock" }
-  - { name: "SUPR0MemAlloc/Free", address: "0x1400025f0", role: "Kernel-Memory-Allokation" }
-  - { name: "SUPR0PageAllocEx/MapKernel/Free", address: "0x1400029e0", role: "Page-Allokation fur VM" }
-  - { name: "SUPR0LdrModByName/Retain/Release", address: "0x1400032d0", role: "Kernel-Modul-Loader -- ladt VBoxDrv.sys u.a." }
-  - { name: "RTR0MemObj* (20+ exports)", address: "0x140023960+", role: "Ring-0 Memory-Object-Management" }
-  - { name: "RTR0MemUserCopyFrom/To", address: "0x14002ac00", role: "SICHER: User-Mem-Kopie mit Validierung" }
-  - { name: "RTNetIPv4* (14 exports)", address: "0x140031bd0+", role: "Netzwerk -- IPv4/TCP/UDP-Paket-Parsing!" }
-  - { name: "ASM* (20+ asm helpers)", address: "0x140001070+", role: "Atomare Operationen, CPUID, Flags" }
-
+- name: SUPR0IoCtlPerform
+  address: '0x140019700'
+  role: HAUPT-IOCTL-HANDLER -- Dispatch fur alle VirtualBox-IOCTLs
+- name: SUPR0IoCtlSetupForHandle
+  address: '0x140019990'
+  role: IOCTL-Session-Setup pro Handle
+- name: SUPR0IoCtlCleanup
+  address: '0x140019680'
+  role: IOCTL-Session-Cleanup
+- name: SUPR0ObjRegister/AddRef/Release
+  address: 0x140001760+
+  role: Objekt-Lebenszyklus-Management
+- name: SUPR0LockMem/UnlockMem
+  address: '0x140001fe0'
+  role: User-Memory Lock/Unlock
+- name: SUPR0MemAlloc/Free
+  address: '0x1400025f0'
+  role: Kernel-Memory-Allokation
+- name: SUPR0PageAllocEx/MapKernel/Free
+  address: '0x1400029e0'
+  role: Page-Allokation fur VM
+- name: SUPR0LdrModByName/Retain/Release
+  address: '0x1400032d0'
+  role: Kernel-Modul-Loader -- ladt VBoxDrv.sys u.a.
+- name: RTR0MemObj* (20+ exports)
+  address: 0x140023960+
+  role: Ring-0 Memory-Object-Management
+- name: RTR0MemUserCopyFrom/To
+  address: '0x14002ac00'
+  role: 'SICHER: User-Mem-Kopie mit Validierung'
+- name: RTNetIPv4* (14 exports)
+  address: 0x140031bd0+
+  role: Netzwerk -- IPv4/TCP/UDP-Paket-Parsing!
+- name: ASM* (20+ asm helpers)
+  address: 0x140001070+
+  role: Atomare Operationen, CPUID, Flags
 findings:
-  - id: "VBX-001"
-    severity: "MEDIUM"
-    cwe: "CWE-367"
-    title: "IoBuildPartialMdl in IOCTL-Pfad"
-    function: "SUPR0IoCtlPerform"
-    address: "0x140019700"
-    description: |
-      VBoxSup.sys importiert IoBuildPartialMdl -- klassisches Double-Fetch-
-      Risiko. Zwischen dem ProbeForWrite-Check und der tatsachlichen MDL-
-      Verarbeitung kann ein paralleler Thread den User-Mode-Puffer andern.
-      VirtualBox implementiert jedoch ProbeForRead+ProbeForWrite sowie
-      ExGetPreviousMode was das Risiko reduziert.
-    taint_path: "User IOCTL -> ProbeForWrite -> IoBuildPartialMdl -> Kernel Access"
-    recommendation: "Auf MmProbeAndLockPages + MmMapLockedPagesSpecifyCache migrieren."
-  - id: "VBX-002"
-    severity: "LOW"
-    cwe: "CWE-22"
-    title: "Dateisystem-Zugriff aus Kernel-Treiber"
-    function: "SUPR0LdrModByName + ZwCreateFile"
-    address: "0x1400032d0"
-    description: |
-      VBoxSup.sys kann Dateien uber ZwCreateFile/ZwReadFile offnen (Modul-
-      Loader). Ein bosartiger Pfad konnte zum Lesen beliebiger Kernel-
-      Dateien fuhren. Pfad-Validierung ist kritisch.
-    taint_path: "User IOCTL -> Pfad -> ZwCreateFile -> ZwReadFile"
-    recommendation: "Pfad-Validierung gegen RTL_FILE_ROOT sicherstellen."
-  - id: "VBX-003"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Vorbildliche Sicherheitspraktiken identifiziert"
-    function: "Global"
-    address: "N/A"
-    description: |
-      VBoxSup.sys implementiert mehrere Sicherheitspraktiken die in
-      Drittanbieter-Treibern selten sind:
-      - ProbeForRead + ProbeForWrite vor User-Buffer-Zugriff
-      - ExGetPreviousMode zur Unterscheidung User/Kernel-Caller
-      - SeCaptureSubjectContext fur Access-Checks
-      - RTR0MemUserCopyFrom/To fur sichere User-Mem-Kopien
-      - ObReferenceObjectByHandle fur Handle-Validierung
-      Dies deutet auf ein reifes Security-Development-Lifecycle hin.
-    recommendation: "Best Practices beibehalten. IoBuildPartialMdl ersetzen."
-  - id: "VBX-004"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Netzwerk-Paket-Parsing im Kernel (RTNetIPv4*)"
-    function: "RTNetIPv4* (14 Exports)"
-    address: "0x140031bd0+"
-    description: |
-      VBoxSup.sys enthalt Netzwerk-Paket-Parsing-Funktionen fur IPv4,
-      TCP und UDP. Diese werden fur VirtualBox-Netzwerk-Bridging und
-      NAT verwendet. Fehler im Paket-Parsing sind eine Remote-Kernel-
-      Angriffsflache (CWE-120).
-    taint_path: "Netzwerk-Paket -> RTNetIPv4IsHdrValid -> TCP/UDP-Validierung"
-    recommendation: "Netzwerk-Paket-Parser auf Langenvalidierung prufen."
+- id: VBX-001
+  severity: MEDIUM
+  cwe: CWE-367
+  title: IoBuildPartialMdl in IOCTL-Pfad
+  function: SUPR0IoCtlPerform
+  address: '0x140019700'
+  description: 'VBoxSup.sys importiert IoBuildPartialMdl -- klassisches Double-Fetch-
 
+    Risiko. Zwischen dem ProbeForWrite-Check und der tatsachlichen MDL-
+
+    Verarbeitung kann ein paralleler Thread den User-Mode-Puffer andern.
+
+    VirtualBox implementiert jedoch ProbeForRead+ProbeForWrite sowie
+
+    ExGetPreviousMode was das Risiko reduziert.
+
+    '
+  taint_path: User IOCTL -> ProbeForWrite -> IoBuildPartialMdl -> Kernel Access
+  recommendation: Auf MmProbeAndLockPages + MmMapLockedPagesSpecifyCache migrieren.
+- id: VBX-002
+  severity: LOW
+  cwe: CWE-22
+  title: Dateisystem-Zugriff aus Kernel-Treiber
+  function: SUPR0LdrModByName + ZwCreateFile
+  address: '0x1400032d0'
+  description: 'VBoxSup.sys kann Dateien uber ZwCreateFile/ZwReadFile offnen (Modul-
+
+    Loader). Ein bosartiger Pfad konnte zum Lesen beliebiger Kernel-
+
+    Dateien fuhren. Pfad-Validierung ist kritisch.
+
+    '
+  taint_path: User IOCTL -> Pfad -> ZwCreateFile -> ZwReadFile
+  recommendation: Pfad-Validierung gegen RTL_FILE_ROOT sicherstellen.
+- id: VBX-003
+  severity: INFO
+  cwe: N/A
+  title: Vorbildliche Sicherheitspraktiken identifiziert
+  function: Global
+  address: N/A
+  description: 'VBoxSup.sys implementiert mehrere Sicherheitspraktiken die in
+
+    Drittanbieter-Treibern selten sind:
+
+    - ProbeForRead + ProbeForWrite vor User-Buffer-Zugriff
+
+    - ExGetPreviousMode zur Unterscheidung User/Kernel-Caller
+
+    - SeCaptureSubjectContext fur Access-Checks
+
+    - RTR0MemUserCopyFrom/To fur sichere User-Mem-Kopien
+
+    - ObReferenceObjectByHandle fur Handle-Validierung
+
+    Dies deutet auf ein reifes Security-Development-Lifecycle hin.
+
+    '
+  recommendation: Best Practices beibehalten. IoBuildPartialMdl ersetzen.
+- id: VBX-004
+  severity: INFO
+  cwe: N/A
+  title: Netzwerk-Paket-Parsing im Kernel (RTNetIPv4*)
+  function: RTNetIPv4* (14 Exports)
+  address: 0x140031bd0+
+  description: 'VBoxSup.sys enthalt Netzwerk-Paket-Parsing-Funktionen fur IPv4,
+
+    TCP und UDP. Diese werden fur VirtualBox-Netzwerk-Bridging und
+
+    NAT verwendet. Fehler im Paket-Parsing sind eine Remote-Kernel-
+
+    Angriffsflache (CWE-120).
+
+    '
+  taint_path: Netzwerk-Paket -> RTNetIPv4IsHdrValid -> TCP/UDP-Validierung
+  recommendation: Netzwerk-Paket-Parser auf Langenvalidierung prufen.
 taint_graph:
   sources:
-    - { name: "User-Mode IOCTL (via DeviceIoControl)", type: "Kernel Entry -- METHOD_NEITHER/BUFFERED" }
-    - { name: "Netzwerk-Pakete (Bridged/NAT)", type: "Remote Input -- IPv4/TCP/UDP" }
+  - id: ioctl
+    name: DeviceIoControl Input
+    type: IOCTL (METHOD_NEITHER)
+    irp_field: Irp->UserBuffer @ 0x70
+  - id: mdl_read
+    name: IRP_MJ_READ MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  - id: mdl_write
+    name: IRP_MJ_WRITE MdlAddress
+    type: DIRECT_IO
+    irp_field: Irp->MdlAddress @ 0x10
+  validators:
+  - id: pr
+    name: ProbeForRead
+    type: Buffer Probe
+    note: Validiert User-Buffer vor Lesezugriff
+  - id: pw
+    name: ProbeForWrite
+    type: Buffer Probe
+    note: Validiert User-Buffer vor Schreibzugriff
+  - id: pm
+    name: ExGetPreviousMode
+    type: Mode Check
+    note: Prüft ob Caller User oder Kernel Mode
+  - id: sec
+    name: SeCaptureSubjectContext
+    type: Security Check
+    note: Prüft Security-Token des Callers
   sinks:
-    - { name: "RTR0MemUserCopyFrom/To", address: "0x14002ac00", type: "Safe User-Memory Copy" }
-    - { name: "MmMapLockedPages", address: "EXTERNAL", type: "MDL-Mapping" }
-    - { name: "ZwCreateFile/ZwReadFile", address: "EXTERNAL", type: "File-System Access" }
+  - id: read
+    name: ZwReadFile/ReadFile
+    type: Disk I/O Read
+    address: EXTERNAL
+  - id: mdl
+    name: MmMapLockedPages
+    type: MDL Mapping
+    address: EXTERNAL
+    risk: CWE-119
   edges:
-    - { from: "User-Mode IOCTL", to: "RTR0MemUserCopyFrom/To", bounded: true, check_location: "ProbeForRead/Write + ExGetPreviousMode" }
-    - { from: "User-Mode IOCTL", to: "MmMapLockedPages", bounded: true, check_location: "IoBuildPartialMdl + ProbeForRead" }
-    - { from: "Netzwerk-Pakete", to: "MmMapLockedPages", bounded: false, check_location: "Nicht verifiziert" }
-
+  - from: ioctl
+    to: pr
+    label: Buffer Probe
+    status: BOUNDED
+  - from: pr
+    to: pw
+    label: Buffer Probe
+    status: BOUNDED
+  - from: pw
+    to: pm
+    label: Mode Check
+    status: BOUNDED
+  - from: pm
+    to: sec
+    label: Security Check
+    status: BOUNDED
+  - from: sec
+    to: read
+    label: Disk I/O Read
+    status: BOUNDED
+  - from: sec
+    to: mdl
+    label: MDL Mapping
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
+    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
+    \ MdlAddress\"]\n  end\n  subgraph \"Validation Layer\"\n    pr{{ProbeForRead}}\n\
+    \    pw{{ProbeForWrite}}\n    pm{{ExGetPreviousMode}}\n    sec{{SeCaptureSubjectContext}}\n\
+    \  end\n  subgraph \"Data Sinks\"\n    read[\"ZwReadFile/ReadFile\"]\n    mdl[\"\
+    MmMapLockedPages\"]\n  end\n    ioctl -->|\"Buffer Probe\"| pr\n    pr -->|\"\
+    Buffer Probe\"| pw\n    pw -->|\"Mode Check\"| pm\n    pm -->|\"Security Check\"\
+    | sec\n    sec -->|\"Disk I/O Read\"| read\n    sec -.->|\"MDL Mapping\"| mdl\n\
+    \    style mdl fill:#ff8c00,stroke:#333"
 tools_output:
   flawfinder:
-    notes: "Nicht auf VBoxSup.sys angewendet (kein Decompiler-Export)"
+    notes: Nicht auf VBoxSup.sys angewendet (kein Decompiler-Export)
   cwe_checker:
-    notes: "Lauft im Docker-Container"
+    notes: Lauft im Docker-Container
   gcc_analyzer:
-    notes: "N/A -- Kernel-Treiber"
-
+    notes: N/A -- Kernel-Treiber
 summary:
-  overall_risk: "MEDIUM"
+  overall_risk: MEDIUM
   critical_findings: 0
   high_findings: 0
   medium_findings: 1
   low_findings: 1
   info_findings: 2
-  recommendation: |
-    VirtualBox Supervisor -- uberdurchschnittlich gut abgesichert fur
-    einen Drittanbieter-Kernel-Treiber. ProbeForRead/Write, ExGetPreviousMode
-    und SeCaptureSubjectContext sind vorhanden. Hauptkritikpunkte:
-    - IoBuildPartialMdl durch MmProbeAndLockPages ersetzen
-    - Netzwerk-Paket-Parser auf Bounds-Checks prufen
-    - Dateisystem-Pfade validieren
-    Insgesamt: Professioneller Treiber mit Security-Awareness.
-  coverage_percent: 8
+  recommendation: 'VirtualBox Supervisor -- uberdurchschnittlich gut abgesichert fur
 
+    einen Drittanbieter-Kernel-Treiber. ProbeForRead/Write, ExGetPreviousMode
+
+    und SeCaptureSubjectContext sind vorhanden. Hauptkritikpunkte:
+
+    - IoBuildPartialMdl durch MmProbeAndLockPages ersetzen
+
+    - Netzwerk-Paket-Parser auf Bounds-Checks prufen
+
+    - Dateisystem-Pfade validieren
+
+    Insgesamt: Professioneller Treiber mit Security-Awareness.
+
+    '
+  coverage_percent: 8

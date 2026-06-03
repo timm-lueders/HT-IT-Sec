@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   binary_name: WdiWiFi
   binary_type: user_exe
   analysis_date: '2026-06-02'
@@ -22,17 +22,38 @@ findings:
   recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
 taint_graph:
   sources:
-  - name: Input
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: Sink
+  - id: unknown
+    name: Unbekannte Sinks
+    type: Unknown
+    note: Keine spezifischen Sinks via Import-Analyse identifiziert
   edges:
-  - from: Input
-    to: Sink
-    bounded: false
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: unknown
+    label: Unknown
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"\
+    Unbekannte Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown\
+    \ -->|\"Unknown\"| unknown"
 summary:
   overall_risk: MEDIUM
   recommendation: WiFi WDI. 802.11.
   coverage_percent: 5
-
-
-

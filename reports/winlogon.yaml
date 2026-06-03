@@ -1,4 +1,4 @@
-﻿meta:
+meta:
   template_version: '1.0'
   binary_name: winlogon.exe
   binary_type: user_exe
@@ -66,22 +66,48 @@ findings:
   recommendation: Alle memcpy-Aufrufe auf _o_memcpy_s migrieren.
 taint_graph:
   sources:
-  - name: Registry (Credential-Provider-Pfade)
-    type: Konfiguration
-  - name: SAS (Secure Attention Sequence)
-    type: Tastatur-Input
+  - id: cmdline
+    name: GetCommandLineW()
+    type: Process Args
+    function: main
+  - id: console
+    name: ReadConsoleW()
+    type: Console Input
+    function: main
+  validators:
+  - id: unknown
+    name: Unbekannte Validierung
+    type: Unknown
+    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
   sinks:
-  - name: LoadLibraryExW
-    address: EXTERNAL:kernel32.dll
-    type: DLL-Laden
-  - name: memcpy
-    address: EXTERNAL:ucrtbase.dll
+  - id: memcpy
+    name: memcpy
     type: Memory Copy
+    address: EXTERNAL
+    risk: CWE-119
+  - id: dll
+    name: LoadLibraryExW
+    type: DLL Loading
+    address: EXTERNAL
+    risk: CWE-426
   edges:
-  - from: Registry
-    to: LoadLibraryExW
-    bounded: false
-    check_location: Pfad-Validierung unbekannt
+  - from: cmdline
+    to: unknown
+    label: Unknown
+    status: UNCHECKED
+  - from: unknown
+    to: memcpy
+    label: Memory Copy
+    status: CONDITIONAL
+  - from: unknown
+    to: dll
+    label: DLL Loading
+    status: CONDITIONAL
+  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
+    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"\
+    memcpy\"]\n    dll[\"LoadLibraryExW\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n\
+    \    unknown -.->|\"Memory Copy\"| memcpy\n    unknown -.->|\"DLL Loading\"| dll\n\
+    \    style memcpy fill:#ff8c00,stroke:#333\n    style dll fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   high_findings: 1
@@ -103,6 +129,3 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 1358 Findings.
-
-
-

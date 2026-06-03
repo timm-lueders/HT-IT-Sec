@@ -197,47 +197,54 @@ findings:
     nie einen leeren String zurückgibt.
 taint_graph:
   sources:
-  - name: GetCommandLineW()
-    type: Process Command Line (UNICODE)
-    function: main -> CmdCopyCommandLine
-  - name: ReadConsoleW()
-    type: Console Input (interaktiver Modus)
-    function: main Command-Loop
-  - name: ExpandEnvironmentStringsW()
-    type: Environment Variable Expansion
-    function: CmdExpandAndRun
-  - name: GetEnvironmentVariableW()
-    type: Environment Variable Lookup
-    function: Various
+    - {id: "cmdline", name: "GetCommandLineW()", type: "Process Args", function: "CmdCopyCommandLine", address: "0x1400249b0"}
+    - {id: "console", name: "ReadConsoleW()", type: "Console Input", function: "main", address: "0x140033a6c"}
+    - {id: "env_expand", name: "ExpandEnvironmentStringsW()", type: "Env Var Expansion", note: "CWE-120 Risiko"}
+  validators:
+    - {id: "length_check", name: "0x2000 Zeichen-Limit", type: "Buffer Size Check", function: "CmdCopyCommandLine", note: "Bei >8190 Zeichen wird abgelehnt"}
+    - {id: "null_term", name: "Null-Terminator Check", type: "String Safety", note: "Buffer wird garantiert null-terminiert"}
+    - {id: "heap_corruption", name: "HeapEnableTerminationOnCorruption", type: "Heap Hardening", note: "Beendet Prozess bei Heap-Korruption"}
   sinks:
-  - name: CreateProcessW()
-    address: EXTERNAL:kernel32.dll
-    type: Process Creation
-  - name: memcpy
-    address: EXTERNAL:ucrtbase.dll
-    type: Memory Copy (14 Stellen)
-  - name: RegSetValueExW()
-    address: EXTERNAL:advapi32.dll
-    type: Registry Write
-  - name: WriteFile()
-    address: EXTERNAL:kernel32.dll
-    type: Console Output
+    - {id: "createproc", name: "CreateProcessW()", type: "Process Creation", address: "EXTERNAL:kernel32.dll", risk: "CWE-78"}
+    - {id: "shell_exec", name: "ShellExecuteWorker", type: "Shell Execution", address: "EXTERNAL:shell32.dll", risk: "CWE-78"}
+    - {id: "memcpy_sink", name: "memcpy", type: "Memory Copy", address: "EXTERNAL:ucrtbase.dll", risk: "CWE-119"}
+    - {id: "registry", name: "RegSetValueExW()", type: "Registry Write", address: "EXTERNAL:advapi32.dll"}
   edges:
-  - from: GetCommandLineW()
-    to: CreateProcessW()
-    bounded: true
-    check_location: 0x1400249b0 (CmdCopyCommandLine)
-    check_type: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
-  - from: ReadConsoleW()
-    to: CreateProcessW()
-    bounded: true
-    check_location: 0x140033a6c (main Command-Loop)
-    check_type: Console-Mode-Validierung vor Ausführung
-  - from: ExpandEnvironmentStringsW()
-    to: memcpy
-    bounded: false
-    check_location: Nicht im analysierten Scope
-    check_type: Unbekannt -- weitere Analyse nötig
+    - {from: "cmdline", to: "length_check", label: "wcslen(cmdline) <= 0x2000", status: "BOUNDED"}
+    - {from: "console", to: "length_check", label: "ReadConsoleW() in 0x4000 Buffer", status: "BOUNDED"}
+    - {from: "length_check", to: "null_term", label: "calloc(0x4000) + Null-Terminator", status: "BOUNDED"}
+    - {from: "null_term", to: "createproc", label: "CmdParseAndExecute() -> CreateProcessW()", status: "INFO"}
+    - {from: "env_expand", to: "memcpy_sink", label: "ExpandEnvironmentStringsW -> memcpy", status: "UNCHECKED", note: "Nicht im analysierten Scope"}
+    - {from: "null_term", to: "shell_exec", label: "Start-Befehl -> ShellExecuteWorker", status: "INFO"}
+    - {from: "heap_corruption", to: "memcpy_sink", label: "Heap-Operationen geschutzt", status: "PROTECTED"}
+  graph_mermaid: |
+    graph TD
+      subgraph "Input Sources"
+        A[GetCommandLineW<br/>Command Line Args]
+        B[ReadConsoleW<br/>Interactive Input]
+        C[ExpandEnvironmentStringsW<br/>Env Vars ⚠️ CWE-120]
+      end
+      subgraph "Validation"
+        D{{0x2000 Char Limit<br/>CmdCopyCommandLine<br/>@ 0x1400249b0}}
+        E[calloc 0x4000<br/>Null-Terminator]
+        F[HeapEnableTermination<br/>OnCorruption]
+      end
+      subgraph "Execution Sinks"
+        G[CreateProcessW<br/>@ kernel32.dll<br/>CWE-78]
+        H[ShellExecuteWorker<br/>@ shell32.dll]
+        I[memcpy<br/>@ ucrtbase.dll<br/>CWE-119]
+      end
+      A -->|"wcslen <= 0x2000"| D
+      B -->|"ReadConsoleW in Buffer"| D
+      D -->|"copy loop with sentinel"| E
+      E -->|"CmdParseAndExecute"| G
+      E -->|"Start-Befehl"| H
+      C -.->|"⚠️ UNCHECKED"| I
+      F -.->|"PROTECTED"| I
+      style C fill:#ff8c00,stroke:#333
+      style I fill:#ff8c00,stroke:#333
+      style D fill:#00fd00,stroke:#333
+      style E fill:#00fd00,stroke:#333
 tools_output:
   flawfinder:
     level_3_hits: 0
@@ -298,6 +305,7 @@ summary:
   total_function_count: 1133
   analyzed_functions: CRT-Startup, main, Command-Parser, Tokenizer, Command-Executor,
     Command-Line-Copy
+
 
 
 
