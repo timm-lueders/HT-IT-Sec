@@ -1,43 +1,82 @@
-meta:
-  template_version: "1.0"
-  binary_name: "srv2.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1016584
-  analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline"
+﻿meta:
+  template_version: '1.0'
+  binary_name: srv2.sys
+  binary_type: kernel_driver
+  file_size_bytes: 1015808
+  analysis_date: '2026-06-02'
+  analyst: opencode Pipeline
   analysis_duration_minutes: 5
-  notes: "SMB 2.0 Server Driver. Netzwerk-Protokoll-Parsing auf Kernel-Ebene. 1.176 Funktionen. Remote-Angriffsflache."
-binary_info: { architecture: "x64", base_address: "0x140000000", entry_point: "0x14009d010", function_count: 1176 }
-pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: false, notes: "CFG aktiv." }
+  notes: SMB 2.0 Server Driver. Netzwerk-Protokoll-Parsing auf Kernel-Ebene. 1.176
+    Funktionen. Remote-Angriffsflache.
+binary_info:
+  architecture: x64
+  base_address: '0x140000000'
+  entry_point: '0x14009d010'
+  function_count: 1176
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+  high_entropy_aslr: false
+  notes: CFG aktiv.
 import_risk_map:
   high:
-    - { api: "IoBuildPartialMdl", risk: "Double-Fetch (TOCTOU) bei SMB-Paketverarbeitung", cwe: "CWE-367" }
+  - api: IoBuildPartialMdl
+    risk: Double-Fetch (TOCTOU) bei SMB-Paketverarbeitung
+    cwe: CWE-367
   medium:
-    - { api: "MmMapLockedPagesSpecifyCache", risk: "MDL-Mapping fur Netzwerk-Puffer", cwe: "CWE-119" }
-    - { api: "_vsnwprintf", risk: "Format-String OHNE _s-Suffix -- gefahrlich!", cwe: "CWE-134" }
-    - { api: "KeStackAttachProcess", risk: "Prozess-Kontext-Wechsel -- User-Mode-Memory-Zugriff", cwe: "CWE-119" }
+  - api: MmMapLockedPagesSpecifyCache
+    risk: MDL-Mapping fur Netzwerk-Puffer
+    cwe: CWE-119
+  - api: _vsnwprintf
+    risk: Format-String OHNE _s-Suffix -- gefahrlich!
+    cwe: CWE-134
+  - api: KeStackAttachProcess
+    risk: Prozess-Kontext-Wechsel -- User-Mode-Memory-Zugriff
+    cwe: CWE-119
   low:
-    - { api: "ProbeForRead", risk: "Buffer-Validierung (korrekt vorhanden)", cwe: "N/A" }
+  - api: ProbeForRead
+    risk: Buffer-Validierung (korrekt vorhanden)
+    cwe: N/A
 findings:
-  - id: "SRV-001"
-    severity: "HIGH"
-    cwe: "CWE-367"
-    title: "IoBuildPartialMdl in SMB-Paketverarbeitung"
-    function: "N/A"
-    address: "N/A"
-    description: "srv2.sys verwendet IoBuildPartialMdl fur SMB-Paket-Puffer. Diese API ist anfallig fur Double-Fetch-Angriffe: Zwischen ProbeForRead und der tatsachlichen Verarbeitung kann der User-Mode-Puffer geandert werden (TOCTOU)."
-    recommendation: "Auf MmProbeAndLockPages/MmMapLockedPagesSpecifyCache migrieren."
-  - id: "SRV-002"
-    severity: "MEDIUM"
-    cwe: "CWE-134"
-    title: "_vsnwprintf ohne _s-Suffix"
-    function: "N/A"
-    address: "EXTERNAL"
-    description: "srv2.sys importiert _vsnwprintf (UNSAFE) statt _vsnwprintf_s (SAFE). Ein Bug in der Format-String-Verarbeitung kann zum Buffer-Overflow fuhren."
-    recommendation: "Auf _vsnwprintf_s migrieren."
+- id: SRV-001
+  severity: HIGH
+  cwe: CWE-367
+  title: IoBuildPartialMdl in SMB-Paketverarbeitung
+  function: N/A
+  address: N/A
+  description: 'srv2.sys verwendet IoBuildPartialMdl fur SMB-Paket-Puffer. Diese API
+    ist anfallig fur Double-Fetch-Angriffe: Zwischen ProbeForRead und der tatsachlichen
+    Verarbeitung kann der User-Mode-Puffer geandert werden (TOCTOU).'
+  recommendation: Auf MmProbeAndLockPages/MmMapLockedPagesSpecifyCache migrieren.
+- id: SRV-002
+  severity: MEDIUM
+  cwe: CWE-134
+  title: _vsnwprintf ohne _s-Suffix
+  function: N/A
+  address: EXTERNAL
+  description: srv2.sys importiert _vsnwprintf (UNSAFE) statt _vsnwprintf_s (SAFE).
+    Ein Bug in der Format-String-Verarbeitung kann zum Buffer-Overflow fuhren.
+  recommendation: Auf _vsnwprintf_s migrieren.
 summary:
-  overall_risk: "HIGH"
+  overall_risk: HIGH
   high_findings: 1
   medium_findings: 1
-  recommendation: "SMB-Server-Kernel-Treiber -- Remote-Angriffsflache. IoBuildPartialMdl ersetzen, Format-Strings auf _s migrieren."
+  recommendation: SMB-Server-Kernel-Treiber -- Remote-Angriffsflache. IoBuildPartialMdl
+    ersetzen, Format-Strings auf _s migrieren.
   coverage_percent: 2
+tools_output:
+  cwe_checker:
+    total_findings: 699
+    cwe787_oob_write: 685
+    cwe125_oob_read: 6
+    cwe476_null_deref: 8
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 699 Findings.
+
+

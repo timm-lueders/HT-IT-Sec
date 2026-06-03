@@ -1,7 +1,7 @@
 ﻿meta:
   binary_name: "jscript9.dll"
   binary_type: "user_dll"  
-  file_size_bytes: 4844672
+  file_size_bytes: 4829184
   analysis_date: "2026-06-02"
   analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
   notes: "Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X). GC mit WriteWatch. ChakraCore."
@@ -24,3 +24,4 @@ findings:
     description: "Chakra JIT erzeugt W+X-Seiten via VirtualProtect. 16.719 Funktionen. Bug in Code-Gen = beliebige Code-Ausfuhrung. GC mit WriteWatch. JIT-Spraying moglich."
     recommendation: "Constant-Blinding. NOP-Sled-Detection. JIT-Mitigationen aktivieren."
 summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, coverage_percent: 1 }
+

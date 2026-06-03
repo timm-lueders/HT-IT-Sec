@@ -1,15 +1,16 @@
-meta:
+﻿meta:
   binary_name: ntfs.sys
   binary_type: kernel_driver
   analysis_date: '2026-06-03'
   analyst: opencode + GhidraMCP
   notes: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.. Durch Ghidra
     geladen.
-  file_size_bytes: 3556856
+  file_size_bytes: 3575716
   template_version: '1.0'
 binary_info:
   architecture: x64
-  entry_point: DriverEntry/DllMain
+  function_count: 4206
+  entry_point: "0x140000000 (DriverEntry)"
 pe_security:
   aslr: true
   dep: true
@@ -39,3 +40,8 @@ summary:
   medium_findings: 2
   recommendation: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.
   coverage_percent: 3
+
+
+
+
+

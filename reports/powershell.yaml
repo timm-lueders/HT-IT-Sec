@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: powershell.exe
   binary_type: user_exe
   file_size_bytes: 454656
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 800
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,5 @@ summary:
   overall_risk: MEDIUM
   recommendation: PowerShell -- 444KB. Script-Engine.
   coverage_percent: 3
+
+

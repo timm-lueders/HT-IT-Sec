@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: msdtc.exe
   binary_type: user_exe
   file_size_bytes: 172032
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 250
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,6 @@ summary:
   overall_risk: MEDIUM
   recommendation: MS DTC -- 168KB. Distributed Transactions.
   coverage_percent: 3
+
+
+

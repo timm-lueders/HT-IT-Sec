@@ -1,19 +1,20 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "ndis.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1858096
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  template_version: '1.0'
+  binary_name: ndis.sys
+  binary_type: kernel_driver
+  file_size_bytes: 1861104
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   analysis_duration_minutes: 15
-  notes: "Network Driver Interface Specification. 3.697 Funktionen. Kern des Windows-Netzwerk-Stacks. Paket-Parsing auf Kernel-Ebene."
+  notes: Network Driver Interface Specification. 3.697 Funktionen. Kern des Windows-Netzwerk-Stacks.
+    Paket-Parsing auf Kernel-Ebene.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
+  architecture: x64
+  base_address: '0x140000000'
   function_count: 3697
   symbol_count: 4768
-  compiler_hint: "msvc"
-  subsystem: "native"
+  compiler_hint: msvc
+  subsystem: native
 pe_security:
   aslr: true
   dep: true
@@ -21,61 +22,113 @@ pe_security:
   high_entropy_aslr: false
 import_risk_map:
   high:
-    - { api: "HalPrivateDispatchTable", risk: "Direkter HAL-Zugriff -- undokumentierte Schnittstelle", cwe: "CWE-676" }
+  - api: HalPrivateDispatchTable
+    risk: Direkter HAL-Zugriff -- undokumentierte Schnittstelle
+    cwe: CWE-676
   medium:
-    - { api: "MmMapLockedPages + MmMapLockedPagesSpecifyCache", risk: "MDL-Mapping fur Netzwerk-Puffer -- muss validiert sein", cwe: "CWE-119" }
-    - { api: "_vsnwprintf", risk: "Format-String OHNE _s -- gefahrlich", cwe: "CWE-134" }
-    - { api: "MmUserProbeAddress + ExGetPreviousMode", risk: "User-Mode-Validierung vorhanden -- korrekt", cwe: "N/A" }
+  - api: MmMapLockedPages + MmMapLockedPagesSpecifyCache
+    risk: MDL-Mapping fur Netzwerk-Puffer -- muss validiert sein
+    cwe: CWE-119
+  - api: _vsnwprintf
+    risk: Format-String OHNE _s -- gefahrlich
+    cwe: CWE-134
+  - api: MmUserProbeAddress + ExGetPreviousMode
+    risk: User-Mode-Validierung vorhanden -- korrekt
+    cwe: N/A
   low:
-    - { api: "wcscpy_s", risk: "Safe String-Variante", cwe: "N/A" }
-    - { api: "RtlCopyUnicodeString", risk: "String-Kopie -- braucht validierten Puffer", cwe: "CWE-120" }
+  - api: wcscpy_s
+    risk: Safe String-Variante
+    cwe: N/A
+  - api: RtlCopyUnicodeString
+    risk: String-Kopie -- braucht validierten Puffer
+    cwe: CWE-120
   info:
-    - { api: "MmIsDriverVerifying + MmBadPointer", risk: "Driver-Verifier-Support -- lobenswert", cwe: "N/A" }
-    - { api: "IoConnectInterruptEx", risk: "Interrupt-Handling", cwe: "N/A" }
-    - { api: "KeQueryDpcWatchdogInformation", risk: "DPC-Watchdog -- Timeout-Erkennung", cwe: "N/A" }
-    - { api: "ExAllocatePool3", risk: "Pool-Allokation (modernste API)", cwe: "N/A" }
+  - api: MmIsDriverVerifying + MmBadPointer
+    risk: Driver-Verifier-Support -- lobenswert
+    cwe: N/A
+  - api: IoConnectInterruptEx
+    risk: Interrupt-Handling
+    cwe: N/A
+  - api: KeQueryDpcWatchdogInformation
+    risk: DPC-Watchdog -- Timeout-Erkennung
+    cwe: N/A
+  - api: ExAllocatePool3
+    risk: Pool-Allokation (modernste API)
+    cwe: N/A
 findings:
-  - id: "NDS-001"
-    severity: "HIGH"
-    cwe: "CWE-119"
-    title: "Netzwerk-Paket-Parsing -- Remote-Kernel-Overflow"
-    function: "NdisGetDataBuffer + Paket-Parser"
-    address: "N/A"
-    description: |
-      ndis.sys ist der zentrale Netzwerk-Treiber von Windows. Er verarbeitet
-      Netzwerk-Pakete direkt im Kernel. 3.697 Funktionen deuten auf massive
-      Code-Komplexitat hin. Ein Bug im Paket-Parsing (z.B. falsche
-      Ethernet/IP/TCP-Header-Lange) kann Remote-Kernel-Code-Execution
-      ermoglichen. Der Treiber nutzt MmUserProbeAddress + ExGetPreviousMode
-      fur User-Mode-Validierung und MmIsDriverVerifying fur Test-Support.
-    taint_path: "Netzwerk-Paket -> NDIS-Miniport -> Paket-Buffer -> MDL-Mapping -> Verarbeitung"
-    recommendation: "Netzwerk-Fuzzing mit Scapy/Boofuzz. Header-Langen-Validierung sicherstellen."
-  - id: "NDS-002"
-    severity: "MEDIUM"
-    cwe: "CWE-134"
-    title: "_vsnwprintf ohne _s-Suffix"
-    description: "ndis.sys importiert die unsichere Format-String-Variante ohne Langenbegrenzung."
-    recommendation: "Auf _vsnwprintf_s migrieren."
-  - id: "NDS-003"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Driver-Verifier-Integration + moderne APIs"
-    description: "Nutzung von MmIsDriverVerifying, MmBadPointer, ExAllocatePool3, KeQueryDpcWatchdogInformation. Dies sind Indikatoren fur einen modernen, gut getesteten Treiber."
-    recommendation: "Best Practices beibehalten."
+- id: NDS-001
+  severity: HIGH
+  cwe: CWE-119
+  title: Netzwerk-Paket-Parsing -- Remote-Kernel-Overflow
+  function: NdisGetDataBuffer + Paket-Parser
+  address: N/A
+  description: 'ndis.sys ist der zentrale Netzwerk-Treiber von Windows. Er verarbeitet
+
+    Netzwerk-Pakete direkt im Kernel. 3.697 Funktionen deuten auf massive
+
+    Code-Komplexitat hin. Ein Bug im Paket-Parsing (z.B. falsche
+
+    Ethernet/IP/TCP-Header-Lange) kann Remote-Kernel-Code-Execution
+
+    ermoglichen. Der Treiber nutzt MmUserProbeAddress + ExGetPreviousMode
+
+    fur User-Mode-Validierung und MmIsDriverVerifying fur Test-Support.
+
+    '
+  taint_path: Netzwerk-Paket -> NDIS-Miniport -> Paket-Buffer -> MDL-Mapping -> Verarbeitung
+  recommendation: Netzwerk-Fuzzing mit Scapy/Boofuzz. Header-Langen-Validierung sicherstellen.
+- id: NDS-002
+  severity: MEDIUM
+  cwe: CWE-134
+  title: _vsnwprintf ohne _s-Suffix
+  description: ndis.sys importiert die unsichere Format-String-Variante ohne Langenbegrenzung.
+  recommendation: Auf _vsnwprintf_s migrieren.
+- id: NDS-003
+  severity: INFO
+  cwe: N/A
+  title: Driver-Verifier-Integration + moderne APIs
+  description: Nutzung von MmIsDriverVerifying, MmBadPointer, ExAllocatePool3, KeQueryDpcWatchdogInformation.
+    Dies sind Indikatoren fur einen modernen, gut getesteten Treiber.
+  recommendation: Best Practices beibehalten.
 taint_graph:
   sources:
-    - { name: "Netzwerk-Pakete (Ethernet/IP/TCP)", type: "Remote Input -- NDIS-Miniport" }
-    - { name: "IOCTL / Registry", type: "Local Configuration" }
+  - name: Netzwerk-Pakete (Ethernet/IP/TCP)
+    type: Remote Input -- NDIS-Miniport
+  - name: IOCTL / Registry
+    type: Local Configuration
   sinks:
-    - { name: "MmMapLockedPages", address: "EXTERNAL", type: "MDL-Mapping" }
-    - { name: "HalPrivateDispatchTable", address: "EXTERNAL", type: "HAL Direct Access" }
+  - name: MmMapLockedPages
+    address: EXTERNAL
+    type: MDL-Mapping
+  - name: HalPrivateDispatchTable
+    address: EXTERNAL
+    type: HAL Direct Access
   edges:
-    - { from: "Netzwerk-Pakete", to: "MmMapLockedPages", bounded: false, check_location: "NDIS-interne Validierung" }
+  - from: Netzwerk-Pakete
+    to: MmMapLockedPages
+    bounded: false
+    check_location: NDIS-interne Validierung
 summary:
-  overall_risk: "HIGH"
+  overall_risk: HIGH
   critical_findings: 0
   high_findings: 1
   medium_findings: 1
   info_findings: 1
-  recommendation: "Hochste Prioritat. Remote-Kernel-Angriffsflache. 3.697 Funktionen. Netzwerk-Fuzzing dringend empfohlen."
+  recommendation: Hochste Prioritat. Remote-Kernel-Angriffsflache. 3.697 Funktionen.
+    Netzwerk-Fuzzing dringend empfohlen.
   coverage_percent: 2
+tools_output:
+  cwe_checker:
+    total_findings: 2484
+    cwe787_oob_write: 2116
+    cwe125_oob_read: 18
+    cwe476_null_deref: 350
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 2484 Findings.
+
+

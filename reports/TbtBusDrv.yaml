@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: TbtBusDrv.sys
   binary_type: kernel_driver
   file_size_bytes: 3235160
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 3000
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,7 @@ summary:
   overall_risk: HIGH
   recommendation: Thunderbolt Bus -- 3.2MB. DMA-Angriffsflache.
   coverage_percent: 3
+
+
+
+

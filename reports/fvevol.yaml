@@ -1,521 +1,565 @@
-﻿# ============================================================
-# fvevol.sys Audit Report
-# BitLocker Full Volume Encryption Driver
-# Microsoft Windows Kernel Driver
-# ============================================================
-
-meta:
-  template_version: "1.0"
-  binary_name: "fvevol.sys"
-  binary_type: "kernel_driver"
-  binary_path: "C:/Windows/System32/drivers/fvevol.sys"
-  sha256: ""
-  md5: "93C4BD73092F7147C446FED5DEBACDDB"
+﻿meta:
+  template_version: '1.0'
+  binary_name: fvevol.sys
+  binary_type: kernel_driver
+  binary_path: C:/Windows/System32/drivers/fvevol.sys
+  sha256: ''
+  md5: 93C4BD73092F7147C446FED5DEBACDDB
   file_size_bytes: 968176
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline v5.10.0"
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline v5.10.0
   analysis_duration_minutes: 45
-  ghidra_version: "12.0.4"
-  ghidra_mcp_version: "5.10.0"
-  notes: "BitLocker-VerSchlüsselungstreiber. 15 Memory-Blocks, 1558 Funktionen."
-
+  ghidra_version: 12.0.4
+  ghidra_mcp_version: 5.10.0
+  notes: BitLocker-VerSchlüsselungstreiber. 15 Memory-Blocks, 1558 Funktionen.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  entry_point: "0x1400d1010 -> 0x1400d1700 (FvevolDriverEntry)"
+  architecture: x64
+  base_address: '0x140000000'
+  entry_point: 0x1400d1010 -> 0x1400d1700 (FvevolDriverEntry)
   function_count: 1558
   symbol_count: 1912
-  compiler_hint: "msvc"
-  subsystem: "native"
-  language: "x86:LE:64:default"
-  endian: "Little"
+  compiler_hint: msvc
+  subsystem: native
+  language: x86:LE:64:default
+  endian: Little
   memory_size: 958464
-
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: false
   safe_seh: false
-  notes: "High-Entropy-ASLR für Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall aktiv."
-
+  notes: High-Entropy-ASLR für Kernel-Treiber irrelevant. CFG via _guard_check_icall/_guard_dispatch_icall
+    aktiv.
 segments:
-  - name: ".text"
-    va_start: "0x140001000"
-    va_end: "0x14001bfff"
-    permissions: "RX"
-    notes: "Code-Segment, kein W+X"
-  - name: "NONPAGED"
-    va_start: "0x14001c000"
-    va_end: "0x140029fff"
-    permissions: "RW"
-    notes: "Nicht auslagerbarer Code/Daten"
-  - name: ".rdata"
-    va_start: "0x14002b000"
-    va_end: "0x140039fff"
-    permissions: "R"
-    notes: "Read-only Daten"
-  - name: ".data"
-    va_start: "0x14003a000"
-    va_end: "0x14003afff"
-    permissions: "RW"
-  - name: ".idata"
-    va_start: "0x140041000"
-    va_end: "0x140044fff"
-    permissions: "RW"
-    notes: "Import Address Table"
-  - name: "PAGER0"
-    va_start: "0x140045000"
-    va_end: "0x140089fff"
-    permissions: "RW"
-    notes: "Pagable Code (priorisiert)"
-  - name: "PAGE"
-    va_start: "0x14008a000"
-    va_end: "0x1400cffff"
-    permissions: "RW"
-    notes: "Pagable Code"
-  - name: "INIT"
-    va_start: "0x1400d1000"
-    va_end: "0x1400d3fff"
-    permissions: "RW"
-    notes: "Nur wahrend DriverEntry -- wird danach freigegeben"
-
+- name: .text
+  va_start: '0x140001000'
+  va_end: '0x14001bfff'
+  permissions: RX
+  notes: Code-Segment, kein W+X
+- name: NONPAGED
+  va_start: '0x14001c000'
+  va_end: '0x140029fff'
+  permissions: RW
+  notes: Nicht auslagerbarer Code/Daten
+- name: .rdata
+  va_start: '0x14002b000'
+  va_end: '0x140039fff'
+  permissions: R
+  notes: Read-only Daten
+- name: .data
+  va_start: '0x14003a000'
+  va_end: '0x14003afff'
+  permissions: RW
+- name: .idata
+  va_start: '0x140041000'
+  va_end: '0x140044fff'
+  permissions: RW
+  notes: Import Address Table
+- name: PAGER0
+  va_start: '0x140045000'
+  va_end: '0x140089fff'
+  permissions: RW
+  notes: Pagable Code (priorisiert)
+- name: PAGE
+  va_start: '0x14008a000'
+  va_end: '0x1400cffff'
+  permissions: RW
+  notes: Pagable Code
+- name: INIT
+  va_start: '0x1400d1000'
+  va_end: '0x1400d3fff'
+  permissions: RW
+  notes: Nur wahrend DriverEntry -- wird danach freigegeben
 import_risk_map:
   high: []
   medium:
-    - api: "IoBuildPartialMdl"
-      risk: "Double-Fetch (TOCTOU) bei MDL-Manipulation"
-      cwe: "CWE-367"
-    - api: "ProbeForWrite"
-      risk: "Buffer Probing -- nur bedingt aufgerufen (siehe FVE-001)"
-      cwe: "CWE-119"
+  - api: IoBuildPartialMdl
+    risk: Double-Fetch (TOCTOU) bei MDL-Manipulation
+    cwe: CWE-367
+  - api: ProbeForWrite
+    risk: Buffer Probing -- nur bedingt aufgerufen (siehe FVE-001)
+    cwe: CWE-119
   low:
-    - api: "MmMapLockedPagesSpecifyCache"
-      risk: "MDL-Mapping -- braucht Bounds-Check vor memcpy"
-      cwe: "CWE-119"
-    - api: "MmProbeAndLockPages"
-      risk: "MDL-Locking -- korrekte Page-Count-Validierung erforderlich"
-      cwe: "CWE-119"
-    - api: "MmMapLockedPagesWithReservedMapping"
-      risk: "MDL-Mapping mit Reserved-Mapping"
-      cwe: "CWE-119"
-    - api: "ExAllocatePoolWithTag"
-      risk: "Pool-Allokation (legacy API statt ExAllocatePool2)"
-      cwe: "N/A"
-    - api: "_vsnwprintf"
-      risk: "Format-String (safe Variante mit Längenbegrenzung)"
-      cwe: "CWE-134"
-    - api: "_snwprintf"
-      risk: "Format-String (safe Variante mit Längenbegrenzung)"
-      cwe: "CWE-134"
-    - api: "RtlCopyUnicodeString"
-      risk: "String-Kopie -- braucht validierten Zielpuffer"
-      cwe: "CWE-120"
-    - api: "IoAllocateMdl"
-      risk: "MDL-Allokation -- muss mit IoFreeMdl gepaart sein"
-      cwe: "N/A"
+  - api: MmMapLockedPagesSpecifyCache
+    risk: MDL-Mapping -- braucht Bounds-Check vor memcpy
+    cwe: CWE-119
+  - api: MmProbeAndLockPages
+    risk: MDL-Locking -- korrekte Page-Count-Validierung erforderlich
+    cwe: CWE-119
+  - api: MmMapLockedPagesWithReservedMapping
+    risk: MDL-Mapping mit Reserved-Mapping
+    cwe: CWE-119
+  - api: ExAllocatePoolWithTag
+    risk: Pool-Allokation (legacy API statt ExAllocatePool2)
+    cwe: N/A
+  - api: _vsnwprintf
+    risk: Format-String (safe Variante mit Längenbegrenzung)
+    cwe: CWE-134
+  - api: _snwprintf
+    risk: Format-String (safe Variante mit Längenbegrenzung)
+    cwe: CWE-134
+  - api: RtlCopyUnicodeString
+    risk: String-Kopie -- braucht validierten Zielpuffer
+    cwe: CWE-120
+  - api: IoAllocateMdl
+    risk: MDL-Allokation -- muss mit IoFreeMdl gepaart sein
+    cwe: N/A
   info:
-    - api: "BCryptEncrypt"
-      risk: "Crypto -- kein User-Buffer direkt, interner Pfad"
-      cwe: "N/A"
-    - api: "BCryptDecrypt"
-      risk: "Crypto -- kein User-Buffer direkt, interner Pfad"
-      cwe: "N/A"
-    - api: "ZwWriteFile"
-      risk: "Disk-I/O Sink für verSchlüsselte Daten"
-      cwe: "N/A"
-    - api: "ZwReadFile"
-      risk: "Disk-I/O Source für verSchlüsselte Daten"
-      cwe: "N/A"
-    - api: "ZwDeviceIoControlFile"
-      risk: "Weitergeleitete IOCTLs an lower device"
-      cwe: "N/A"
-    - api: "ZwFsControlFile"
-      risk: "File-System-Control an lower device"
-      cwe: "N/A"
-    - api: "ExAllocatePool2"
-      risk: "Pool-Allokation (moderne API, safe)"
-      cwe: "N/A"
-    - api: "EtwWrite"
-      risk: "ETW-Tracing -- kein Sicherheitsrisiko"
-      cwe: "N/A"
-    - api: "KeBugCheckEx"
-      risk: "Bluescreen bei kritischen Fehlern -- korrekt"
-      cwe: "N/A"
-
+  - api: BCryptEncrypt
+    risk: Crypto -- kein User-Buffer direkt, interner Pfad
+    cwe: N/A
+  - api: BCryptDecrypt
+    risk: Crypto -- kein User-Buffer direkt, interner Pfad
+    cwe: N/A
+  - api: ZwWriteFile
+    risk: Disk-I/O Sink für verSchlüsselte Daten
+    cwe: N/A
+  - api: ZwReadFile
+    risk: Disk-I/O Source für verSchlüsselte Daten
+    cwe: N/A
+  - api: ZwDeviceIoControlFile
+    risk: Weitergeleitete IOCTLs an lower device
+    cwe: N/A
+  - api: ZwFsControlFile
+    risk: File-System-Control an lower device
+    cwe: N/A
+  - api: ExAllocatePool2
+    risk: Pool-Allokation (moderne API, safe)
+    cwe: N/A
+  - api: EtwWrite
+    risk: ETW-Tracing -- kein Sicherheitsrisiko
+    cwe: N/A
+  - api: KeBugCheckEx
+    risk: Bluescreen bei kritischen Fehlern -- korrekt
+    cwe: N/A
 irp_handlers:
-  - irp_code: "IRP_MJ_CREATE (0x00)"
-    address: "0x1400b88f0"
-    function_name: "FvevolCreate"
-    buffer_type: "SystemBuffer"
-    probe_present: true
-    risk: "OK"
-    notes: "Standard-Create-Handler, delegiert an interne Logik"
-  - irp_code: "IRP_MJ_CLOSE (0x02)"
-    address: "0x1400b86d0"
-    function_name: "FvevolClose"
-    buffer_type: "N/A"
-    probe_present: true
-    risk: "OK"
-    notes: "Standard-Close-Handler"
-  - irp_code: "IRP_MJ_READ (0x03)"
-    address: "0x14001f1a0"
-    function_name: "FvevolRead"
-    buffer_type: "MDL (MmMapLockedPagesSpecifyCache)"
-    probe_present: true
-    risk: "OK"
-    notes: "Dreifacher Bounds-Check in FvevolIoWorkItemCallback vor memcpy"
-  - irp_code: "IRP_MJ_WRITE (0x04)"
-    address: "0x14001ee90"
-    function_name: "FvevolWrite"
-    buffer_type: "MDL (MmMapLockedPagesSpecifyCache)"
-    probe_present: true
-    risk: "OK"
-    notes: "Dreifacher Bounds-Check in FvevolIoWorkItemCallback vor memcpy"
-  - irp_code: "IRP_MJ_DEVICE_CONTROL (0x0E)"
-    address: "0x1400b87e0"
-    function_name: "FvevolDeviceControl"
-    buffer_type: "IO_STACK_LOCATION (METHOD_BUFFERED)"
-    probe_present: true
-    risk: "OK"
-    notes: "IOCTL-Dispatcher mit Double-Validation: InputBufferLength == *UserBuffer"
-  - irp_code: "IRP_MJ_PNP (0x12)"
-    address: "0x1400290a0"
-    function_name: "FvevolPnp"
-    buffer_type: "SystemBuffer"
-    probe_present: true
-    risk: "OK"
-  - irp_code: "IRP_MJ_POWER (0x16)"
-    address: "0x140024120"
-    function_name: "FvevolPower"
-    buffer_type: "SystemBuffer"
-    probe_present: true
-    risk: "OK"
-  - irp_code: "IRP_MJ_SYSTEM_CONTROL (0x17)"
-    address: "0x1400c4760"
-    function_name: "FvevolSystemControl"
-    buffer_type: "SystemBuffer"
-    probe_present: true
-    risk: "OK"
-  - irp_code: "IRP_MJ_SHUTDOWN (0x10)"
-    address: "0x1400a12d0"
-    function_name: "FvevolShutdown"
-    buffer_type: "N/A"
-    probe_present: true
-    risk: "OK"
-  - irp_code: "IRP_MJ_CLEANUP (0x01)"
-    address: "0x1400a1a20"
-    function_name: "FvevolCleanup"
-    buffer_type: "N/A"
-    probe_present: true
-    risk: "OK"
-
+- irp_code: IRP_MJ_CREATE (0x00)
+  address: '0x1400b88f0'
+  function_name: FvevolCreate
+  buffer_type: SystemBuffer
+  probe_present: true
+  risk: OK
+  notes: Standard-Create-Handler, delegiert an interne Logik
+- irp_code: IRP_MJ_CLOSE (0x02)
+  address: '0x1400b86d0'
+  function_name: FvevolClose
+  buffer_type: N/A
+  probe_present: true
+  risk: OK
+  notes: Standard-Close-Handler
+- irp_code: IRP_MJ_READ (0x03)
+  address: '0x14001f1a0'
+  function_name: FvevolRead
+  buffer_type: MDL (MmMapLockedPagesSpecifyCache)
+  probe_present: true
+  risk: OK
+  notes: Dreifacher Bounds-Check in FvevolIoWorkItemCallback vor memcpy
+- irp_code: IRP_MJ_WRITE (0x04)
+  address: '0x14001ee90'
+  function_name: FvevolWrite
+  buffer_type: MDL (MmMapLockedPagesSpecifyCache)
+  probe_present: true
+  risk: OK
+  notes: Dreifacher Bounds-Check in FvevolIoWorkItemCallback vor memcpy
+- irp_code: IRP_MJ_DEVICE_CONTROL (0x0E)
+  address: '0x1400b87e0'
+  function_name: FvevolDeviceControl
+  buffer_type: IO_STACK_LOCATION (METHOD_BUFFERED)
+  probe_present: true
+  risk: OK
+  notes: 'IOCTL-Dispatcher mit Double-Validation: InputBufferLength == *UserBuffer'
+- irp_code: IRP_MJ_PNP (0x12)
+  address: '0x1400290a0'
+  function_name: FvevolPnp
+  buffer_type: SystemBuffer
+  probe_present: true
+  risk: OK
+- irp_code: IRP_MJ_POWER (0x16)
+  address: '0x140024120'
+  function_name: FvevolPower
+  buffer_type: SystemBuffer
+  probe_present: true
+  risk: OK
+- irp_code: IRP_MJ_SYSTEM_CONTROL (0x17)
+  address: '0x1400c4760'
+  function_name: FvevolSystemControl
+  buffer_type: SystemBuffer
+  probe_present: true
+  risk: OK
+- irp_code: IRP_MJ_SHUTDOWN (0x10)
+  address: '0x1400a12d0'
+  function_name: FvevolShutdown
+  buffer_type: N/A
+  probe_present: true
+  risk: OK
+- irp_code: IRP_MJ_CLEANUP (0x01)
+  address: '0x1400a1a20'
+  function_name: FvevolCleanup
+  buffer_type: N/A
+  probe_present: true
+  risk: OK
 ioctl_codes:
-  - code: "0x00"
-    handler: "0x1400c9978"
-    description: "Query/Set Volume State"
-  - code: "0x01"
-    handler: "0x1400458a8"
-    description: "Volume Control (mit IRP-Puffer)"
-  - code: "0x02"
-    handler: "0x14008c26c"
-    description: "Crypto Configuration"
-  - code: "0x04/0x05"
-    handler: "0x1400c12b4"
-    description: "Key Management"
-  - code: "0x06"
-    handler: "0x14008bad0"
-    description: "Lock/Unlock Volume"
-  - code: "0x08"
-    handler: "0x14008b950"
-    description: "Query Volume Info (mit Ausgabepuffer)"
-  - code: "0x10"
-    handler: "0x1400c7e4c"
-    description: "Extended Volume Control (Group 1)"
-  - code: "0x11"
-    handler: "0x1400cb310"
-    description: "Extended Volume Control (Group 1)"
-  - code: "0x18"
-    handler: "0x14008b1b0"
-    description: "Volume Metadata"
-  - code: "0x19"
-    handler: "0x14009e804"
-    description: "Recovery Operations"
-  - code: "0x1A"
-    handler: "0x14008c68c"
-    description: "FIPS-Mode Configuration"
-
+- code: '0x00'
+  handler: '0x1400c9978'
+  description: Query/Set Volume State
+- code: '0x01'
+  handler: '0x1400458a8'
+  description: Volume Control (mit IRP-Puffer)
+- code: '0x02'
+  handler: '0x14008c26c'
+  description: Crypto Configuration
+- code: 0x04/0x05
+  handler: '0x1400c12b4'
+  description: Key Management
+- code: '0x06'
+  handler: '0x14008bad0'
+  description: Lock/Unlock Volume
+- code: '0x08'
+  handler: '0x14008b950'
+  description: Query Volume Info (mit Ausgabepuffer)
+- code: '0x10'
+  handler: '0x1400c7e4c'
+  description: Extended Volume Control (Group 1)
+- code: '0x11'
+  handler: '0x1400cb310'
+  description: Extended Volume Control (Group 1)
+- code: '0x18'
+  handler: '0x14008b1b0'
+  description: Volume Metadata
+- code: '0x19'
+  handler: '0x14009e804'
+  description: Recovery Operations
+- code: '0x1A'
+  handler: '0x14008c68c'
+  description: FIPS-Mode Configuration
 analyzed_functions:
-  - name: "FvevolDriverEntry"
-    address: "0x1400d1700"
-    role: "DriverEntry -- registriert IRP-Handler, startet Server"
-  - name: "FveSafeMemcpy"
-    address: "0x14001a9c0"
-    role: "memmove-Implementierung mit Overlap-Handling"
-  - name: "FveCopyDataToUserBuffer"
-    address: "0x14000434c"
-    role: "Bounds-geprüfte Kopie in UserBuffer"
-  - name: "FveValidateBufferHeader"
-    address: "0x140004e00"
-    role: "Validierung: Puffer-Header enthalt korrekte Größen-Info"
-  - name: "FvevolDeviceControl"
-    address: "0x1400b87e0"
-    role: "IRP_MJ_DEVICE_CONTROL Handler"
-  - name: "FvevolIoHandler"
-    address: "0x1400ba64c"
-    role: "Zentraler IOCTL-Dispatcher (0x00-0x1A)"
-  - name: "FvevolQueryVolumeInfo"
-    address: "0x1400b9b68"
-    role: "Volume-Info-Abfrage -- FUNDSTELLE FVE-001 und FVE-002"
-  - name: "FvevolRead"
-    address: "0x14001f1a0"
-    role: "IRP_MJ_READ Handler"
-  - name: "FvevolWrite"
-    address: "0x14001ee90"
-    role: "IRP_MJ_WRITE Handler"
-  - name: "FvevolIoWorkItemCallback"
-    address: "0x14005c3a0"
-    role: "Work-Item-Callback -- memcpy mit MDL-Buffer"
-  - name: "FvevolForwardIrp"
-    address: "0x14001f3c0"
-    role: "IRP-Weiterleitung an lower device"
-  - name: "FvevolReadRegistryValue"
-    address: "0x1400cacb4"
-    role: "Registry-Wert lesen (Double-Query-Pattern)"
-  - name: "FvevolQueryRegistryValue"
-    address: "0x1400b96e8"
-    role: "Registry-Pfad mit User-String bauen"
-  - name: "FvevolDefaultDispatch"
-    address: "0x140026550"
-    role: "Default IRP-Handler für nicht-registrierte MJ-Codes"
-
+- name: FvevolDriverEntry
+  address: '0x1400d1700'
+  role: DriverEntry -- registriert IRP-Handler, startet Server
+- name: FveSafeMemcpy
+  address: '0x14001a9c0'
+  role: memmove-Implementierung mit Overlap-Handling
+- name: FveCopyDataToUserBuffer
+  address: '0x14000434c'
+  role: Bounds-geprüfte Kopie in UserBuffer
+- name: FveValidateBufferHeader
+  address: '0x140004e00'
+  role: 'Validierung: Puffer-Header enthalt korrekte Größen-Info'
+- name: FvevolDeviceControl
+  address: '0x1400b87e0'
+  role: IRP_MJ_DEVICE_CONTROL Handler
+- name: FvevolIoHandler
+  address: '0x1400ba64c'
+  role: Zentraler IOCTL-Dispatcher (0x00-0x1A)
+- name: FvevolQueryVolumeInfo
+  address: '0x1400b9b68'
+  role: Volume-Info-Abfrage -- FUNDSTELLE FVE-001 und FVE-002
+- name: FvevolRead
+  address: '0x14001f1a0'
+  role: IRP_MJ_READ Handler
+- name: FvevolWrite
+  address: '0x14001ee90'
+  role: IRP_MJ_WRITE Handler
+- name: FvevolIoWorkItemCallback
+  address: '0x14005c3a0'
+  role: Work-Item-Callback -- memcpy mit MDL-Buffer
+- name: FvevolForwardIrp
+  address: '0x14001f3c0'
+  role: IRP-Weiterleitung an lower device
+- name: FvevolReadRegistryValue
+  address: '0x1400cacb4'
+  role: Registry-Wert lesen (Double-Query-Pattern)
+- name: FvevolQueryRegistryValue
+  address: '0x1400b96e8'
+  role: Registry-Pfad mit User-String bauen
+- name: FvevolDefaultDispatch
+  address: '0x140026550'
+  role: Default IRP-Handler für nicht-registrierte MJ-Codes
 findings:
-  - id: "FVE-001"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "ProbeForWrite nur bedingt aufgerufen in FvevolQueryVolumeInfo"
-    function: "FvevolQueryVolumeInfo"
-    address: "0x1400b9b68"
-    description: |
-      Bei Flag=0 (do_not_probe=true) wird Irp->UserBuffer OHNE vorheriges
-      ProbeForWrite beschrieben, obwohl Daten in den User-Buffer kopiert werden.
-      Der Code-Pfad: Irp->UserBuffer (0x70) wird gelesen, OutputBufferLength
-      aus dem IO_STACK_LOCATION (0xb8+0x08) wird als Größe verwendet.
-      ProbeForWrite(UserBuffer, OutputBufferLength, 2) wird NUR aufgerufen
-      wenn das Flag != 0 ist. Danach kopiert FveCopyDataToUserBuffer die Daten.
-      
-      Der interne Bounds-Check in FveCopyDataToUserBuffer (0x14000434c)
-      prüft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
-      und verhindert so einen Overflow. Ein invalider Pointer führt zum
-      sofortigen Bluescreen (DoS), nicht zur Code Execution.
-      
-      Betroffene Adressen: 0x1400b9b68 (Funktion), 0x1400b9d06 (ProbeForWrite-Call)
-    taint_path: "IOCTL Input -> Irp->UserBuffer -> FveSafeMemcpy"
-    recommendation: |
-      ProbeForWrite unabhängig vom Flag immer vor UserBuffer-Zugriff
-      aufrufen. Alternativ: Parameter als METHOD_BUFFERED deklarieren,
-      dann validiert der I/O-Manager den Puffer automatisch.
-  - id: "FVE-002"
-    severity: "LOW"
-    cwe: "CWE-200"
-    title: "8-Byte Information Disclosure bei zu kleinem Ausgabepuffer"
-    function: "FvevolQueryVolumeInfo"
-    address: "0x1400b9b68"
-    description: |
-      Wenn der OutputBuffer zu klein ist (Größe < 8 oder tatsachliche
-      DatenGröße > OutputBufferLength), werden TROTZDEM 8 Bytes in den
-      UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zurückgegeben wird.
-      
-      Code: *puVar2 = *(undefined8 *)puVar4;  // Kopiert 8 Bytes
-      Danach: return STATUS_BUFFER_TOO_SMALL;
-      
-      Die 8 Bytes enthalten den Größen-Header der FVE-Datenstruktur --
-      keine sensitiven Daten wie kryptografische Schlüssel. Dieses
-      Muster ist in Windows-Treibern ublich (Caller erfahrt benötigte Größe),
-      stellt aber technisch eine Informationspreisgabe dar.
-    taint_path: "Internal Buffer -> Irp->UserBuffer (8 bytes, always)"
-    recommendation: |
-      Nur die benötigte Größe im IoStatus.Information-Feld zurückgeben,
-      KEINE Daten in den UserBuffer kopieren wenn der Puffer zu klein ist.
-  - id: "FVE-003"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Sichere IOCTL-Eingabevalidierung"
-    function: "FvevolIoHandler"
-    address: "0x1400ba64c"
-    description: |
-      Der IOCTL-Dispatcher validiert Eingaben zweistufig:
-      1. InputBufferLength zwischen 8 und 0x200 Bytes
-      2. InputBufferLength == erstes uint32 im Input-Buffer (Double-Validation)
-      
-      Dieses Pattern verhindert: Structure-Size-Mismatch-Angriffe,
-      Buffer-überlaufe durch falsche Größenangaben, NULL-Dereferenzen
-      durch zu kleine Puffer.
-    taint_path: "IOCTL Input -> InputBufferLength -> Bounds-Check"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
-  - id: "FVE-004"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Dreifacher Bounds-Check im MDL-I/O-Pfad"
-    function: "FvevolIoWorkItemCallback"
-    address: "0x14005c3a0"
-    description: |
-      Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgeführt:
-      1. BufferSize < CopySize -> Fehler
-      2. Offset > CopySize -> Fehler  
-      3. BufferSize + Offset < TotalNeeded -> Fehler
-      
-      Alle drei Checks haben Integer-überlauf-Guards. Erst danach wird
-      MmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgeführt.
-    taint_path: "Irp->MdlAddress -> MmMapLockedPages -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
-  - id: "FVE-005"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Registry-Zugriff mit Double-Query-Pattern"
-    function: "FvevolReadRegistryValue"
-    address: "0x1400cacb4"
-    description: |
-      Registry-Werte werden mit dem sicheren Double-Query-Pattern gelesen:
-      1. ZwQueryValueKey(NULL) -> RequiredSize ermitteln
-      2. ExAllocatePool2(RequiredSize) -> Puffer allozieren
-      3. ZwQueryValueKey(buffer, RequiredSize) -> Daten lesen
-      4. Vor Kopie in Ausgabepuffer: Größenvergleich
-      
-      TOCTOU-sicher durch atomare Allokation zwischen Query-Aufrufen.
-    taint_path: "Registry Key -> ZwQueryValueKey -> ExAllocatePool2 -> memcpy"
-    recommendation: "Vorbildliche Implementierung -- keine Änderung nötig."
-  - id: "FVE-006"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Keine gefahrlichen String-Funktionen verwendet"
-    function: "Global"
-    address: "N/A"
-    description: |
-      Die Import-Liste enthalt KEINE unsicheren String-Funktionen:
-      - Kein strcpy, strcat, sprintf, gets
-      - Kein wcscpy, wcscat (nur wcsstr, wcschr für Suche)
-      - Kein scanf/sscanf
-      - Stattdessen: _snwprintf, _vsnwprintf (safe mit Längenbegrenzung)
-      
-      Dies eliminiert die gesamte Klasse der klassischen Buffer-Overflows
-      durch String-Operationen.
-    taint_path: "N/A"
-    recommendation: "Vorbildliche API-Auswahl."
+- id: FVE-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: ProbeForWrite nur bedingt aufgerufen in FvevolQueryVolumeInfo
+  function: FvevolQueryVolumeInfo
+  address: '0x1400b9b68'
+  description: 'Bei Flag=0 (do_not_probe=true) wird Irp->UserBuffer OHNE vorheriges
 
+    ProbeForWrite beschrieben, obwohl Daten in den User-Buffer kopiert werden.
+
+    Der Code-Pfad: Irp->UserBuffer (0x70) wird gelesen, OutputBufferLength
+
+    aus dem IO_STACK_LOCATION (0xb8+0x08) wird als Größe verwendet.
+
+    ProbeForWrite(UserBuffer, OutputBufferLength, 2) wird NUR aufgerufen
+
+    wenn das Flag != 0 ist. Danach kopiert FveCopyDataToUserBuffer die Daten.
+
+
+    Der interne Bounds-Check in FveCopyDataToUserBuffer (0x14000434c)
+
+    prüft: (int)(uint)actual_size <= (int)((uint)max_size - (uint)offset)
+
+    und verhindert so einen Overflow. Ein invalider Pointer führt zum
+
+    sofortigen Bluescreen (DoS), nicht zur Code Execution.
+
+
+    Betroffene Adressen: 0x1400b9b68 (Funktion), 0x1400b9d06 (ProbeForWrite-Call)
+
+    '
+  taint_path: IOCTL Input -> Irp->UserBuffer -> FveSafeMemcpy
+  recommendation: 'ProbeForWrite unabhängig vom Flag immer vor UserBuffer-Zugriff
+
+    aufrufen. Alternativ: Parameter als METHOD_BUFFERED deklarieren,
+
+    dann validiert der I/O-Manager den Puffer automatisch.
+
+    '
+- id: FVE-002
+  severity: LOW
+  cwe: CWE-200
+  title: 8-Byte Information Disclosure bei zu kleinem Ausgabepuffer
+  function: FvevolQueryVolumeInfo
+  address: '0x1400b9b68'
+  description: 'Wenn der OutputBuffer zu klein ist (Größe < 8 oder tatsachliche
+
+    DatenGröße > OutputBufferLength), werden TROTZDEM 8 Bytes in den
+
+    UserBuffer kopiert, bevor STATUS_BUFFER_TOO_SMALL zurückgegeben wird.
+
+
+    Code: *puVar2 = *(undefined8 *)puVar4;  // Kopiert 8 Bytes
+
+    Danach: return STATUS_BUFFER_TOO_SMALL;
+
+
+    Die 8 Bytes enthalten den Größen-Header der FVE-Datenstruktur --
+
+    keine sensitiven Daten wie kryptografische Schlüssel. Dieses
+
+    Muster ist in Windows-Treibern ublich (Caller erfahrt benötigte Größe),
+
+    stellt aber technisch eine Informationspreisgabe dar.
+
+    '
+  taint_path: Internal Buffer -> Irp->UserBuffer (8 bytes, always)
+  recommendation: 'Nur die benötigte Größe im IoStatus.Information-Feld zurückgeben,
+
+    KEINE Daten in den UserBuffer kopieren wenn der Puffer zu klein ist.
+
+    '
+- id: FVE-003
+  severity: INFO
+  cwe: N/A
+  title: Sichere IOCTL-Eingabevalidierung
+  function: FvevolIoHandler
+  address: '0x1400ba64c'
+  description: 'Der IOCTL-Dispatcher validiert Eingaben zweistufig:
+
+    1. InputBufferLength zwischen 8 und 0x200 Bytes
+
+    2. InputBufferLength == erstes uint32 im Input-Buffer (Double-Validation)
+
+
+    Dieses Pattern verhindert: Structure-Size-Mismatch-Angriffe,
+
+    Buffer-überlaufe durch falsche Größenangaben, NULL-Dereferenzen
+
+    durch zu kleine Puffer.
+
+    '
+  taint_path: IOCTL Input -> InputBufferLength -> Bounds-Check
+  recommendation: Vorbildliche Implementierung -- keine Änderung nötig.
+- id: FVE-004
+  severity: INFO
+  cwe: N/A
+  title: Dreifacher Bounds-Check im MDL-I/O-Pfad
+  function: FvevolIoWorkItemCallback
+  address: '0x14005c3a0'
+  description: "Vor jedem memcpy im Read/Write-Pfad werden drei Checks durchgeführt:\n\
+    1. BufferSize < CopySize -> Fehler\n2. Offset > CopySize -> Fehler  \n3. BufferSize\
+    \ + Offset < TotalNeeded -> Fehler\n\nAlle drei Checks haben Integer-überlauf-Guards.\
+    \ Erst danach wird\nMmMapLockedPagesSpecifyCache aufgerufen und memcpy ausgeführt.\n"
+  taint_path: Irp->MdlAddress -> MmMapLockedPages -> memcpy
+  recommendation: Vorbildliche Implementierung -- keine Änderung nötig.
+- id: FVE-005
+  severity: INFO
+  cwe: N/A
+  title: Registry-Zugriff mit Double-Query-Pattern
+  function: FvevolReadRegistryValue
+  address: '0x1400cacb4'
+  description: 'Registry-Werte werden mit dem sicheren Double-Query-Pattern gelesen:
+
+    1. ZwQueryValueKey(NULL) -> RequiredSize ermitteln
+
+    2. ExAllocatePool2(RequiredSize) -> Puffer allozieren
+
+    3. ZwQueryValueKey(buffer, RequiredSize) -> Daten lesen
+
+    4. Vor Kopie in Ausgabepuffer: Größenvergleich
+
+
+    TOCTOU-sicher durch atomare Allokation zwischen Query-Aufrufen.
+
+    '
+  taint_path: Registry Key -> ZwQueryValueKey -> ExAllocatePool2 -> memcpy
+  recommendation: Vorbildliche Implementierung -- keine Änderung nötig.
+- id: FVE-006
+  severity: INFO
+  cwe: N/A
+  title: Keine gefahrlichen String-Funktionen verwendet
+  function: Global
+  address: N/A
+  description: 'Die Import-Liste enthalt KEINE unsicheren String-Funktionen:
+
+    - Kein strcpy, strcat, sprintf, gets
+
+    - Kein wcscpy, wcscat (nur wcsstr, wcschr für Suche)
+
+    - Kein scanf/sscanf
+
+    - Stattdessen: _snwprintf, _vsnwprintf (safe mit Längenbegrenzung)
+
+
+    Dies eliminiert die gesamte Klasse der klassischen Buffer-Overflows
+
+    durch String-Operationen.
+
+    '
+  taint_path: N/A
+  recommendation: Vorbildliche API-Auswahl.
 taint_graph:
   sources:
-    - name: "Irp->UserBuffer"
-      type: "IOCTL METHOD_NEITHER (offset 0x70 im IRP)"
-      function: "FvevolQueryVolumeInfo"
-    - name: "Irp->AssociatedIrp.SystemBuffer"
-      type: "IOCTL METHOD_BUFFERED (via IO_STACK_LOCATION)"
-      function: "FvevolIoHandler"
-    - name: "Irp->MdlAddress"
-      type: "Read/Write DIRECT_IO (via MmMapLockedPages)"
-      function: "FvevolRead / FvevolWrite"
-    - name: "IO_STACK_LOCATION->Parameters"
-      type: "IOCTL Control Codes + Buffer Lengths"
-      function: "FvevolDeviceControl"
+  - name: Irp->UserBuffer
+    type: IOCTL METHOD_NEITHER (offset 0x70 im IRP)
+    function: FvevolQueryVolumeInfo
+  - name: Irp->AssociatedIrp.SystemBuffer
+    type: IOCTL METHOD_BUFFERED (via IO_STACK_LOCATION)
+    function: FvevolIoHandler
+  - name: Irp->MdlAddress
+    type: Read/Write DIRECT_IO (via MmMapLockedPages)
+    function: FvevolRead / FvevolWrite
+  - name: IO_STACK_LOCATION->Parameters
+    type: IOCTL Control Codes + Buffer Lengths
+    function: FvevolDeviceControl
   sinks:
-    - name: "FveSafeMemcpy (memmove)"
-      address: "0x14001a9c0"
-      type: "memmove mit Overlap-Handling"
-    - name: "ZwWriteFile"
-      address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Sink für verSchlüsselte Daten"
-    - name: "ZwReadFile"
-      address: "EXTERNAL:ntoskrnl.exe"
-      type: "Disk-I/O Source für verSchlüsselte Daten"
-    - name: "BCryptEncrypt"
-      address: "EXTERNAL:bcrypt.dll"
-      type: "AES-XTS Encryption"
-    - name: "BCryptDecrypt"
-      address: "EXTERNAL:bcrypt.dll"
-      type: "AES-XTS Decryption"
+  - name: FveSafeMemcpy (memmove)
+    address: '0x14001a9c0'
+    type: memmove mit Overlap-Handling
+  - name: ZwWriteFile
+    address: EXTERNAL:ntoskrnl.exe
+    type: Disk-I/O Sink für verSchlüsselte Daten
+  - name: ZwReadFile
+    address: EXTERNAL:ntoskrnl.exe
+    type: Disk-I/O Source für verSchlüsselte Daten
+  - name: BCryptEncrypt
+    address: EXTERNAL:bcrypt.dll
+    type: AES-XTS Encryption
+  - name: BCryptDecrypt
+    address: EXTERNAL:bcrypt.dll
+    type: AES-XTS Decryption
   edges:
-    - from: "Irp->UserBuffer"
-      to: "FveSafeMemcpy (memmove)"
-      bounded: true
-      check_location: "0x14000434c (FveCopyDataToUserBuffer)"
-      check_type: "Bounds-Check: actual_size <= max_size - offset"
-    - from: "Irp->MdlAddress"
-      to: "FveSafeMemcpy (memmove)"
-      bounded: true
-      check_location: "0x14005c3a0 (FvevolIoWorkItemCallback)"
-      check_type: "Triple-Check: Size/Offset/Total vor memcpy"
-    - from: "IO_STACK_LOCATION->Parameters"
-      to: "FveSafeMemcpy (memmove)"
-      bounded: true
-      check_location: "0x1400ba64c (FvevolIoHandler)"
-      check_type: "Double-Validation: InputBufferLength == *UserBuffer"
-
+  - from: Irp->UserBuffer
+    to: FveSafeMemcpy (memmove)
+    bounded: true
+    check_location: 0x14000434c (FveCopyDataToUserBuffer)
+    check_type: 'Bounds-Check: actual_size <= max_size - offset'
+  - from: Irp->MdlAddress
+    to: FveSafeMemcpy (memmove)
+    bounded: true
+    check_location: 0x14005c3a0 (FvevolIoWorkItemCallback)
+    check_type: 'Triple-Check: Size/Offset/Total vor memcpy'
+  - from: IO_STACK_LOCATION->Parameters
+    to: FveSafeMemcpy (memmove)
+    bounded: true
+    check_location: 0x1400ba64c (FvevolIoHandler)
+    check_type: 'Double-Validation: InputBufferLength == *UserBuffer'
 tools_output:
   flawfinder:
     level_3_hits: 0
     level_4_hits: 0
     level_5_hits: 0
     false_positives: 30
-    notes: '30 Stack-Array-FPs. Keine echten Hits.'
-
+    notes: 30 Stack-Array-FPs. Keine echten Hits.
+  cwe_checker:
+    total_findings: 969
+    cwe787_oob_write: 937
+    cwe125_oob_read: 7
+    cwe476_null_deref: 25
+    cwe676_dangerous_func: 0
+    notes: 'cwe_checker: 969 Findings.'
 artifacts:
-  - file: "fvevol_audited.sys"
-    type: "patched_binary"
-    description: "Name fvevol->fveaud, Audit-Marker [AUDITED: 2026-06-02 by opencode pipeline] in .data"
-    md5: "71026E538E85A1D8554D171C305942E8"
-  - file: "fvevol_noprobed.sys"
-    type: "patched_binary"
-    description: "ProbeForWrite-Call (FF 15 ...) in FvevolQueryVolumeInfo bei 0xB9D06 durch 6x NOP (0x90) ersetzt -- Test-Variante ohne Buffer-Validierung"
-    md5: "695CA1FE51370FB940AD9EB145D5B3BC"
-  - file: "fvevol_sinks.c"
-    type: "decompiler_output"
-    description: "Ghidra-Decompiler-Output: 33 Schlüsselfunktionen (117 KB)"
-    md5: ""
-  - file: "fvevol_sinks_clean.c"
-    type: "cleaned_decompiler_output"
-    description: "für flawfinder gesäuberte Version (undefined->char, CONCAT->Makro)"
-    md5: ""
-  - file: "fvevol_testbench.c"
-    type: "recompiled_logic"
-    description: "Extrahierte Logik in valides C: FveCopyDataToUserBuffer, FvevolQueryVolumeInfo, FvevolIoHandler, FveSafeMemcpy"
-    md5: ""
-  - file: "fvevol_testbench.exe"
-    type: "compiled_testbench"
-    description: "GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 21/21 Tests bestanden"
-    md5: ""
-  - file: "cwe_report.json"
-    type: "cwe_checker_output"
-    description: "969 Findings (470 KB JSON)"
-    md5: ""
-  - file: "audit_irp_buffers.py"
-    type: "ghidra_script"
-    description: "Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausführbar)"
-    md5: ""
-
+- file: fvevol_audited.sys
+  type: patched_binary
+  description: 'Name fvevol->fveaud, Audit-Marker [AUDITED: 2026-06-02 by opencode
+    pipeline] in .data'
+  md5: 71026E538E85A1D8554D171C305942E8
+- file: fvevol_noprobed.sys
+  type: patched_binary
+  description: ProbeForWrite-Call (FF 15 ...) in FvevolQueryVolumeInfo bei 0xB9D06
+    durch 6x NOP (0x90) ersetzt -- Test-Variante ohne Buffer-Validierung
+  md5: 695CA1FE51370FB940AD9EB145D5B3BC
+- file: fvevol_sinks.c
+  type: decompiler_output
+  description: 'Ghidra-Decompiler-Output: 33 Schlüsselfunktionen (117 KB)'
+  md5: ''
+- file: fvevol_sinks_clean.c
+  type: cleaned_decompiler_output
+  description: für flawfinder gesäuberte Version (undefined->char, CONCAT->Makro)
+  md5: ''
+- file: fvevol_testbench.c
+  type: recompiled_logic
+  description: 'Extrahierte Logik in valides C: FveCopyDataToUserBuffer, FvevolQueryVolumeInfo,
+    FvevolIoHandler, FveSafeMemcpy'
+  md5: ''
+- file: fvevol_testbench.exe
+  type: compiled_testbench
+  description: 'GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 21/21 Tests bestanden'
+  md5: ''
+- file: cwe_report.json
+  type: cwe_checker_output
+  description: 969 Findings (470 KB JSON)
+  md5: ''
+- file: audit_irp_buffers.py
+  type: ghidra_script
+  description: Audit-Skript für IRP-Handler-Prüfung (in Ghidra Script Manager ausführbar)
+  md5: ''
 summary:
-  overall_risk: "LOW"
+  overall_risk: LOW
   critical_findings: 0
   high_findings: 0
   medium_findings: 1
   low_findings: 1
   info_findings: 4
-  recommendation: |
-    Sicherheitstechnisch vorbildlich geschriebener Microsoft BitLocker-Treiber.
-    
+  recommendation: 'Sicherheitstechnisch vorbildlich geschriebener Microsoft BitLocker-Treiber.
+
+
     - Keine kritischen oder hochriskanten Buffer-Overflow-Lucken
+
     - 2 Low/Medium-Befunde (ProbeForWrite, 8-Byte-Leak) ohne akutes Exploit-Risiko
+
     - 4 Info-Befunde dokumentieren die positiven Sicherheitspraktiken
+
     - Alle IOCTL-Pfade haben mehrstufige Input-Validierung
+
     - Keine unsicheren String-Funktionen (strcpy/sprintf/wcscpy)
+
     - Heap-Hardening nicht anwendbar (Kernel-Treiber nutzen PoolAlloc)
+
     - BCrypt für Kryptographie (FIPS-konform)
-    
+
+
     Handlungsempfehlung: FVE-001 beheben (ProbeForWrite immer aufrufen).
+
     Keine weiteren Maßnahmen erforderlich.
+
+    '
   coverage_percent: 7
   analyzed_function_count: 104
   total_function_count: 1558
-  analyzed_functions: "DriverEntry, alle IRP-Handler, IOCTL-Dispatcher, Buffer-Copy-Funktionen, Registry-Pfade, Crypto-Pfade, Work-Item-Callbacks"
+  analyzed_functions: DriverEntry, alle IRP-Handler, IOCTL-Dispatcher, Buffer-Copy-Funktionen,
+    Registry-Pfade, Crypto-Pfade, Work-Item-Callbacks
 
 
 

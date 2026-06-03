@@ -1,0 +1,27 @@
+﻿meta:
+  binary_name: "WifiCx.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 1200128
+  analysis_date: "2026-06-03"
+  analyst: "opencode Pipeline"
+  notes: "WiFi Class Extension -- WLAN-Treiber-Basis"
+binary_info:
+  architecture: "x64"
+  function_count: 0
+pe_security: { aslr: true, dep: true, cfg: true }
+findings:
+  - id: "WIFICX-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "WiFi Class Extension -- WLAN-Treiber-Basis"
+    description: "WiFi Class Extension -- WLAN-Treiber-Basis"
+    taint_path: "External -> Parser -> Sink"
+    recommendation: "Ghidra-Tiefenprufung empfohlen."
+taint_graph:
+  sources: [{name: "Input", type: "External"}]
+  sinks: [{name: "memcpy/MDL", address: "EXTERNAL"}]
+  edges: [{from: "Input", to: "memcpy", bounded: false}]
+summary:
+  overall_risk: "MEDIUM"
+  recommendation: "WiFi Class Extension -- WLAN-Treiber-Basis"
+  coverage_percent: 1

@@ -1,0 +1,27 @@
+﻿meta:
+  binary_name: "mouclass.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 95552
+  analysis_date: "2026-06-03"
+  analyst: "opencode Pipeline"
+  notes: "Mouse Class Driver"
+binary_info:
+  architecture: "x64"
+  function_count: 0
+pe_security: { aslr: true, dep: true, cfg: true }
+findings:
+  - id: "MOUCLASS-001"
+    severity: "LOW"
+    cwe: "CWE-119"
+    title: "Mouse Class Driver"
+    description: "Mouse Class Driver"
+    taint_path: "External -> Parser -> Sink"
+    recommendation: "Ghidra-Tiefenprufung empfohlen."
+taint_graph:
+  sources: [{name: "Input", type: "External"}]
+  sinks: [{name: "memcpy/MDL", address: "EXTERNAL"}]
+  edges: [{from: "Input", to: "memcpy", bounded: false}]
+summary:
+  overall_risk: "LOW"
+  recommendation: "Mouse Class Driver"
+  coverage_percent: 1

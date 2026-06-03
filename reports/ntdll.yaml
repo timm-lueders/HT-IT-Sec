@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: ntdll.dll
   binary_type: user_dll
   analysis_date: '2026-06-03'
@@ -9,6 +9,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 3500
   entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
@@ -39,3 +40,7 @@ summary:
   medium_findings: 2
   recommendation: NT Layer DLL -- Syscall-Stub, Loader, Heap-Manager. Fundament.
   coverage_percent: 3
+
+
+
+

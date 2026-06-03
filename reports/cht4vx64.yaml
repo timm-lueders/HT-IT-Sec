@@ -1,49 +1,98 @@
 ﻿meta:
-  binary_name: "cht4vx64.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1858096
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  notes: "Chelsio T5/T6 10/25/40/100GbE Netzwerktreiber. 642 Funktionen. WDF-basiert. VF-SR-IOV. NUR safe APIs (memcpy_s, strncpy_s, sprintf_s). Beeindruckend sauberer Drittanbieter-Treiber."
+  binary_name: cht4vx64.sys
+  binary_type: kernel_driver
+  file_size_bytes: 1854880
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
+  notes: Chelsio T5/T6 10/25/40/100GbE Netzwerktreiber. 642 Funktionen. WDF-basiert.
+    VF-SR-IOV. NUR safe APIs (memcpy_s, strncpy_s, sprintf_s). Beeindruckend sauberer
+    Drittanbieter-Treiber.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  entry_point: "0x14002b620"
+  architecture: x64
+  base_address: '0x140000000'
+  entry_point: '0x14002b620'
   function_count: 642
-  compiler_hint: "msvc + WDF"
-pe_security: { aslr: true, dep: true, cfg: true }
+  compiler_hint: msvc + WDF
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 import_risk_map:
   high: []
   medium:
-    - { api: "Vf_read_reg/Vf_write_reg", risk: "Hardware-Register-Zugriff -- PCIe BAR-Mapping", cwe: "CWE-119" }
-    - { api: "MmMapIoSpaceEx/MmUnmapIoSpace", risk: "I/O-Space-Mapping", cwe: "CWE-119" }
-    - { api: "ZwCreateFile/ZwReadFile", risk: "Firmware-Datei-Zugriff", cwe: "CWE-22" }
+  - api: Vf_read_reg/Vf_write_reg
+    risk: Hardware-Register-Zugriff -- PCIe BAR-Mapping
+    cwe: CWE-119
+  - api: MmMapIoSpaceEx/MmUnmapIoSpace
+    risk: I/O-Space-Mapping
+    cwe: CWE-119
+  - api: ZwCreateFile/ZwReadFile
+    risk: Firmware-Datei-Zugriff
+    cwe: CWE-22
   low:
-    - { api: "memcpy_s", risk: "Safe Memory-Copy (KORREKT)", cwe: "N/A" }
-    - { api: "strncpy_s + sprintf_s", risk: "Safe String-Varianten (KORREKT)", cwe: "N/A" }
-    - { api: "KeRegisterBugCheckReasonCallback", risk: "BugCheck-Callback (korrekt)", cwe: "N/A" }
+  - api: memcpy_s
+    risk: Safe Memory-Copy (KORREKT)
+    cwe: N/A
+  - api: strncpy_s + sprintf_s
+    risk: Safe String-Varianten (KORREKT)
+    cwe: N/A
+  - api: KeRegisterBugCheckReasonCallback
+    risk: BugCheck-Callback (korrekt)
+    cwe: N/A
   info:
-    - { api: "WdfVersionBind/Unbind", risk: "WDF-Framework -- strukturierter Treiber", cwe: "N/A" }
-    - { api: "Vf_* (50+ Chelsio-APIs)", risk: "VF-Management, RSS, MAC-Filter", cwe: "N/A" }
+  - api: WdfVersionBind/Unbind
+    risk: WDF-Framework -- strukturierter Treiber
+    cwe: N/A
+  - api: Vf_* (50+ Chelsio-APIs)
+    risk: VF-Management, RSS, MAC-Filter
+    cwe: N/A
 findings:
-  - id: "CHT-001"
-    severity: "LOW"
-    cwe: "N/A"
-    title: "Vorbildlicher Drittanbieter-Treiber -- nur safe APIs"
-    description: |
-      cht4vx64.sys verwendet AUSSCHLIEBLICH safe C-APIs: memcpy_s, strncpy_s,
-      sprintf_s. Kein memcpy, strcpy, sprintf. 642 Funktionen, WDF-basiert.
-      VF-SR-IOV mit 50+ Chelsio-APIs. BugCheck-Callback fur Crash-Debugging.
-      Einer der am besten geschriebenen Drittanbieter-Treiber im Audit.
-    recommendation: "Best Practices beibehalten. Hardware-Register-Zugriffe auf Bounds-Checks prufen."
+- id: CHT-001
+  severity: LOW
+  cwe: N/A
+  title: Vorbildlicher Drittanbieter-Treiber -- nur safe APIs
+  description: 'cht4vx64.sys verwendet AUSSCHLIEBLICH safe C-APIs: memcpy_s, strncpy_s,
+
+    sprintf_s. Kein memcpy, strcpy, sprintf. 642 Funktionen, WDF-basiert.
+
+    VF-SR-IOV mit 50+ Chelsio-APIs. BugCheck-Callback fur Crash-Debugging.
+
+    Einer der am besten geschriebenen Drittanbieter-Treiber im Audit.
+
+    '
+  recommendation: Best Practices beibehalten. Hardware-Register-Zugriffe auf Bounds-Checks
+    prufen.
 taint_graph:
-  sources: [{name: "Netzwerk-Pakete", type: "Chelsio Firmware/NDIS"}]
-  sinks: [{name: "Vf_read_reg/Vf_write_reg", address: "INTERNAL", type: "Hardware Register"}]
-  edges: [{from: "Netzwerk-Pakete", to: "Vf_write_reg", bounded: false}]
+  sources:
+  - name: Netzwerk-Pakete
+    type: Chelsio Firmware/NDIS
+  sinks:
+  - name: Vf_read_reg/Vf_write_reg
+    address: INTERNAL
+    type: Hardware Register
+  edges:
+  - from: Netzwerk-Pakete
+    to: Vf_write_reg
+    bounded: false
 summary:
-  overall_risk: "LOW"
+  overall_risk: LOW
   high_findings: 0
   medium_findings: 0
   low_findings: 1
-  recommendation: "Sauber programmiert. Hardware-Register-Validierung beibehalten."
+  recommendation: Sauber programmiert. Hardware-Register-Validierung beibehalten.
   coverage_percent: 10
+tools_output:
+  cwe_checker:
+    total_findings: 387
+    cwe787_oob_write: 379
+    cwe125_oob_read: 1
+    cwe476_null_deref: 7
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 387 Findings.
+
+

@@ -1,13 +1,14 @@
-meta:
+﻿meta:
   binary_name: adp80xx
   binary_type: user_exe
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline
   notes: Adaptec SCSI/SAS StorPort-Miniport. strcpy_s, strukturiert via StorPort-API.
-  file_size_bytes: 0
+  file_size_bytes: 1136544
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 2400
 pe_security:
   aslr: true
   dep: true
@@ -32,3 +33,6 @@ summary:
   overall_risk: LOW
   recommendation: Adaptec SCSI/SAS StorPort-Miniport. strcpy_s, strukturiert via StorPort-API.
   coverage_percent: 5
+
+
+

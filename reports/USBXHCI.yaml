@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: USBXHCI.SYS
   binary_type: kernel_driver
   file_size_bytes: 787960
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1000
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,20 @@ summary:
   overall_risk: LOW
   recommendation: USB xHCI Controller -- 770KB.
   coverage_percent: 3
+tools_output:
+  cwe_checker:
+    total_findings: 714
+    cwe787_oob_write: 713
+    cwe125_oob_read: 0
+    cwe476_null_deref: 1
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 714 Findings.
+
+
+
+

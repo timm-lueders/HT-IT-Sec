@@ -153,39 +153,34 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
     <div><b>Größe:</b> 84,200 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> ~100</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>DLL-Laden von Authentifizierungs-Packages</td><td>CWE-426</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> NdrServerCallAll/NdrServerCall2</td><td>RPC-Server -- Remote-Angriffsflache</td><td>CWE-20</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SspirAcquireCredentialsHandle</td><td>SSPI-Credential-Verarbeitung</td><td>CWE-287</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SspirProcessSecurityContext</td><td>SSPI-Token-Validierung</td><td>CWE-287</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> OpenProcessToken/GetTokenInformation</td><td>Token-Zugriff</td><td>CWE-269</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    <div><b>Funktionen:</b> 100</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> NdrServerCallAll</td><td>RPC-Server Remote</td><td>CWE-20</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>Auth-Package-DLL-Laden</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SspirProcessSecurityContext</td><td>SSPI-Token-Validierung</td><td>CWE-287</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
     <div class="grid2">
-    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>RPC-Clients</td><td>Remote via NdrServerCall</td></tr></table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>SSPI / LoadLibraryExW</td><td>EXTERNAL</td></tr></table></div>
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>RPC-Clients</td><td>Remote</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>SSPI/LoadLibraryExW</td><td>EXTERNAL</td></tr></table></div>
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
     RPC_Clients["RPC-Clients"] -->|"UNCHECKED"| SSPI["SSPI"]
 </div>
-    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>RPC-Clients</td><td>SSPI</td><td>RPC-Marshalling</td></tr></table>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>RPC-Clients</td><td>SSPI</td><td>-</td></tr></table>
     </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
-    <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
+    <tr><td>cwe_checker</td><td>44 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-20: RPC-Server -- Remote-Angriffsflache via NdrServerCallAll</b>
-        <p style="margin-top:6px;font-size:0.9rem">lsass.exe ist ein RPC-Server (NdrServerCallAll/NdrServerCall2) mit
-RpcServerUseProtseqEpW zur Endpoint-Registrierung. SSPI-Credential-
-Handling (SspirAcquireCredentialsHandle, SspirProcessSecurityContext)
-verarbeitet Authentifizierungs-Tokens. Ein Bug im RPC-Marshalling
-oder Token-Parsing kann zur SYSTEM-Kompromittierung fuhren.
-</p>
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-20: RPC-Server + SSPI -- Remote-Angriffsflache</b>
+        <p style="margin-top:6px;font-size:0.9rem">lsass.exe ist RPC-Server mit SSPI. NdrServerCallAll + SspirProcessSecurityContext.</p>
         <div class="finding-info">Funktion: ? @ ?<br>
-        Taint-Path: RPC-Client -> NdrServerCall -> SSPI -> Token -> SYSTEM<br>
-        Empfehlung: RPC-Schnittstelle auf Input-Validierung prufen. SSPI-Token-Parsing auf Buffer-Overflow testen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Taint-Path: RPC -> SSPI -> Token -> SYSTEM<br>
+        Empfehlung: RPC-Input-Validierung. Token-Parsing absichern.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
-    <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> ~100</div>
+    <div><b>Analyse-Datum:</b> 2026-06-03</div>
+    <div><b>Funktionen:</b> 100</div>
     <div><b>Coverage:</b> 15%</div>
-    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP</div>
     <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
@@ -197,7 +192,7 @@ oder Token-Parsing kann zur SYSTEM-Kompromittierung fuhren.
     </div>
     <hr>
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:15%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">RPC+SSPI-Angriffsflache. Token-Validierung und DLL-Laden hart absichern.</p></div></main>
+    <p style="margin-top:8px;font-size:0.85rem">RPC+SSPI. Token-Validierung hart absichern.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
 </body></html>

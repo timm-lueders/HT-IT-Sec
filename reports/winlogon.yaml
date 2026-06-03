@@ -1,15 +1,16 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "winlogon.exe"
-  binary_type: "user_exe"
-  file_size_bytes: 966128
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  template_version: '1.0'
+  binary_name: winlogon.exe
+  binary_type: user_exe
+  file_size_bytes: 958464
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   analysis_duration_minutes: 15
-  notes: "Windows Logon Process. 2.349 Funktionen. SAS, GINA/Credential-Providers, Authentifizierung. Kritischster User-Mode-Prozess."
+  notes: Windows Logon Process. 2.349 Funktionen. SAS, GINA/Credential-Providers,
+    Authentifizierung. Kritischster User-Mode-Prozess.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
+  architecture: x64
+  base_address: '0x140000000'
   function_count: 2349
   symbol_count: 3359
 pe_security:
@@ -19,46 +20,89 @@ pe_security:
   high_entropy_aslr: true
 import_risk_map:
   high:
-    - { api: "LoadLibraryExW", risk: "DLL-Laden von Credential-Providern -- Pfad-Hijacking zu SYSTEM-RCE", cwe: "CWE-426" }
+  - api: LoadLibraryExW
+    risk: DLL-Laden von Credential-Providern -- Pfad-Hijacking zu SYSTEM-RCE
+    cwe: CWE-426
   medium:
-    - { api: "memcpy", risk: "UNSAFE -- _o_memcpy_s existiert parallel", cwe: "CWE-119" }
-    - { api: "_o___stdio_common_vswprintf", risk: "Format-String ohne _s", cwe: "CWE-134" }
-    - { api: "HeapAlloc/HeapFree", risk: "Heap-Management -- Double-Free/UAF", cwe: "CWE-415/CWE-416" }
+  - api: memcpy
+    risk: UNSAFE -- _o_memcpy_s existiert parallel
+    cwe: CWE-119
+  - api: _o___stdio_common_vswprintf
+    risk: Format-String ohne _s
+    cwe: CWE-134
+  - api: HeapAlloc/HeapFree
+    risk: Heap-Management -- Double-Free/UAF
+    cwe: CWE-415/CWE-416
   low:
-    - { api: "_o_wcscpy_s/_o_wcscat_s/_o_wcstok_s", risk: "Safe String-Varianten (korrekt)", cwe: "N/A" }
-    - { api: "_o_memcpy_s", risk: "Safe Memory-Copy (korrekt)", cwe: "N/A" }
+  - api: _o_wcscpy_s/_o_wcscat_s/_o_wcstok_s
+    risk: Safe String-Varianten (korrekt)
+    cwe: N/A
+  - api: _o_memcpy_s
+    risk: Safe Memory-Copy (korrekt)
+    cwe: N/A
 findings:
-  - id: "WLG-001"
-    severity: "HIGH"
-    cwe: "CWE-426"
-    title: "Credential-Provider-DLL-Laden via LoadLibraryExW"
-    description: |
-      winlogon.exe ladt GINA/Credential-Provider-DLLs uber LoadLibraryExW.
-      Ein Angreifer mit Schreibzugriff auf den DLL-Pfad kann bösartigen Code
-      mit SYSTEM-Rechten ausfuhren. 2.349 Funktionen deuten auf komplexe
-      Authentifizierungslogik hin. memcpy wird parallel zu _o_memcpy_s genutzt
-      -- inkonsistente Sicherheitspraxis.
-    taint_path: "Registry -> DLL-Pfad -> LoadLibraryExW -> SYSTEM-Code-Ausfuhrung"
-    recommendation: "DLL-Signaturprufung. Pfad-Hardening gegen Hijacking."
-  - id: "WLG-002"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "memcpy parallel zu _o_memcpy_s"
-    description: "Inkonsistente API-Nutzung: memcpy und _o_memcpy_s existieren nebeneinander."
-    recommendation: "Alle memcpy-Aufrufe auf _o_memcpy_s migrieren."
+- id: WLG-001
+  severity: HIGH
+  cwe: CWE-426
+  title: Credential-Provider-DLL-Laden via LoadLibraryExW
+  description: 'winlogon.exe ladt GINA/Credential-Provider-DLLs uber LoadLibraryExW.
+
+    Ein Angreifer mit Schreibzugriff auf den DLL-Pfad kann bösartigen Code
+
+    mit SYSTEM-Rechten ausfuhren. 2.349 Funktionen deuten auf komplexe
+
+    Authentifizierungslogik hin. memcpy wird parallel zu _o_memcpy_s genutzt
+
+    -- inkonsistente Sicherheitspraxis.
+
+    '
+  taint_path: Registry -> DLL-Pfad -> LoadLibraryExW -> SYSTEM-Code-Ausfuhrung
+  recommendation: DLL-Signaturprufung. Pfad-Hardening gegen Hijacking.
+- id: WLG-002
+  severity: MEDIUM
+  cwe: CWE-119
+  title: memcpy parallel zu _o_memcpy_s
+  description: 'Inkonsistente API-Nutzung: memcpy und _o_memcpy_s existieren nebeneinander.'
+  recommendation: Alle memcpy-Aufrufe auf _o_memcpy_s migrieren.
 taint_graph:
   sources:
-    - { name: "Registry (Credential-Provider-Pfade)", type: "Konfiguration" }
-    - { name: "SAS (Secure Attention Sequence)", type: "Tastatur-Input" }
+  - name: Registry (Credential-Provider-Pfade)
+    type: Konfiguration
+  - name: SAS (Secure Attention Sequence)
+    type: Tastatur-Input
   sinks:
-    - { name: "LoadLibraryExW", address: "EXTERNAL:kernel32.dll", type: "DLL-Laden" }
-    - { name: "memcpy", address: "EXTERNAL:ucrtbase.dll", type: "Memory Copy" }
+  - name: LoadLibraryExW
+    address: EXTERNAL:kernel32.dll
+    type: DLL-Laden
+  - name: memcpy
+    address: EXTERNAL:ucrtbase.dll
+    type: Memory Copy
   edges:
-    - { from: "Registry", to: "LoadLibraryExW", bounded: false, check_location: "Pfad-Validierung unbekannt" }
+  - from: Registry
+    to: LoadLibraryExW
+    bounded: false
+    check_location: Pfad-Validierung unbekannt
 summary:
-  overall_risk: "HIGH"
+  overall_risk: HIGH
   high_findings: 1
   medium_findings: 1
   low_findings: 0
-  recommendation: "DLL-Hijacking via Credential-Provider-Pfad. Signaturvalidierung und Pfad-Hardening prufen."
+  recommendation: DLL-Hijacking via Credential-Provider-Pfad. Signaturvalidierung
+    und Pfad-Hardening prufen.
   coverage_percent: 8
+tools_output:
+  cwe_checker:
+    total_findings: 1358
+    cwe787_oob_write: 1040
+    cwe125_oob_read: 9
+    cwe476_null_deref: 11
+    cwe676_dangerous_func: 298
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 1358 Findings.
+
+
+

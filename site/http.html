@@ -151,7 +151,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">0x1401e2010 (DriverEntry)</span></div>
-    <div><b>Größe:</b> 2,180,432 bytes</div>
+    <div><b>Größe:</b> 2,180,584 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 4132</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> IoBuildPartialMdl</td><td>Double-Fetch bei HTTP-Request-Puffern</td><td>CWE-367</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> RtlIpv4StringToAddressExW/RtlIpv6StringToAddressExW</td><td>IP-Address-Parsing -- Format-String-Overflow</td><td>CWE-120</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmProbeAndLockPages</td><td>User-Mode-Puffer locken</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SeCreateClientSecurity/SeDeleteClientSecurity</td><td>Security-Context-Manipulation</td><td>CWE-269</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ZwCreateFile/ZwQuerySecurityObject</td><td>Datei-Access via HTTP</td><td>CWE-22</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExGetPreviousMode</td><td>User/Kernel-Mode-Check (KORREKT)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExAllocatePool2</td><td>Modern Pool-API</td><td>N/A</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
@@ -189,5 +189,5 @@ Kernel-Exploits in Windows (vgl. MS15-034/CVE-2015-1635).
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:3%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">Remote-Kernel-Angriffsflache #1. HTTP-Fuzzing zwingend.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
 </body></html>

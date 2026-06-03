@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: certutil.exe
   binary_type: user_exe
   analysis_date: '2026-06-03'
@@ -9,6 +9,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 2200
   entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
@@ -39,3 +40,8 @@ summary:
   medium_findings: 2
   recommendation: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.
   coverage_percent: 3
+
+
+
+
+

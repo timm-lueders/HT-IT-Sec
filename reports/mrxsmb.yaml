@@ -1,13 +1,14 @@
-meta:
+﻿meta:
   binary_name: mrxsmb.sys
   binary_type: kernel_driver
-  file_size_bytes: 951768
+  file_size_bytes: 943088
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1253
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,21 @@ summary:
   overall_risk: MEDIUM
   recommendation: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
   coverage_percent: 3
+tools_output:
+  cwe_checker:
+    total_findings: 687
+    cwe787_oob_write: 638
+    cwe125_oob_read: 2
+    cwe476_null_deref: 47
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 687 Findings.
+
+
+
+
+

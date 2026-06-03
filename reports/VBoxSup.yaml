@@ -1,8 +1,8 @@
-meta:
+﻿meta:
   template_version: "1.0"
   binary_name: "VBoxSup.sys"
   binary_type: "kernel_driver"
-  file_size_bytes: 1201940
+  file_size_bytes: 1062048
   analysis_date: "2026-06-02"
   analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
   analysis_duration_minutes: 20
@@ -148,3 +148,4 @@ summary:
     - Dateisystem-Pfade validieren
     Insgesamt: Professioneller Treiber mit Security-Awareness.
   coverage_percent: 8
+

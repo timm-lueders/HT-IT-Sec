@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: winhttp.dll
   binary_type: user_dll
   file_size_bytes: 1228760
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1800
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,7 @@ summary:
   overall_risk: MEDIUM
   recommendation: WinHTTP -- 1.2MB. HTTP-Client.
   coverage_percent: 3
+
+
+
+

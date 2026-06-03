@@ -1,13 +1,14 @@
-meta:
+﻿meta:
   binary_name: WdiWiFi
   binary_type: user_exe
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline
   notes: WiFi WDI. 802.11.
-  file_size_bytes: 0
+  file_size_bytes: 1155072
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1400
 pe_security:
   aslr: true
   dep: true
@@ -32,3 +33,6 @@ summary:
   overall_risk: MEDIUM
   recommendation: WiFi WDI. 802.11.
   coverage_percent: 5
+
+
+

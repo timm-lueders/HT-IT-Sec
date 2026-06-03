@@ -1,7 +1,7 @@
 ﻿meta:
   binary_name: "http.sys"
   binary_type: "kernel_driver"
-  file_size_bytes: 2180432
+  file_size_bytes: 2180584
   analysis_date: "2026-06-03"
   analyst: "opencode + GhidraMCP -- Deep-Scan"
   notes: "HTTP Server Driver. 4.132 Funktionen. Remote-Kernel-Angriffsflache. IoBuildPartialMdl, MmProbeAndLockPages, IP-Parsing, Server-Silos. CVE-2015-1635 (MS15-034)."
@@ -37,4 +37,6 @@ findings:
     taint_path: "HTTP-Request -> IoBuildPartialMdl -> Kernel-Puffer"
     recommendation: "HTTP-Header-Parsing auf Range-Check validieren. Keine unchecked String-to-IP Konvertierung."
 summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, recommendation: "Remote-Kernel-Angriffsflache #1. HTTP-Fuzzing zwingend.", coverage_percent: 3 }
+
+
 

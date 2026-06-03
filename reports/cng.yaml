@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: cng.sys
   binary_type: kernel_driver
   file_size_bytes: 947776
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1200
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,21 @@ summary:
   overall_risk: MEDIUM
   recommendation: Cryptography Next Gen -- 926KB. Kernel-Krypto-API.
   coverage_percent: 3
+tools_output:
+  cwe_checker:
+    total_findings: 704
+    cwe787_oob_write: 621
+    cwe125_oob_read: 8
+    cwe476_null_deref: 75
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 704 Findings.
+
+
+
+
+

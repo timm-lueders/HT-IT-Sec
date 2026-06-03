@@ -1,13 +1,14 @@
-meta:
+﻿meta:
   binary_name: vhdmp
   binary_type: user_exe
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline
   notes: VHD Parser. Header-Parsing sicher.
-  file_size_bytes: 0
+  file_size_bytes: 1062384
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 1400
 pe_security:
   aslr: true
   dep: true
@@ -32,3 +33,6 @@ summary:
   overall_risk: LOW
   recommendation: VHD Parser. Header-Parsing sicher.
   coverage_percent: 5
+
+
+

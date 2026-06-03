@@ -151,7 +151,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> user_exe</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 966,128 bytes</div>
+    <div><b>Größe:</b> 958,464 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 2349</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>DLL-Laden von Credential-Providern -- Pfad-Hijacking zu SYSTEM-RCE</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>UNSAFE -- _o_memcpy_s existiert parallel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _o___stdio_common_vswprintf</td><td>Format-String ohne _s</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> HeapAlloc/HeapFree</td><td>Heap-Management -- Double-Free/UAF</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _o_wcscpy_s/_o_wcscat_s/_o_wcstok_s</td><td>Safe String-Varianten (korrekt)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _o_memcpy_s</td><td>Safe Memory-Copy (korrekt)</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
@@ -167,7 +167,7 @@ graph LR
     </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
-    <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
+    <tr><td>cwe_checker</td><td>1358 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (2)</h3><div class="finding finding-HIGH">
         <span class="badge sev-HIGH">HIGH</span> <b>CWE-426: Credential-Provider-DLL-Laden via LoadLibraryExW</b>
@@ -204,5 +204,5 @@ Authentifizierungslogik hin. memcpy wird parallel zu _o_memcpy_s genutzt
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:8%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">DLL-Hijacking via Credential-Provider-Pfad. Signaturvalidierung und Pfad-Hardening prufen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
 </body></html>

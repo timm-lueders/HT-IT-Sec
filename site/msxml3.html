@@ -151,37 +151,36 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> user_dll</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 1,593,152 bytes</div>
+    <div><b>Größe:</b> 1,593,344 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> ~2500</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> CoCreateInstance/CLSIDFromProgID</td><td>COM-Objekt-Erstellung -- beliebige COM-Instanziierung</td><td>CWE-427</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> memcpy</td><td>XML-String-Kopie ohne Langenprufung -- billion laughs</td><td>CWE-119</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> VirtualAlloc/VirtualFree</td><td>Speicher fur XML-DOM -- Entity-Expansion zu OOM</td><td>CWE-400</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> BCryptCreateHash/BCryptHashData</td><td>XML-DSig-Verarbeitung -- Signatur-Validierung</td><td>CWE-347</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateStreamOnHGlobal</td><td>Stream-basiertes XML-Parsing</td><td>CWE-20</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateFileW/ReadFile</td><td>Datei-I/O fur XML-Dokumente -- Pfad-Traversal</td><td>CWE-22</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    <div><b>Funktionen:</b> 3000</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> CoCreateInstance</td><td>COM-Instanziierung</td><td>CWE-427</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> memcpy</td><td>XML-String-Kopie</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> BCryptCreateHash</td><td>XML-DSig</td><td>CWE-347</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
     <div class="grid2">
-    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>XML-Dokument</td><td>Datei/Netzwerk/COM-Stream</td></tr></table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL</td></tr><tr><td>Sink</td><td>VirtualAlloc</td><td>EXTERNAL</td></tr><tr><td>Sink</td><td>CoCreateInstance</td><td>EXTERNAL</td></tr></table></div>
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>XML-Dokument</td><td>Datei/COM</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL</td></tr></table></div>
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
     XML_Dokument["XML-Dokument"] -->|"UNCHECKED"| memcpy["memcpy"]
-    XML_Dokument["XML-Dokument"] -->|"UNCHECKED"| CoCreateInstance["CoCreateInstance"]
 </div>
-    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>XML-Dokument</td><td>memcpy</td><td>-</td></tr><tr><td>UNCHECKED</td><td>XML-Dokument</td><td>CoCreateInstance</td><td>COM-ProgID aus XML</td></tr></table>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>XML-Dokument</td><td>memcpy</td><td>-</td></tr></table>
     </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
-    <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
+    <tr><td>cwe_checker</td><td>3138 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-776: XML Entity Expansion -- Billion Laughs / XXE</b>
-        <p style="margin-top:6px;font-size:0.9rem">MSXML3 parst XML mit Entity-Expansion. Bösartige XML-Dokumente mit rekursiven Entities (Billion Laughs) konnen zu Speicheruberlauf und DoS fuhren. memcpy ohne _s wird verwendet.</p>
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-776: XXE / Billion Laughs via XML Entity Expansion</b>
+        <p style="margin-top:6px;font-size:0.9rem">MSXML3 parst XML mit Entity-Expansion. Billion-Laughs-Angriff moglich. memcpy ohne _s.</p>
         <div class="finding-info">Funktion: ? @ ?<br>
-        Taint-Path: -<br>
-        Empfehlung: Entity-Expansion-Limits setzen. XXE-Protection aktivieren. Alle memcpy auf memcpy_s migrieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Taint-Path: XML -> Parser -> memcpy<br>
+        Empfehlung: Entity-Expansion-Limits. XXE-Protection aktivieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
-    <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> ~2500</div>
+    <div><b>Analyse-Datum:</b> 2026-06-03</div>
+    <div><b>Funktionen:</b> 3000</div>
     <div><b>Coverage:</b> 3%</div>
-    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP</div>
     <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
@@ -193,7 +192,7 @@ graph LR
     </div>
     <hr>
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:3%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem"></p></div></main>
+    <p style="margin-top:8px;font-size:0.85rem">XML-Parser-Angriffsflache. Fuzzing mit AFL empfohlen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
 </body></html>

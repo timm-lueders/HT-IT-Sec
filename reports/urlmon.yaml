@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: urlmon.dll
   binary_type: user_dll
   analysis_date: '2026-06-03'
@@ -9,6 +9,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 4796
   entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
@@ -42,3 +43,6 @@ summary:
   recommendation: URL Moniker -- Internet Explorer Komponente. 4.796 Funktionen. memcpy+memcpy_s
     gemischt. GetPortFromUrlScheme. DCOM-basiert.
   coverage_percent: 3
+
+
+

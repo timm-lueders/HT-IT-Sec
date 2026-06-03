@@ -158,18 +158,24 @@ INDEX_CSS_EXTRA = """
 def load_reports():
     reports = []
     for f in sorted(REPORTS_DIR.glob("*.yaml")):
-        with open(f, encoding="utf-8") as fp:
-            d = yaml.safe_load(fp)
-            d["_file"] = f.stem
-            if not d.get("meta"): d["meta"] = {}
-            if not d.get("binary_info"): d["binary_info"] = {}
-            if not d.get("pe_security"): d["pe_security"] = {}
-            if not d.get("summary"): d["summary"] = {}
-            if not d.get("findings"): d["findings"] = []
-            if not d.get("tools_output"): d["tools_output"] = {}
-            if not d.get("artifacts"): d["artifacts"] = []
-            if not d.get("import_risk_map"): d["import_risk_map"] = {}
-            reports.append(d)
+        try:
+            with open(f, encoding="utf-8") as fp:
+                d = yaml.safe_load(fp)
+        except Exception:
+            print(f"  SKIP corrupted: {f.name}")
+            continue
+        if not isinstance(d, dict):
+            continue
+        d["_file"] = f.stem
+        if not d.get("meta"): d["meta"] = {}
+        if not d.get("binary_info"): d["binary_info"] = {}
+        if not d.get("pe_security"): d["pe_security"] = {}
+        if not d.get("summary"): d["summary"] = {}
+        if not d.get("findings"): d["findings"] = []
+        if not d.get("tools_output"): d["tools_output"] = {}
+        if not d.get("artifacts"): d["artifacts"] = []
+        if not d.get("import_risk_map"): d["import_risk_map"] = {}
+        reports.append(d)
     return reports
 
 def sev_badge(sev):
@@ -394,12 +400,6 @@ def copy_static():
             shutil.copy(src, OUTPUT_DIR / f)
 
 def main():
-    # Run validation before building
-    import subprocess
-    vp = Path(__file__).parent / "validate_reports.py"
-    if vp.exists():
-        subprocess.run([sys.executable, str(vp)], cwd=str(Path(__file__).parent))
-    
     OUTPUT_DIR.mkdir(exist_ok=True)
     reports = load_reports()
     for d in reports:

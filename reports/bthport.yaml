@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: bthport.sys
   binary_type: kernel_driver
   analysis_date: '2026-06-03'
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 3500
   entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
@@ -38,3 +39,21 @@ summary:
   medium_findings: 2
   recommendation: Bluetooth Port -- drahtlose Angriffsflache. BT-Protokoll.
   coverage_percent: 3
+tools_output:
+  cwe_checker:
+    total_findings: 3320
+    cwe787_oob_write: 3124
+    cwe125_oob_read: 36
+    cwe476_null_deref: 159
+    cwe676_dangerous_func: 0
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 3320 Findings.
+
+
+
+
+

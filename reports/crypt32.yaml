@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   binary_name: crypt32.dll
   binary_type: user_dll
   file_size_bytes: 1538632
@@ -8,6 +8,7 @@ meta:
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 3200
 pe_security:
   aslr: true
   dep: true
@@ -35,3 +36,22 @@ summary:
   overall_risk: MEDIUM
   recommendation: Crypto32 API -- 1.5MB. X.509, SSL/TLS.
   coverage_percent: 3
+tools_output:
+  cwe_checker:
+    total_findings: 3345
+    cwe787_oob_write: 2082
+    cwe125_oob_read: 16
+    cwe476_null_deref: 258
+    cwe676_dangerous_func: 988
+    cwe190_int_overflow: 0
+    cwe415_double_free: 0
+    cwe416_use_after_free: 0
+    cwe134_format_string: 0
+    estimated_false_positive_rate: 97
+    notes: Docker cwe_checker abgeschlossen. 3345 Findings.
+
+
+
+
+
+

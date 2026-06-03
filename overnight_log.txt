@@ -1,0 +1,188 @@
+[05:09:38] ============================================================
+[05:09:38] OVERNIGHT cwe_checker SCAN START
+[05:09:38] Working dir: C:\Users\batar\Desktop\Neuer Ordner\binaries
+[05:09:38] Reports dir: C:\Users\batar\Desktop\Neuer Ordner\pipeline\HT-IT-Sec\reports
+[05:09:38] ============================================================
+[05:09:38] Reports found: 57
+[05:09:38] SKIP adp80xx: binary not found on disk
+[05:09:38]   Copied: afd.sys (738776 bytes)
+[05:09:38]   cwe_checker start: afd.sys
+[05:12:36]   cwe_checker done: afd.sys (305845 bytes)
+[05:12:36]   Report updated: afd (656 findings)
+[05:12:36]   Copied: BthA2dp.sys (614400 bytes)
+[05:12:36]   cwe_checker start: BthA2dp.sys
+[05:17:11]   cwe_checker done: BthA2dp.sys (390866 bytes)
+[05:17:11]   Report updated: BthA2dp (818 findings)
+[05:17:11]   Copied: bthport.sys (2338816 bytes)
+[05:17:11]   cwe_checker start: bthport.sys
+[05:31:34]   cwe_checker done: bthport.sys (1571671 bytes)
+[05:31:34]   Report updated: bthport (3320 findings)
+[05:31:34]   Copied: certutil.exe (1589248 bytes)
+[05:31:34]   cwe_checker start: certutil.exe
+[05:32:14]   cwe_checker ERROR: certutil.exe - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/certutil.exe', '--json', '--out', '/data/certutil.exe.cwe.json']' returned non-zero exit status 101.
+[05:32:14]   Copied: cht4vx64.sys (1854880 bytes)
+[05:32:14]   cwe_checker start: cht4vx64.sys
+[05:34:23]   cwe_checker done: cht4vx64.sys (183990 bytes)
+[05:34:23]   Report updated: cht4vx64 (387 findings)
+[05:34:23] SKIP ClipSp: binary not found on disk
+[05:34:23]   Copied: cmd.exe (339968 bytes)
+[05:34:23]   cwe_checker start: cmd.exe
+[05:36:06]   cwe_checker done: cmd.exe (241797 bytes)
+[05:36:06]   Report updated: cmd (542 findings)
+[05:36:06]   Copied: cng.sys (947776 bytes)
+[05:36:06]   cwe_checker start: cng.sys
+[05:44:58]   cwe_checker done: cng.sys (328994 bytes)
+[05:44:58]   Report updated: cng (704 findings)
+[05:44:58]   Copied: comsvcs.dll (1728512 bytes)
+[05:44:58]   cwe_checker start: comsvcs.dll
+[05:45:40]   cwe_checker ERROR: comsvcs.dll - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/comsvcs.dll', '--json', '--out', '/data/comsvcs.dll.cwe.json']' returned non-zero exit status 101.
+[05:45:40]   Copied: crypt32.dll (1538632 bytes)
+[05:45:40]   cwe_checker start: crypt32.dll
+[05:55:56]   cwe_checker done: crypt32.dll (1487202 bytes)
+[05:55:56]   Report updated: crypt32 (3345 findings)
+[05:55:56]   Copied: csc.sys (636376 bytes)
+[05:55:56]   cwe_checker start: csc.sys
+[05:59:45]   cwe_checker done: csc.sys (372009 bytes)
+[05:59:45]   Report updated: csc (792 findings)
+[05:59:45]   Copied: disk.sys (148984 bytes)
+[05:59:45]   cwe_checker start: disk.sys
+[06:00:17]   cwe_checker done: disk.sys (52944 bytes)
+[06:00:17]   Report updated: disk (118 findings)
+[06:00:17]   Copied: dxgkrnl.sys (5187056 bytes)
+[06:00:17]   cwe_checker start: dxgkrnl.sys
+[06:01:41]   cwe_checker ERROR: dxgkrnl.sys - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/dxgkrnl.sys', '--json', '--out', '/data/dxgkrnl.sys.cwe.json']' returned non-zero exit status 101.
+[06:01:41] SKIP dxgmms2: binary not found on disk
+[06:01:41] SKIP ftp: binary not found on disk
+[06:01:41]   Copied: fvevol.sys (968176 bytes)
+[06:01:41]   cwe_checker start: fvevol.sys
+[06:06:48]   cwe_checker done: fvevol.sys (470730 bytes)
+[06:06:48]   Report updated: fvevol (969 findings)
+[06:06:48]   Copied: http.sys (2180584 bytes)
+[06:06:48]   cwe_checker start: http.sys
+[06:21:48]   cwe_checker TIMEOUT: http.sys
+[06:21:48]   Copied: jscript9.dll (4829184 bytes)
+[06:21:48]   cwe_checker start: jscript9.dll
+[06:23:24]   cwe_checker ERROR: jscript9.dll - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/jscript9.dll', '--json', '--out', '/data/jscript9.dll.cwe.json']' returned non-zero exit status 101.
+[06:23:24]   Copied: ksecpkg.sys (230888 bytes)
+[06:23:24]   cwe_checker start: ksecpkg.sys
+[06:24:41]   cwe_checker done: ksecpkg.sys (123892 bytes)
+[06:24:41]   Report updated: ksecpkg (278 findings)
+[06:24:41]   Copied: lsass.exe (84200 bytes)
+[06:24:41]   cwe_checker start: lsass.exe
+[06:24:58]   cwe_checker done: lsass.exe (19520 bytes)
+[06:24:58]   Report updated: lsass (44 findings)
+[06:24:58] SKIP mlx4_bus: binary not found on disk
+[06:24:58]   Copied: mountmgr.sys (136576 bytes)
+[06:24:58]   cwe_checker start: mountmgr.sys
+[06:25:30]   cwe_checker done: mountmgr.sys (49480 bytes)
+[06:25:30]   Report updated: mountmgr (103 findings)
+[06:25:30]   Copied: mrxsmb.sys (951768 bytes)
+[06:25:30]   cwe_checker start: mrxsmb.sys
+[06:28:34]   cwe_checker done: mrxsmb.sys (321774 bytes)
+[06:28:34]   Report updated: mrxsmb (687 findings)
+[06:28:34]   Copied: msdtc.exe (172032 bytes)
+[06:28:34]   cwe_checker start: msdtc.exe
+[06:28:47]   cwe_checker ERROR: msdtc.exe - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/msdtc.exe', '--json', '--out', '/data/msdtc.exe.cwe.json']' returned non-zero exit status 101.
+[06:28:47]   Copied: msxml3.dll (1593344 bytes)
+[06:28:47]   cwe_checker start: msxml3.dll
+[06:37:15]   cwe_checker done: msxml3.dll (1468319 bytes)
+[06:37:15]   Report updated: msxml3 (3138 findings)
+[06:37:15]   Copied: ndis.sys (1861104 bytes)
+[06:37:15]   cwe_checker start: ndis.sys
+[06:48:33]   cwe_checker done: ndis.sys (1131553 bytes)
+[06:48:33]   Report updated: ndis (2484 findings)
+[06:48:33]   Copied: netio.sys (746976 bytes)
+[06:48:33]   cwe_checker start: netio.sys
+[06:53:20]   cwe_checker done: netio.sys (450659 bytes)
+[06:53:20]   Report updated: netio (952 findings)
+[06:53:20]   Copied: ntdll.dll (2522104 bytes)
+[06:53:20]   cwe_checker start: ntdll.dll
+[07:08:20]   cwe_checker TIMEOUT: ntdll.dll
+[07:08:20]   Copied: ntfs.sys (3556856 bytes)
+[07:08:20]   cwe_checker start: ntfs.sys
+[07:23:20]   cwe_checker TIMEOUT: ntfs.sys
+[07:23:20]   Copied: partmgr.sys (226800 bytes)
+[07:23:20]   cwe_checker start: partmgr.sys
+[07:24:25]   cwe_checker done: partmgr.sys (129451 bytes)
+[07:24:25]   Report updated: partmgr (269 findings)
+[07:24:25]   Copied: pci.sys (611824 bytes)
+[07:24:25]   cwe_checker start: pci.sys
+[07:28:18]   cwe_checker done: pci.sys (411031 bytes)
+[07:28:18]   Report updated: pci (882 findings)
+[07:28:18] SKIP powershell.exe: binary not found on disk
+[07:28:18]   Copied: rdbss.sys (562664 bytes)
+[07:28:18]   cwe_checker start: rdbss.sys
+[07:31:16]   cwe_checker done: rdbss.sys (289749 bytes)
+[07:31:16]   Report updated: rdbss (628 findings)
+[07:31:16] SKIP services: binary not found on disk
+[07:31:16] SKIP spaceport: binary not found on disk
+[07:31:16] SKIP spoolsv.exe: already scanned (1261 findings)
+[07:31:16]   Report updated: spoolsv (1261 findings)
+[07:31:16]   Copied: srv2.sys (1015808 bytes)
+[07:31:16]   cwe_checker start: srv2.sys
+[07:35:01]   cwe_checker done: srv2.sys (340090 bytes)
+[07:35:01]   Report updated: srv2 (699 findings)
+[07:35:01]   Copied: stornvme.sys (316904 bytes)
+[07:35:01]   cwe_checker start: stornvme.sys
+[07:36:47]   cwe_checker done: stornvme.sys (128501 bytes)
+[07:36:47]   Report updated: stornvme (286 findings)
+[07:36:47]   Copied: storport.sys (2581976 bytes)
+[07:36:47]   cwe_checker start: storport.sys
+[07:47:23]   cwe_checker done: storport.sys (961758 bytes)
+[07:47:23]   Report updated: storport (2077 findings)
+[07:47:23] SKIP svchost: binary not found on disk
+[07:47:23]   Copied: TbtBusDrv.sys (3235160 bytes)
+[07:47:23]   cwe_checker start: TbtBusDrv.sys
+[08:02:23]   cwe_checker TIMEOUT: TbtBusDrv.sys
+[08:02:23]   Copied: tcpip.sys (3479000 bytes)
+[08:02:23]   cwe_checker start: tcpip.sys
+[08:17:23]   cwe_checker TIMEOUT: tcpip.sys
+[08:17:23]   Copied: tcpipreg.sys (86016 bytes)
+[08:17:23]   cwe_checker start: tcpipreg.sys
+[08:17:46]   cwe_checker done: tcpipreg.sys (23075 bytes)
+[08:17:46]   Report updated: tcpipreg (49 findings)
+[08:17:46]   Copied: telnet.exe (159744 bytes)
+[08:17:46]   cwe_checker start: telnet.exe
+[08:18:25]   cwe_checker done: telnet.exe (68876 bytes)
+[08:18:25]   Report updated: telnet (163 findings)
+[08:18:25]   Copied: urlmon.dll (1908736 bytes)
+[08:18:25]   cwe_checker start: urlmon.dll
+[08:19:35]   cwe_checker ERROR: urlmon.dll - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/urlmon.dll', '--json', '--out', '/data/urlmon.dll.cwe.json']' returned non-zero exit status 101.
+[08:19:35]   Copied: USBHUB3.SYS (742872 bytes)
+[08:19:35]   cwe_checker start: USBHUB3.SYS
+[08:22:16]   cwe_checker done: USBHUB3.SYS (246490 bytes)
+[08:22:16]   Report updated: USBHUB3 (518 findings)
+[08:22:16]   Copied: USBXHCI.SYS (787960 bytes)
+[08:22:16]   cwe_checker start: USBXHCI.SYS
+[08:25:26]   cwe_checker done: USBXHCI.SYS (341385 bytes)
+[08:25:26]   Report updated: USBXHCI (714 findings)
+[08:25:26]   Copied: VBoxSup.sys (1062048 bytes)
+[08:25:26]   cwe_checker start: VBoxSup.sys
+[08:31:31]   cwe_checker ERROR: VBoxSup.sys - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/VBoxSup.sys', '--json', '--out', '/data/VBoxSup.sys.cwe.json']' returned non-zero exit status 101.
+[08:31:31] SKIP vhdmp: binary not found on disk
+[08:31:31]   Copied: vmswitch.sys (2569720 bytes)
+[08:31:31]   cwe_checker start: vmswitch.sys
+[08:44:34]   cwe_checker done: vmswitch.sys (1106185 bytes)
+[08:44:34]   Report updated: vmswitch (2479 findings)
+[08:44:34]   Copied: volsnap.sys (542184 bytes)
+[08:44:34]   cwe_checker start: volsnap.sys
+[08:46:18]   cwe_checker done: volsnap.sys (184681 bytes)
+[08:46:18]   Report updated: volsnap (385 findings)
+[08:46:18]   Copied: Wdf01000.sys (992744 bytes)
+[08:46:18]   cwe_checker start: Wdf01000.sys
+[08:52:23]   cwe_checker done: Wdf01000.sys (675351 bytes)
+[08:52:23]   Report updated: Wdf01000 (1413 findings)
+[08:52:23]   Copied: WdFilter.sys (627104 bytes)
+[08:52:23]   cwe_checker start: WdFilter.sys
+[08:54:52]   cwe_checker done: WdFilter.sys (186229 bytes)
+[08:54:52]   Report updated: WdFilter (394 findings)
+[08:54:52] SKIP WdiWiFi: binary not found on disk
+[08:54:52]   Copied: winhttp.dll (1228760 bytes)
+[08:54:52]   cwe_checker start: winhttp.dll
+[08:55:44]   cwe_checker ERROR: winhttp.dll - Command '['docker', 'run', '--rm', '-v', 'C:/Users/batar/Desktop/Neuer Ordner/binaries:/data', 'fkiecad/cwe_checker', '/data/winhttp.dll', '--json', '--out', '/data/winhttp.dll.cwe.json']' returned non-zero exit status 101.
+[08:55:44] SKIP winlogon.exe: already scanned (1358 findings)
+[08:55:44]   Report updated: winlogon (1358 findings)
+[08:55:44] 
+Scan complete: 31 scanned, 13 failed, 13 skipped
+[08:55:44] Rebuilding site...
+[08:55:44] OVERNIGHT SCAN COMPLETE

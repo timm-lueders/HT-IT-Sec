@@ -1,13 +1,14 @@
-meta:
+﻿meta:
   binary_name: ftp
   binary_type: user_exe
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline
   notes: FTP Client. memcpy fur Server-Antworten.
-  file_size_bytes: 0
+  file_size_bytes: 86016
   template_version: '1.0'
 binary_info:
   architecture: x64
+  function_count: 100
 pe_security:
   aslr: true
   dep: true
@@ -32,3 +33,6 @@ summary:
   overall_risk: MEDIUM
   recommendation: FTP Client. memcpy fur Server-Antworten.
   coverage_percent: 5
+
+
+

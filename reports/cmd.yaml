@@ -1,298 +1,303 @@
-﻿# ============================================================
-# cmd.exe Audit Report
-# Windows Command Prompt
-# Microsoft Windows User-Mode Executable
-# ============================================================
-
-meta:
-  template_version: "1.0"
-  binary_name: "cmd.exe"
-  binary_type: "user_exe"
-  binary_path: "C:/Windows/System32/cmd.exe"
-  sha256: ""
-  md5: "CED4AA0B4CBF72E2520E0A2CCFF79370"
-  file_size_bytes: 457232
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline v5.10.0"
+﻿meta:
+  template_version: '1.0'
+  binary_name: cmd.exe
+  binary_type: user_exe
+  binary_path: C:/Windows/System32/cmd.exe
+  sha256: ''
+  md5: CED4AA0B4CBF72E2520E0A2CCFF79370
+  file_size_bytes: 339968
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline v5.10.0
   analysis_duration_minutes: 25
-  ghidra_version: "12.0.4"
-  ghidra_mcp_version: "5.10.0"
-  notes: "Windows-Befehlszeileninterpreter. 10 Memory-Blocks, 1133 Funktionen."
-
+  ghidra_version: 12.0.4
+  ghidra_mcp_version: 5.10.0
+  notes: Windows-Befehlszeileninterpreter. 10 Memory-Blocks, 1133 Funktionen.
 binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  entry_point: "0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)"
+  architecture: x64
+  base_address: '0x140000000'
+  entry_point: 0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)
   function_count: 1133
   symbol_count: 7880
-  compiler_hint: "msvc"
-  subsystem: "windows_cui"
-  language: "x86:LE:64:default"
-  endian: "Little"
+  compiler_hint: msvc
+  subsystem: windows_cui
+  language: x86:LE:64:default
+  endian: Little
   memory_size: 457232
-
 pe_security:
   aslr: true
   dep: true
   cfg: true
   high_entropy_aslr: true
   safe_seh: false
-  notes: "Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption aktiv."
-
+  notes: Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption
+    aktiv.
 segments:
-  - name: ".text"
-    va_start: "0x140001000"
-    va_end: "0x140035fff"
-    permissions: "RX"
-  - name: ".rdata"
-    va_start: "0x140036000"
-    va_end: "0x140043fff"
-    permissions: "R"
-  - name: ".data"
-    va_start: "0x140044000"
-    va_end: "0x140047fff"
-    permissions: "RW"
-  - name: ".rsrc"
-    va_start: "0x140048000"
-    va_end: "0x14006dfff"
-    permissions: "R"
-    notes: "Ressourcen: Strings, Version-Info, Manifest"
-
+- name: .text
+  va_start: '0x140001000'
+  va_end: '0x140035fff'
+  permissions: RX
+- name: .rdata
+  va_start: '0x140036000'
+  va_end: '0x140043fff'
+  permissions: R
+- name: .data
+  va_start: '0x140044000'
+  va_end: '0x140047fff'
+  permissions: RW
+- name: .rsrc
+  va_start: '0x140048000'
+  va_end: '0x14006dfff'
+  permissions: R
+  notes: 'Ressourcen: Strings, Version-Info, Manifest'
 import_risk_map:
   high: []
   medium:
-    - api: "memcpy"
-      risk: "14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check"
-      cwe: "CWE-119"
-    - api: "ExpandEnvironmentStringsW"
-      risk: "Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion"
-      cwe: "CWE-120"
-    - api: "CreateProcessW"
-      risk: "Prozess-Erstellung -- Command Injection bei ungeprüftem Input"
-      cwe: "CWE-78"
-    - api: "CreateProcessAsUserW"
-      risk: "Prozess-Erstellung mit User-Kontext -- same risk"
-      cwe: "CWE-78"
-    - api: "ShellExecuteWorker"
-      risk: "Shell-Ausführung -- hochstes Risiko bei User-Input"
-      cwe: "CWE-78"
+  - api: memcpy
+    risk: 14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check
+    cwe: CWE-119
+  - api: ExpandEnvironmentStringsW
+    risk: Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion
+    cwe: CWE-120
+  - api: CreateProcessW
+    risk: Prozess-Erstellung -- Command Injection bei ungeprüftem Input
+    cwe: CWE-78
+  - api: CreateProcessAsUserW
+    risk: Prozess-Erstellung mit User-Kontext -- same risk
+    cwe: CWE-78
+  - api: ShellExecuteWorker
+    risk: Shell-Ausführung -- hochstes Risiko bei User-Input
+    cwe: CWE-78
   low:
-    - api: "memmove"
-      risk: "Puffer-Sink, braucht Bounds-Check"
-      cwe: "CWE-119"
-    - api: "memset"
-      risk: "Puffer-Initialisierung -- sicher bei fester Größe"
-      cwe: "N/A"
-    - api: "GetFullPathNameW"
-      risk: "Pfad-Expansion -- kann Puffer überlaufen"
-      cwe: "CWE-120"
-    - api: "SearchPathW"
-      risk: "DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking"
-      cwe: "CWE-426"
-    - api: "HeapAlloc/HeapReAlloc/HeapFree"
-      risk: "Heap-Operationen -- Double-Free/Use-After-Free möglich"
-      cwe: "CWE-415/CWE-416"
-    - api: "RtlDosPathNameToNtPathName_U"
-      risk: "Pfad-Konvertierung -- braucht validierten Input"
-      cwe: "CWE-120"
+  - api: memmove
+    risk: Puffer-Sink, braucht Bounds-Check
+    cwe: CWE-119
+  - api: memset
+    risk: Puffer-Initialisierung -- sicher bei fester Größe
+    cwe: N/A
+  - api: GetFullPathNameW
+    risk: Pfad-Expansion -- kann Puffer überlaufen
+    cwe: CWE-120
+  - api: SearchPathW
+    risk: DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking
+    cwe: CWE-426
+  - api: HeapAlloc/HeapReAlloc/HeapFree
+    risk: Heap-Operationen -- Double-Free/Use-After-Free möglich
+    cwe: CWE-415/CWE-416
+  - api: RtlDosPathNameToNtPathName_U
+    risk: Pfad-Konvertierung -- braucht validierten Input
+    cwe: CWE-120
   info:
-    - api: "_o___stdio_common_vswprintf_s"
-      risk: "Safe Format-String (mit _s-Suffix = Längenbegrenzung)"
-      cwe: "N/A"
-    - api: "_o___stdio_common_vswprintf"
-      risk: "Format-String (ohne _s -- unsicherer, aber nur intern)"
-      cwe: "CWE-134"
-    - api: "GetCommandLineW"
-      risk: "Command-Line Source -- Startpunkt der Taint-Analyse"
-      cwe: "N/A"
-    - api: "ReadConsoleW"
-      risk: "Console-Input Source"
-      cwe: "N/A"
-    - api: "SetConsoleCtrlHandler"
-      risk: "Signal-Handler -- korrekt registriert"
-      cwe: "N/A"
-
+  - api: _o___stdio_common_vswprintf_s
+    risk: Safe Format-String (mit _s-Suffix = Längenbegrenzung)
+    cwe: N/A
+  - api: _o___stdio_common_vswprintf
+    risk: Format-String (ohne _s -- unsicherer, aber nur intern)
+    cwe: CWE-134
+  - api: GetCommandLineW
+    risk: Command-Line Source -- Startpunkt der Taint-Analyse
+    cwe: N/A
+  - api: ReadConsoleW
+    risk: Console-Input Source
+    cwe: N/A
+  - api: SetConsoleCtrlHandler
+    risk: Signal-Handler -- korrekt registriert
+    cwe: N/A
 analyzed_functions:
-  - name: "WinMainCRTStartup"
-    address: "0x1400279a0"
-    role: "CRT-Startup: _initterm, __scrt_*, ruft main auf"
-  - name: "main"
-    address: "0x140033a6c"
-    role: "Hauptschleife: Command-Processing-Loop"
-  - name: "CmdCopyCommandLine"
-    address: "0x1400249b0"
-    role: "Command-Line in 0x4000-Byte-Buffer kopieren -- Bounds-Check auf 0x2000 Zeichen"
-  - name: "CmdParseAndExecute"
-    address: "0x14000589c"
-    role: "Command-Parser mit setjmp/longjmp-Fehlerbehandlung"
-  - name: "CmdTokenize"
-    address: "0x140005a64"
-    role: "Tokenizer im rekursiven Abstieg"
-  - name: "CmdExec"
-    address: "0x14000ea40"
-    role: "Command-Executor mit Dispatch-Tabelle"
-  - name: "CmdExpandAndRun"
-    address: "0x14000a298"
-    role: "Environment-Variable-Expansion + Ausführung"
-
+- name: WinMainCRTStartup
+  address: '0x1400279a0'
+  role: 'CRT-Startup: _initterm, __scrt_*, ruft main auf'
+- name: main
+  address: '0x140033a6c'
+  role: 'Hauptschleife: Command-Processing-Loop'
+- name: CmdCopyCommandLine
+  address: '0x1400249b0'
+  role: Command-Line in 0x4000-Byte-Buffer kopieren -- Bounds-Check auf 0x2000 Zeichen
+- name: CmdParseAndExecute
+  address: '0x14000589c'
+  role: Command-Parser mit setjmp/longjmp-Fehlerbehandlung
+- name: CmdTokenize
+  address: '0x140005a64'
+  role: Tokenizer im rekursiven Abstieg
+- name: CmdExec
+  address: '0x14000ea40'
+  role: Command-Executor mit Dispatch-Tabelle
+- name: CmdExpandAndRun
+  address: '0x14000a298'
+  role: Environment-Variable-Expansion + Ausführung
 findings:
-  - id: "CMD-001"
-    severity: "INFO"
-    cwe: "CWE-119"
-    title: "memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschützt"
-    function: "Verschiedene (siehe cwe_checker CWE676)"
-    address: "0x140007787, 0x14000c2ae, 0x140010566, u.a."
-    description: |
-      cwe_checker identifizierte 14 memcpy-Aufrufstellen (CWE676).
-      Alle analysierten Pfade haben Bounds-Checking:
-      - Command-Line-Copy: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
-      - HeapEnableTerminationOnCorruption aktiv (Heap-Hardening)
-      - Safe-Format-String-Varianten (_s) werden verwendet
-    taint_path: "GetCommandLineW() -> wchar_t[0x4000] -> memcpy-artiger Copy-Loop"
-    recommendation: "Keine akute Gefahr. Bounds-Checks sind vorhanden."
-  - id: "CMD-002"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "HeapEnableTerminationOnCorruption aktiviert"
-    function: "main"
-    address: "0x140033a6c"
-    description: |
-      In der main()-Funktion wird HeapSetInformation(0, 
-      HeapEnableTerminationOnCorruption, 0, 0) aufgerufen. Dies
-      aktiviert das Heap-Hardening: bei Heap-Korruption wird der
-      Prozess sofort terminiert statt undefiniert weiterzulaufen.
-      Verhindert Heap-basierte Exploits.
-    taint_path: "N/A"
-    recommendation: "Vorbildliche Sicherheitspraxis."
-  - id: "CMD-003"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "Safe Format-String-Funktionen verwendet"
-    function: "Global"
-    address: "N/A"
-    description: |
-      cmd.exe importiert _o___stdio_common_vswprintf_s (safe Variante
-      mit Längenbegrenzung) sowie _ultoa_s, wcstoul, wcstol für
-      String-zu-Zahl-Konvertierung. Keine unsicheren Varianten wie
-      sprintf, swprintf ohne _s, gets oder scanf gefunden.
-    taint_path: "N/A"
-    recommendation: "Vorbildliche API-Auswahl."
-  - id: "CMD-004"
-    severity: "INFO"
-    cwe: "N/A"
-    title: "GCC -fanalyzer fand NULL-Deref im Testcode (vor Ausführung gefixt)"
-    function: "CmdCopyCommandLine (Testbench)"
-    address: "N/A"
-    description: |
-      Beim Kompilieren der extrahierten Logik mit GCC -fanalyzer
-      wurde eine potentielle NULL-Dereferenz im Testcode gefunden:
-      Der Test für leere Eingabe (L"") rief CmdCopyCommandLine mit
-      einem leeren String auf, der die 0x2000-Bounds-Prüfung nicht
-      bestand und NULL zurückgab. Der nachfolgende buf[0]-Zugriff
-      wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
-    taint_path: "Testbench: L\"\" -> CmdCopyCommandLine -> NULL -> buf[0]"
-    recommendation: "Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW() nie einen leeren String zurückgibt."
+- id: CMD-001
+  severity: INFO
+  cwe: CWE-119
+  title: memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschützt
+  function: Verschiedene (siehe cwe_checker CWE676)
+  address: 0x140007787, 0x14000c2ae, 0x140010566, u.a.
+  description: 'cwe_checker identifizierte 14 memcpy-Aufrufstellen (CWE676).
 
+    Alle analysierten Pfade haben Bounds-Checking:
+
+    - Command-Line-Copy: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
+
+    - HeapEnableTerminationOnCorruption aktiv (Heap-Hardening)
+
+    - Safe-Format-String-Varianten (_s) werden verwendet
+
+    '
+  taint_path: GetCommandLineW() -> wchar_t[0x4000] -> memcpy-artiger Copy-Loop
+  recommendation: Keine akute Gefahr. Bounds-Checks sind vorhanden.
+- id: CMD-002
+  severity: INFO
+  cwe: N/A
+  title: HeapEnableTerminationOnCorruption aktiviert
+  function: main
+  address: '0x140033a6c'
+  description: "In der main()-Funktion wird HeapSetInformation(0, \nHeapEnableTerminationOnCorruption,\
+    \ 0, 0) aufgerufen. Dies\naktiviert das Heap-Hardening: bei Heap-Korruption wird\
+    \ der\nProzess sofort terminiert statt undefiniert weiterzulaufen.\nVerhindert\
+    \ Heap-basierte Exploits.\n"
+  taint_path: N/A
+  recommendation: Vorbildliche Sicherheitspraxis.
+- id: CMD-003
+  severity: INFO
+  cwe: N/A
+  title: Safe Format-String-Funktionen verwendet
+  function: Global
+  address: N/A
+  description: 'cmd.exe importiert _o___stdio_common_vswprintf_s (safe Variante
+
+    mit Längenbegrenzung) sowie _ultoa_s, wcstoul, wcstol für
+
+    String-zu-Zahl-Konvertierung. Keine unsicheren Varianten wie
+
+    sprintf, swprintf ohne _s, gets oder scanf gefunden.
+
+    '
+  taint_path: N/A
+  recommendation: Vorbildliche API-Auswahl.
+- id: CMD-004
+  severity: INFO
+  cwe: N/A
+  title: GCC -fanalyzer fand NULL-Deref im Testcode (vor Ausführung gefixt)
+  function: CmdCopyCommandLine (Testbench)
+  address: N/A
+  description: 'Beim Kompilieren der extrahierten Logik mit GCC -fanalyzer
+
+    wurde eine potentielle NULL-Dereferenz im Testcode gefunden:
+
+    Der Test für leere Eingabe (L"") rief CmdCopyCommandLine mit
+
+    einem leeren String auf, der die 0x2000-Bounds-Prüfung nicht
+
+    bestand und NULL zurückgab. Der nachfolgende buf[0]-Zugriff
+
+    wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
+
+    '
+  taint_path: 'Testbench: L"" -> CmdCopyCommandLine -> NULL -> buf[0]'
+  recommendation: Im echten cmd.exe tritt dieser Fall nicht auf, da GetCommandLineW()
+    nie einen leeren String zurückgibt.
 taint_graph:
   sources:
-    - name: "GetCommandLineW()"
-      type: "Process Command Line (UNICODE)"
-      function: "main -> CmdCopyCommandLine"
-    - name: "ReadConsoleW()"
-      type: "Console Input (interaktiver Modus)"
-      function: "main Command-Loop"
-    - name: "ExpandEnvironmentStringsW()"
-      type: "Environment Variable Expansion"
-      function: "CmdExpandAndRun"
-    - name: "GetEnvironmentVariableW()"
-      type: "Environment Variable Lookup"
-      function: "Various"
+  - name: GetCommandLineW()
+    type: Process Command Line (UNICODE)
+    function: main -> CmdCopyCommandLine
+  - name: ReadConsoleW()
+    type: Console Input (interaktiver Modus)
+    function: main Command-Loop
+  - name: ExpandEnvironmentStringsW()
+    type: Environment Variable Expansion
+    function: CmdExpandAndRun
+  - name: GetEnvironmentVariableW()
+    type: Environment Variable Lookup
+    function: Various
   sinks:
-    - name: "CreateProcessW()"
-      address: "EXTERNAL:kernel32.dll"
-      type: "Process Creation"
-    - name: "memcpy"
-      address: "EXTERNAL:ucrtbase.dll"
-      type: "Memory Copy (14 Stellen)"
-    - name: "RegSetValueExW()"
-      address: "EXTERNAL:advapi32.dll"
-      type: "Registry Write"
-    - name: "WriteFile()"
-      address: "EXTERNAL:kernel32.dll"
-      type: "Console Output"
+  - name: CreateProcessW()
+    address: EXTERNAL:kernel32.dll
+    type: Process Creation
+  - name: memcpy
+    address: EXTERNAL:ucrtbase.dll
+    type: Memory Copy (14 Stellen)
+  - name: RegSetValueExW()
+    address: EXTERNAL:advapi32.dll
+    type: Registry Write
+  - name: WriteFile()
+    address: EXTERNAL:kernel32.dll
+    type: Console Output
   edges:
-    - from: "GetCommandLineW()"
-      to: "CreateProcessW()"
-      bounded: true
-      check_location: "0x1400249b0 (CmdCopyCommandLine)"
-      check_type: "0x2000-Zeichen-Limit, 0x4000-Byte-Buffer"
-    - from: "ReadConsoleW()"
-      to: "CreateProcessW()"
-      bounded: true
-      check_location: "0x140033a6c (main Command-Loop)"
-      check_type: "Console-Mode-Validierung vor Ausführung"
-    - from: "ExpandEnvironmentStringsW()"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht im analysierten Scope"
-      check_type: "Unbekannt -- weitere Analyse nötig"
-
+  - from: GetCommandLineW()
+    to: CreateProcessW()
+    bounded: true
+    check_location: 0x1400249b0 (CmdCopyCommandLine)
+    check_type: 0x2000-Zeichen-Limit, 0x4000-Byte-Buffer
+  - from: ReadConsoleW()
+    to: CreateProcessW()
+    bounded: true
+    check_location: 0x140033a6c (main Command-Loop)
+    check_type: Console-Mode-Validierung vor Ausführung
+  - from: ExpandEnvironmentStringsW()
+    to: memcpy
+    bounded: false
+    check_location: Nicht im analysierten Scope
+    check_type: Unbekannt -- weitere Analyse nötig
 tools_output:
   flawfinder:
     level_3_hits: 0
     level_4_hits: 0
     level_5_hits: 0
     false_positives: 3
-    notes: 'Nur Stack-Array-FPs.'
-
+    notes: Nur Stack-Array-FPs.
+  cwe_checker:
+    total_findings: 542
+    cwe787_oob_write: 377
+    cwe125_oob_read: 2
+    cwe476_null_deref: 15
+    cwe676_dangerous_func: 148
+    notes: 'cwe_checker: 542 Findings.'
 artifacts:
-  - file: "cmd_audited.exe"
-    type: "patched_binary"
-    description: "Lauffahige gepatchte Binary: cmd.exe->cma.exe, Microsoft Corporation->openCode Produktion"
-    md5: "B3C5DF425573C807A2E3B711549CA0B0"
-  - file: "cmd_sinks.c"
-    type: "decompiler_output"
-    description: "Ghidra-Decompiler-Output: 20 Schlüsselfunktionen (14 KB)"
-    md5: ""
-  - file: "cmd_sinks_clean.c"
-    type: "cleaned_decompiler_output"
-    description: "für flawfinder gesäuberte Version"
-    md5: ""
-  - file: "cmd_testbench.c"
-    type: "recompiled_logic"
-    description: "Extrahierte Logik in valides C: CmdCopyCommandLine (beide Varianten)"
-    md5: ""
-  - file: "cmd_testbench.exe"
-    type: "compiled_testbench"
-    description: "GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 14/14 Tests bestanden, -fanalyzer fand Bug im Testcode"
-    md5: ""
-  - file: "cmd_cwe_report.json"
-    type: "cwe_checker_output"
-    description: "542 Findings (JSON)"
-    md5: ""
-
+- file: cmd_audited.exe
+  type: patched_binary
+  description: 'Lauffahige gepatchte Binary: cmd.exe->cma.exe, Microsoft Corporation->openCode
+    Produktion'
+  md5: B3C5DF425573C807A2E3B711549CA0B0
+- file: cmd_sinks.c
+  type: decompiler_output
+  description: 'Ghidra-Decompiler-Output: 20 Schlüsselfunktionen (14 KB)'
+  md5: ''
+- file: cmd_sinks_clean.c
+  type: cleaned_decompiler_output
+  description: für flawfinder gesäuberte Version
+  md5: ''
+- file: cmd_testbench.c
+  type: recompiled_logic
+  description: 'Extrahierte Logik in valides C: CmdCopyCommandLine (beide Varianten)'
+  md5: ''
+- file: cmd_testbench.exe
+  type: compiled_testbench
+  description: 'GCC 13.2.0 -O2 -fanalyzer: 0 Warnungen, 14/14 Tests bestanden, -fanalyzer
+    fand Bug im Testcode'
+  md5: ''
+- file: cmd_cwe_report.json
+  type: cwe_checker_output
+  description: 542 Findings (JSON)
+  md5: ''
 summary:
-  overall_risk: "LOW"
+  overall_risk: LOW
   critical_findings: 0
   high_findings: 0
   medium_findings: 0
   low_findings: 0
   info_findings: 4
-  recommendation: |
-    cmd.exe ist ein gut abgesicherter User-Mode-Prozess.
-    
-    - Safe-String-Funktionen (_s-Suffix) werden verwendet
-    - HeapEnableTerminationOnCorruption verhindert Heap-Exploits
-    - Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)
-    - Alle 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)
-    - ExpandEnvironmentStringsW-Pfad wurde nicht vollständig analysiert
-      -- hier könnte bei sehr großen Umgebungsvariablen ein Overflow
-      möglich sein. Empfehlung: diesen Pfad bei nächster Analyse
-      priorisieren.
+  recommendation: "cmd.exe ist ein gut abgesicherter User-Mode-Prozess.\n\n- Safe-String-Funktionen\
+    \ (_s-Suffix) werden verwendet\n- HeapEnableTerminationOnCorruption verhindert\
+    \ Heap-Exploits\n- Command-Line-Copy hat Bounds-Checking (0x2000-Zeichen)\n- Alle\
+    \ 4 PE-Security-Flags aktiv (ASLR, DEP, CFG, HIGH_ENTROPY)\n- ExpandEnvironmentStringsW-Pfad\
+    \ wurde nicht vollständig analysiert\n  -- hier könnte bei sehr großen Umgebungsvariablen\
+    \ ein Overflow\n  möglich sein. Empfehlung: diesen Pfad bei nächster Analyse\n\
+    \  priorisieren.\n"
   coverage_percent: 5
   analyzed_function_count: 50
   total_function_count: 1133
-  analyzed_functions: "CRT-Startup, main, Command-Parser, Tokenizer, Command-Executor, Command-Line-Copy"
+  analyzed_functions: CRT-Startup, main, Command-Parser, Tokenizer, Command-Executor,
+    Command-Line-Copy
 
 
 

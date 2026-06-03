@@ -1,71 +1,38 @@
-meta:
-  binary_name: lsass.exe
-  binary_type: user_exe
-  analysis_date: '2026-06-02'
-  analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
-  notes: Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI, Kerberos/NTLM.
+﻿meta:
+  binary_name: "lsass.exe"
+  binary_type: "user_exe"
   file_size_bytes: 84200
-  template_version: '1.0'
+  analysis_date: "2026-06-03"
+  analyst: "opencode + GhidraMCP"
+  notes: "Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI."
 binary_info:
-  architecture: x64
-  function_count: ~100
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
-  high_entropy_aslr: true
+  architecture: "x64"
+  function_count: 100
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true }
 import_risk_map:
   high:
-  - api: LoadLibraryExW
-    risk: DLL-Laden von Authentifizierungs-Packages
-    cwe: CWE-426
-  - api: NdrServerCallAll/NdrServerCall2
-    risk: RPC-Server -- Remote-Angriffsflache
-    cwe: CWE-20
+    - { api: "NdrServerCallAll", risk: "RPC-Server Remote", cwe: "CWE-20" }
+    - { api: "LoadLibraryExW", risk: "Auth-Package-DLL-Laden", cwe: "CWE-426" }
   medium:
-  - api: SspirAcquireCredentialsHandle
-    risk: SSPI-Credential-Verarbeitung
-    cwe: CWE-287
-  - api: SspirProcessSecurityContext
-    risk: SSPI-Token-Validierung
-    cwe: CWE-287
-  - api: OpenProcessToken/GetTokenInformation
-    risk: Token-Zugriff
-    cwe: CWE-269
+    - { api: "SspirProcessSecurityContext", risk: "SSPI-Token-Validierung", cwe: "CWE-287" }
+tools_output:
+  cwe_checker:
+    total_findings: 44
+    notes: 'Docker cwe_checker: 44 Findings.'
 findings:
-- id: LSA-001
-  severity: HIGH
-  cwe: CWE-20
-  title: RPC-Server -- Remote-Angriffsflache via NdrServerCallAll
-  description: 'lsass.exe ist ein RPC-Server (NdrServerCallAll/NdrServerCall2) mit
-
-    RpcServerUseProtseqEpW zur Endpoint-Registrierung. SSPI-Credential-
-
-    Handling (SspirAcquireCredentialsHandle, SspirProcessSecurityContext)
-
-    verarbeitet Authentifizierungs-Tokens. Ein Bug im RPC-Marshalling
-
-    oder Token-Parsing kann zur SYSTEM-Kompromittierung fuhren.
-
-    '
-  taint_path: RPC-Client -> NdrServerCall -> SSPI -> Token -> SYSTEM
-  recommendation: RPC-Schnittstelle auf Input-Validierung prufen. SSPI-Token-Parsing
-    auf Buffer-Overflow testen.
+  - id: "LSA-001"
+    severity: "HIGH"
+    cwe: "CWE-20"
+    title: "RPC-Server + SSPI -- Remote-Angriffsflache"
+    description: "lsass.exe ist RPC-Server mit SSPI. NdrServerCallAll + SspirProcessSecurityContext."
+    taint_path: "RPC -> SSPI -> Token -> SYSTEM"
+    recommendation: "RPC-Input-Validierung. Token-Parsing absichern."
 taint_graph:
-  sources:
-  - name: RPC-Clients
-    type: Remote via NdrServerCall
-  sinks:
-  - name: SSPI / LoadLibraryExW
-    address: EXTERNAL
-  edges:
-  - from: RPC-Clients
-    to: SSPI
-    bounded: false
-    check_location: RPC-Marshalling
+  sources: [{name: "RPC-Clients", type: "Remote"}]
+  sinks: [{name: "SSPI/LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "RPC-Clients", to: "SSPI", bounded: false}]
 summary:
-  overall_risk: HIGH
+  overall_risk: "HIGH"
   high_findings: 1
-  medium_findings: 3
-  recommendation: RPC+SSPI-Angriffsflache. Token-Validierung und DLL-Laden hart absichern.
+  recommendation: "RPC+SSPI. Token-Validierung hart absichern."
   coverage_percent: 15

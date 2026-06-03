@@ -151,7 +151,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> user_exe</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)</span></div>
-    <div><b>Größe:</b> 457,232 bytes</div>
+    <div><b>Größe:</b> 339,968 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">CED4AA0B4CBF72E2520E0A2CCFF79370</span></div>
     <div><b>Funktionen:</b> 1133</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ExpandEnvironmentStringsW</td><td>Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion</td><td>CWE-120</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessW</td><td>Prozess-Erstellung -- Command Injection bei ungeprüftem Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessAsUserW</td><td>Prozess-Erstellung mit User-Kontext -- same risk</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ShellExecuteWorker</td><td>Shell-Ausführung -- hochstes Risiko bei User-Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memmove</td><td>Puffer-Sink, braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memset</td><td>Puffer-Initialisierung -- sicher bei fester Größe</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> GetFullPathNameW</td><td>Pfad-Expansion -- kann Puffer überlaufen</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SearchPathW</td><td>DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-LOW">LOW</span> HeapAlloc/HeapReAlloc/HeapFree</td><td>Heap-Operationen -- Double-Free/Use-After-Free möglich</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlDosPathNameToNtPathName_U</td><td>Pfad-Konvertierung -- braucht validierten Input</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf_s</td><td>Safe Format-String (mit _s-Suffix = Längenbegrenzung)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf</td><td>Format-String (ohne _s -- unsicherer, aber nur intern)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-INFO">INFO</span> GetCommandLineW</td><td>Command-Line Source -- Startpunkt der Taint-Analyse</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ReadConsoleW</td><td>Console-Input Source</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> SetConsoleCtrlHandler</td><td>Signal-Handler -- korrekt registriert</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
@@ -169,7 +169,7 @@ graph LR
     </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
-    <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
+    <tr><td>cwe_checker</td><td>542 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (4)</h3><div class="finding finding-INFO">
         <span class="badge sev-INFO">INFO</span> <b>CWE-119: memcpy an 14 Stellen verwendet -- alle via Bounds-Checks geschützt</b>
@@ -241,5 +241,5 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
   priorisieren.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
 </body></html>
