@@ -1,17 +1,34 @@
-﻿meta:
-  binary_name: "services"
-  binary_type: "user_exe"
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline"
-  notes: "Service Control Manager. RPC."
-binary_info: { architecture: "x64" }
-pe_security: { aslr: true, dep: true, cfg: true }
+meta:
+  binary_name: services
+  binary_type: user_exe
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline
+  notes: Service Control Manager. RPC.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "services-001"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "Service Control Manager. RPC."
-    description: "Service Control Manager. RPC."
-    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
-taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
-summary: { overall_risk: "MEDIUM", recommendation: "Service Control Manager. RPC.", coverage_percent: 5 }
+- id: services-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: Service Control Manager. RPC.
+  description: Service Control Manager. RPC.
+  recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
+taint_graph:
+  sources:
+  - name: Input
+  sinks:
+  - name: Sink
+  edges:
+  - from: Input
+    to: Sink
+    bounded: false
+summary:
+  overall_risk: MEDIUM
+  recommendation: Service Control Manager. RPC.
+  coverage_percent: 5

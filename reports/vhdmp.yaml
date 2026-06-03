@@ -1,17 +1,34 @@
-﻿meta:
-  binary_name: "vhdmp"
-  binary_type: "user_exe"
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline"
-  notes: "VHD Parser. Header-Parsing sicher."
-binary_info: { architecture: "x64" }
-pe_security: { aslr: true, dep: true, cfg: true }
+meta:
+  binary_name: vhdmp
+  binary_type: user_exe
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline
+  notes: VHD Parser. Header-Parsing sicher.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "vhdmp-001"
-    severity: "LOW"
-    cwe: "CWE-119"
-    title: "VHD Parser. Header-Parsing sicher."
-    description: "VHD Parser. Header-Parsing sicher."
-    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
-taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
-summary: { overall_risk: "LOW", recommendation: "VHD Parser. Header-Parsing sicher.", coverage_percent: 5 }
+- id: vhdmp-001
+  severity: LOW
+  cwe: CWE-119
+  title: VHD Parser. Header-Parsing sicher.
+  description: VHD Parser. Header-Parsing sicher.
+  recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
+taint_graph:
+  sources:
+  - name: Input
+  sinks:
+  - name: Sink
+  edges:
+  - from: Input
+    to: Sink
+    bounded: false
+summary:
+  overall_risk: LOW
+  recommendation: VHD Parser. Header-Parsing sicher.
+  coverage_percent: 5

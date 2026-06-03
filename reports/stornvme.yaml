@@ -1,0 +1,37 @@
+meta:
+  binary_name: stornvme.sys
+  binary_type: kernel_driver
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: NVMe Storage Driver
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: STORNVME-001
+  severity: LOW
+  cwe: CWE-119
+  title: NVMe Storage Driver
+  description: NVMe Storage Driver
+  taint_path: External -> Parser -> Sink
+  recommendation: Ghidra-Tiefenprufung empfohlen.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy/MDL
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: LOW
+  recommendation: NVMe Storage Driver
+  coverage_percent: 1

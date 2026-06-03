@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="de">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="http://fonts.cdnfonts.com/css/terminal" rel="stylesheet">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#00fd00',primaryTextColor:'#000',primaryBorderColor:'#00fd00',lineColor:'#00fd00',secondaryColor:'#333',tertiaryColor:'#212121'}});</script>
+<title>tcpip.sys -- Security Audit</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html{
+  background:#212121 url(background.gif) left top/10.8% 10.8% repeat;
+  background-blend-mode:overlay;
+  color:#00fd00;
+  font-family:"Terminal",sans-serif,monospace;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+body{
+  display:grid;
+  grid-template-columns:100px 1fr 100px;
+  grid-template-rows:auto 1fr auto;
+  gap:1rem;
+  min-height:100vh;
+}
+header{
+  grid-column:1/4;
+  background:gray;
+  padding:20px 30px;
+  margin:10px;
+  border-radius:2rem;
+  box-shadow:10px 10px 15px black;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+header h1{
+  font-size:1.5rem;
+  margin:0;
+}
+header nav a{
+  color:#a4c574;
+  text-decoration:none;
+  margin-left:20px;
+  font-size:0.95rem;
+}
+header nav a:hover{text-decoration:underline;color:#00fd00}
+header .stats{font-size:0.85rem;color:#aaa}
+main{
+  padding:20px;
+  text-shadow:0 0 3px rgba(0,0,0,1),0 0 20px rgba(0,253,0,0.6);
+  mix-blend-mode:lighten;
+  animation:flicker 0.3s infinite;
+}
+@keyframes flicker{
+  0%,50%,100%{opacity:0.92}
+  25%,75%{opacity:1}
+}
+footer{
+  grid-column:1/4;
+  text-align:center;
+  background:gray;
+  padding:15px 10px;
+  margin:10px;
+  border-radius:2rem;
+  box-shadow:inset 10px 10px 15px black;
+  font-size:0.8rem;
+}
+aside{min-height:50px}
+h1,h2,h3{color:#00fd00}
+h1:hover{cursor:pointer}
+h2{margin:25px 0 15px;border-bottom:1px dashed #00fd00;padding-bottom:8px}
+h3{margin:15px 0 10px;color:#a4c574}
+a{color:#a4c574;text-decoration:none}
+a:hover{text-decoration:underline;color:#00fd00}
+hr{border-style:dashed;border-color:#00fd00;box-shadow:0 0 3px rgba(0,0,0,1),0 0 10px rgba(0,253,0,0.6);margin:25px 0}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px dashed #333}
+th{color:#aaa;font-size:0.85rem;text-transform:uppercase;letter-spacing:1px}
+td{font-size:0.9rem}
+tr:hover{background:rgba(0,253,0,0.05)}
+.card{
+  background:rgba(0,0,0,0.3);
+  border:1px solid #333;
+  border-radius:8px;
+  padding:18px;
+  margin:15px 0;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px}
+.sev-CRITICAL{background:#ff3333;color:#000}
+.sev-HIGH{background:#ff8c00;color:#000}
+.sev-MEDIUM{background:#ffd700;color:#000}
+.sev-LOW{background:#00fd00;color:#000}
+.sev-INFO{background:#444;color:#aaa}
+.sev-OK{background:#00fd00;color:#000}
+.finding{border-left:4px solid #ffd700;padding-left:18px;margin:18px 0}
+.finding-CRITICAL{border-left-color:#ff3333}
+.finding-HIGH{border-left-color:#ff8c00}
+.finding-MEDIUM{border-left-color:#ffd700}
+.finding-LOW{border-left-color:#00fd00}
+.finding-info{margin-top:8px;font-size:0.85rem;color:#888}
+.progress-bar{
+  background:#333;
+  border-radius:8px;
+  height:10px;
+  margin:5px 0;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  border-radius:8px;
+  background:#00fd00;
+  box-shadow:0 0 8px rgba(0,253,0,0.5);
+}
+.risk-LOW .progress-fill{background:#00fd00}
+.risk-MEDIUM .progress-fill{background:#ffd700}
+.risk-HIGH .progress-fill{background:#ff8c00}
+.risk-CRITICAL .progress-fill{background:#ff3333}
+.cursor{
+  display:inline-block;
+  width:12px;height:2px;
+  background:#00fd00;
+  animation:blink 0.8s infinite;
+  vertical-align:middle;margin-left:2px;
+}
+@keyframes blink{0%,100%{opacity:0}50%{opacity:1}}
+.file-list{font-family:monospace;font-size:0.85rem;color:#a4c574;margin:10px 0}
+.file-list span{padding:2px 8px}
+pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:12px;overflow-x:auto;font-size:0.8rem;color:#a4c574}
+@media(max-width:768px){
+  body{grid-template-columns:1fr;margin:5px}
+  header,footer{grid-column:1;margin:5px}
+  aside{display:none}
+  .grid2{grid-template-columns:1fr}
+}
+.mermaid{background:rgba(0,0,0,0.3);border:1px solid #333;border-radius:8px;padding:15px;margin:10px 0;overflow-x:auto}
+</style>
+</head>
+<body>
+<header>
+<h1>tcpip.sys</h1>
+<nav><a href="index.html">[Übersicht]</a></nav>
+</header>
+<aside></aside>
+<main><div class="card">
+    <div class="grid4">
+    <div><b>Typ:</b> kernel_driver</div>
+    <div><b>Arch:</b> x64</div>
+    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
+    <div><b>Größe:</b> 0 bytes</div>
+    <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
+    <div><b>Funktionen:</b> 0</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Taint-Graph</h3>
+    <div class="grid2">
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>Input</td><td>External</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy/MDL</td><td>EXTERNAL</td></tr></table></div>
+    </div>
+    <div class="mermaid" style="margin-top:15px">
+graph LR
+    Input["Input"] -->|"UNCHECKED"| memcpy["memcpy"]
+</div>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>Input</td><td>memcpy</td><td>-</td></tr></table>
+    </div><div class="card"><h3>Automatisierte Tools</h3>
+    <table>
+    <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
+    <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
+    <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
+    </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-119: TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing</b>
+        <p style="margin-top:6px;font-size:0.9rem">TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
+        Taint-Path: External -> Parser -> Sink<br>
+        Empfehlung: Ghidra-Tiefenprufung empfohlen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    <div class="grid2">
+    <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
+    <div><b>Analyse-Datum:</b> 2026-06-03</div>
+    <div><b>Funktionen:</b> 0</div>
+    <div><b>Coverage:</b> 1%</div>
+    <div><b>Analyst:</b> opencode Pipeline</div>
+    <div><b>Dauer:</b> 0 min</div>
+    </div>
+    <hr>
+    <div class="grid4">
+    <div>CRITICAL<br><span class="count">0</span></div>
+    <div>HIGH<br><span class="count">1</span></div>
+    <div>MEDIUM<br><span class="count">0</span></div>
+    <div>LOW<br><span class="count">0</span></div>
+    </div>
+    <hr>
+    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:1%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing</p></div></main>
+<aside></aside>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:42 -- <span class="cursor"></span></footer>
+</body></html>

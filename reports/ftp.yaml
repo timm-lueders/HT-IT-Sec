@@ -1,17 +1,34 @@
-﻿meta:
-  binary_name: "ftp"
-  binary_type: "user_exe"
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline"
-  notes: "FTP Client. memcpy fur Server-Antworten."
-binary_info: { architecture: "x64" }
-pe_security: { aslr: true, dep: true, cfg: true }
+meta:
+  binary_name: ftp
+  binary_type: user_exe
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline
+  notes: FTP Client. memcpy fur Server-Antworten.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "ftp-001"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "FTP Client. memcpy fur Server-Antworten."
-    description: "FTP Client. memcpy fur Server-Antworten."
-    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
-taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
-summary: { overall_risk: "MEDIUM", recommendation: "FTP Client. memcpy fur Server-Antworten.", coverage_percent: 5 }
+- id: ftp-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: FTP Client. memcpy fur Server-Antworten.
+  description: FTP Client. memcpy fur Server-Antworten.
+  recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
+taint_graph:
+  sources:
+  - name: Input
+  sinks:
+  - name: Sink
+  edges:
+  - from: Input
+    to: Sink
+    bounded: false
+summary:
+  overall_risk: MEDIUM
+  recommendation: FTP Client. memcpy fur Server-Antworten.
+  coverage_percent: 5

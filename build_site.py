@@ -3,7 +3,7 @@
 build_site.py -- YAML Reports zu Terminal-Style HTML-Website
 Holy-Grail-Layout, Grun-auf-Schwarz, Flicker-Effekt, Blink-Cursor
 """
-import yaml, os
+import yaml, os, sys, subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -394,6 +394,12 @@ def copy_static():
             shutil.copy(src, OUTPUT_DIR / f)
 
 def main():
+    # Run validation before building
+    import subprocess
+    vp = Path(__file__).parent / "validate_reports.py"
+    if vp.exists():
+        subprocess.run([sys.executable, str(vp)], cwd=str(Path(__file__).parent))
+    
     OUTPUT_DIR.mkdir(exist_ok=True)
     reports = load_reports()
     for d in reports:

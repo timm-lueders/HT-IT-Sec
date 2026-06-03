@@ -1,17 +1,34 @@
-﻿meta:
-  binary_name: "spaceport"
-  binary_type: "user_exe"
-  analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline"
-  notes: "Storage Spaces. Disk-I/O."
-binary_info: { architecture: "x64" }
-pe_security: { aslr: true, dep: true, cfg: true }
+meta:
+  binary_name: spaceport
+  binary_type: user_exe
+  analysis_date: '2026-06-02'
+  analyst: opencode + GhidraMCP Pipeline
+  notes: Storage Spaces. Disk-I/O.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
 findings:
-  - id: "spaceport-001"
-    severity: "LOW"
-    cwe: "CWE-119"
-    title: "Storage Spaces. Disk-I/O."
-    description: "Storage Spaces. Disk-I/O."
-    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
-taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
-summary: { overall_risk: "LOW", recommendation: "Storage Spaces. Disk-I/O.", coverage_percent: 5 }
+- id: spaceport-001
+  severity: LOW
+  cwe: CWE-119
+  title: Storage Spaces. Disk-I/O.
+  description: Storage Spaces. Disk-I/O.
+  recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
+taint_graph:
+  sources:
+  - name: Input
+  sinks:
+  - name: Sink
+  edges:
+  - from: Input
+    to: Sink
+    bounded: false
+summary:
+  overall_risk: LOW
+  recommendation: Storage Spaces. Disk-I/O.
+  coverage_percent: 5
