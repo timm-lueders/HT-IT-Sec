@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "vhdmp."
-  binary_type: ""
+  binary_name: "vhdmp"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "VHD Parser. VHD/VHDX-Format."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: ~1200
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "VHD Parser. Header-Parsing sicher."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "VHD-001"
-    severity: "MEDIUM"
+  - id: "vhdmp-001"
+    severity: "LOW"
     cwe: "CWE-119"
-    title: "VHD-Header -- bosartige Disk-Images zu Kernel-Overflow."
-    description: "VHD-Header -- bosartige Disk-Images zu Kernel-Overflow.. memcpy (Header-Parsing); IoAllocateMdl."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "VHD Parser. VHD/VHDX-Format."
-  coverage_percent: 5
+    title: "VHD Parser. Header-Parsing sicher."
+    description: "VHD Parser. Header-Parsing sicher."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "LOW", recommendation: "VHD Parser. Header-Parsing sicher.", coverage_percent: 5 }

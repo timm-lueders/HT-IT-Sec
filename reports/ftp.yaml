@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "ftp."
-  binary_type: ""
+  binary_name: "ftp"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "FTP Client. Protokoll-Parsing."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: ~100
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "FTP Client. memcpy fur Server-Antworten."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "FTP-001"
+  - id: "ftp-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "FTP-Antwort-Parser -- Server-gesteuerter Input."
-    description: "FTP-Antwort-Parser -- Server-gesteuerter Input.. memcpy; CreateFileW/ReadFile/WriteFile; GetEnvironmentVariableW."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "FTP Client. Protokoll-Parsing."
-  coverage_percent: 5
+    title: "FTP Client. memcpy fur Server-Antworten."
+    description: "FTP Client. memcpy fur Server-Antworten."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "MEDIUM", recommendation: "FTP Client. memcpy fur Server-Antworten.", coverage_percent: 5 }

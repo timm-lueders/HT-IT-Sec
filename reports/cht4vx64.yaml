@@ -1,35 +1,49 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "cht4vx64."
-  binary_type: ""
+  binary_name: "cht4vx64.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 1858096
   analysis_date: "2026-06-02"
   analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "Chelsio 10GbE (Drittanbieter). RDMA/iWARP."
+  notes: "Chelsio T5/T6 10/25/40/100GbE Netzwerktreiber. 642 Funktionen. WDF-basiert. VF-SR-IOV. NUR safe APIs (memcpy_s, strncpy_s, sprintf_s). Beeindruckend sauberer Drittanbieter-Treiber."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  function_count: ~2500
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  entry_point: "0x14002b620"
+  function_count: 642
+  compiler_hint: "msvc + WDF"
+pe_security: { aslr: true, dep: true, cfg: true }
+import_risk_map:
+  high: []
+  medium:
+    - { api: "Vf_read_reg/Vf_write_reg", risk: "Hardware-Register-Zugriff -- PCIe BAR-Mapping", cwe: "CWE-119" }
+    - { api: "MmMapIoSpaceEx/MmUnmapIoSpace", risk: "I/O-Space-Mapping", cwe: "CWE-119" }
+    - { api: "ZwCreateFile/ZwReadFile", risk: "Firmware-Datei-Zugriff", cwe: "CWE-22" }
+  low:
+    - { api: "memcpy_s", risk: "Safe Memory-Copy (KORREKT)", cwe: "N/A" }
+    - { api: "strncpy_s + sprintf_s", risk: "Safe String-Varianten (KORREKT)", cwe: "N/A" }
+    - { api: "KeRegisterBugCheckReasonCallback", risk: "BugCheck-Callback (korrekt)", cwe: "N/A" }
+  info:
+    - { api: "WdfVersionBind/Unbind", risk: "WDF-Framework -- strukturierter Treiber", cwe: "N/A" }
+    - { api: "Vf_* (50+ Chelsio-APIs)", risk: "VF-Management, RSS, MAC-Filter", cwe: "N/A" }
 findings:
   - id: "CHT-001"
-    severity: "HIGH"
-    cwe: "CWE-119"
-    title: "Drittanbieter-Netzwerk -- RDMA-Puffer kritisch."
-    description: "Drittanbieter-Netzwerk -- RDMA-Puffer kritisch.. MmMapLockedPages; IoBuildPartialMdl; IoConnectInterruptEx."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
+    severity: "LOW"
+    cwe: "N/A"
+    title: "Vorbildlicher Drittanbieter-Treiber -- nur safe APIs"
+    description: |
+      cht4vx64.sys verwendet AUSSCHLIEBLICH safe C-APIs: memcpy_s, strncpy_s,
+      sprintf_s. Kein memcpy, strcpy, sprintf. 642 Funktionen, WDF-basiert.
+      VF-SR-IOV mit 50+ Chelsio-APIs. BugCheck-Callback fur Crash-Debugging.
+      Einer der am besten geschriebenen Drittanbieter-Treiber im Audit.
+    recommendation: "Best Practices beibehalten. Hardware-Register-Zugriffe auf Bounds-Checks prufen."
 taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
+  sources: [{name: "Netzwerk-Pakete", type: "Chelsio Firmware/NDIS"}]
+  sinks: [{name: "Vf_read_reg/Vf_write_reg", address: "INTERNAL", type: "Hardware Register"}]
+  edges: [{from: "Netzwerk-Pakete", to: "Vf_write_reg", bounded: false}]
 summary:
-  overall_risk: "HIGH"
-  high_findings: 1
+  overall_risk: "LOW"
+  high_findings: 0
   medium_findings: 0
-  low_findings: 0
-  recommendation: "Chelsio 10GbE (Drittanbieter). RDMA/iWARP."
-  coverage_percent: 5
+  low_findings: 1
+  recommendation: "Sauber programmiert. Hardware-Register-Validierung beibehalten."
+  coverage_percent: 10

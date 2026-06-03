@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "services."
-  binary_type: ""
+  binary_name: "services"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "Service Control Manager. RPC-basiert."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: 1480
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "Service Control Manager. RPC."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "SVC-001"
+  - id: "services-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "Dienst-Start mit SYSTEM -- Pfad-Validierung kritisch."
-    description: "Dienst-Start mit SYSTEM -- Pfad-Validierung kritisch.. LoadLibraryExW; CreateProcessW; RegSetValueExW."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "Service Control Manager. RPC-basiert."
-  coverage_percent: 5
+    title: "Service Control Manager. RPC."
+    description: "Service Control Manager. RPC."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "MEDIUM", recommendation: "Service Control Manager. RPC.", coverage_percent: 5 }

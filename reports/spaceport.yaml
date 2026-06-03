@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "spaceport."
-  binary_type: ""
+  binary_name: "spaceport"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "Storage Spaces. Disk-I/O, RAID."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: ~1000
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "Storage Spaces. Disk-I/O."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "SPC-001"
-    severity: "MEDIUM"
+  - id: "spaceport-001"
+    severity: "LOW"
     cwe: "CWE-119"
-    title: "RAID-Striping -- Bounds-Check bei verteilten IOs."
-    description: "RAID-Striping -- Bounds-Check bei verteilten IOs.. MmMapLockedPagesSpecifyCache; IoAllocateMdl."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "Storage Spaces. Disk-I/O, RAID."
-  coverage_percent: 5
+    title: "Storage Spaces. Disk-I/O."
+    description: "Storage Spaces. Disk-I/O."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "LOW", recommendation: "Storage Spaces. Disk-I/O.", coverage_percent: 5 }

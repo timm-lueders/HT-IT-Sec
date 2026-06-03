@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "dxgmms2."
-  binary_type: ""
+  binary_name: "dxgmms2"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "DirectX Graphics MMS. GPU-Kernel-API."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: ~1500
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "DirectX MMS. GPU-Kernel-MM."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "DXG-001"
+  - id: "dxgmms2-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "GPU-Puffer-Mapping -- User-Mode-Shader-Daten im Kernel."
-    description: "GPU-Puffer-Mapping -- User-Mode-Shader-Daten im Kernel.. MmMapLockedPagesSpecifyCache; IoAllocateMdl."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "DirectX Graphics MMS. GPU-Kernel-API."
-  coverage_percent: 5
+    title: "DirectX MMS. GPU-Kernel-MM."
+    description: "DirectX MMS. GPU-Kernel-MM."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "MEDIUM", recommendation: "DirectX MMS. GPU-Kernel-MM.", coverage_percent: 5 }

@@ -1,35 +1,17 @@
 ﻿meta:
-  template_version: "1.0"
-  binary_name: "WdiWiFi."
-  binary_type: ""
+  binary_name: "WdiWiFi"
+  binary_type: "user_exe"
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 15
-  notes: "WiFi WDI Driver. 802.11-Frames."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  function_count: ~1200
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+  analyst: "opencode + GhidraMCP Pipeline"
+  notes: "WiFi WDI. 802.11."
+binary_info: { architecture: "x64" }
+pe_security: { aslr: true, dep: true, cfg: true }
 findings:
-  - id: "WDI-001"
+  - id: "WdiWiFi-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "802.11-Paket -- WLAN-Frame-Parsing im Kernel."
-    description: "802.11-Paket -- WLAN-Frame-Parsing im Kernel.. MmMapLockedPages; IoAllocateMdl."
-    taint_path: "External Input -> Kernel/User Buffer -> Sink"
-    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
-taint_graph:
-  sources: [{name: "External Input", type: "User/Kernel API"}]
-  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
-  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
-summary:
-  overall_risk: "MEDIUM"
-  high_findings: 0
-  medium_findings: 1
-  low_findings: 0
-  recommendation: "WiFi WDI Driver. 802.11-Frames."
-  coverage_percent: 5
+    title: "WiFi WDI. 802.11."
+    description: "WiFi WDI. 802.11."
+    recommendation: "Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler."
+taint_graph: { sources: [{name: "Input"}], sinks: [{name: "Sink"}], edges: [{from: "Input", to: "Sink", bounded: false}] }
+summary: { overall_risk: "MEDIUM", recommendation: "WiFi WDI. 802.11.", coverage_percent: 5 }
