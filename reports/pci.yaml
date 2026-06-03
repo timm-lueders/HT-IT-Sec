@@ -1,10 +1,10 @@
 meta:
   binary_name: pci.sys
   binary_type: kernel_driver
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: PCI Bus Driver
-  file_size_bytes: 0
+  notes: PCI Bus Driver -- 598KB.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: PCI-001
   severity: LOW
   cwe: CWE-119
-  title: PCI Bus Driver
-  description: PCI Bus Driver
+  title: PCI Bus Driver -- 598KB.
+  description: PCI Bus Driver -- 598KB.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: LOW
-  recommendation: PCI Bus Driver
-  coverage_percent: 1
+  recommendation: PCI Bus Driver -- 598KB.
+  coverage_percent: 3

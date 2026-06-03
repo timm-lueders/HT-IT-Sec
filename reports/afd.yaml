@@ -1,10 +1,10 @@
 meta:
   binary_name: afd.sys
   binary_type: kernel_driver
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: Winsock AFD -- Socket-API im Kernel
-  file_size_bytes: 0
+  notes: Winsock AFD -- Socket-API im Kernel. 722KB.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: AFD-001
   severity: MEDIUM
   cwe: CWE-119
-  title: Winsock AFD -- Socket-API im Kernel
-  description: Winsock AFD -- Socket-API im Kernel
+  title: Winsock AFD -- Socket-API im Kernel. 722KB.
+  description: Winsock AFD -- Socket-API im Kernel. 722KB.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: MEDIUM
-  recommendation: Winsock AFD -- Socket-API im Kernel
-  coverage_percent: 1
+  recommendation: Winsock AFD -- Socket-API im Kernel. 722KB.
+  coverage_percent: 3

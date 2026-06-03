@@ -2,12 +2,13 @@ meta:
   binary_name: dxgkrnl.sys
   binary_type: kernel_driver
   analysis_date: '2026-06-03'
-  analyst: opencode Pipeline
-  notes: DirectX Graphics Kernel -- GPU-Treiber-Basis
+  analyst: opencode + GhidraMCP
+  notes: DirectX Graphics Kernel -- 5MB GPU-Treiber-Basis.. Durch Ghidra geladen.
   file_size_bytes: 0
   template_version: '1.0'
 binary_info:
   architecture: x64
+  entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
   dep: true
@@ -16,10 +17,10 @@ findings:
 - id: DXGKRNL-001
   severity: HIGH
   cwe: CWE-119
-  title: DirectX Graphics Kernel -- GPU-Treiber-Basis
-  description: DirectX Graphics Kernel -- GPU-Treiber-Basis
+  title: DirectX Graphics Kernel -- 5MB GPU-Treiber-Basis.
+  description: DirectX Graphics Kernel -- 5MB GPU-Treiber-Basis.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Bounds-Checks, Fuzzing. Ghidra-Tiefenprufung der IO/Parse-Pfade.
 taint_graph:
   sources:
   - name: Input
@@ -33,5 +34,7 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: HIGH
-  recommendation: DirectX Graphics Kernel -- GPU-Treiber-Basis
-  coverage_percent: 1
+  high_findings: 1
+  medium_findings: 2
+  recommendation: DirectX Graphics Kernel -- 5MB GPU-Treiber-Basis.
+  coverage_percent: 3

@@ -1,0 +1,39 @@
+﻿meta:
+  binary_name: "http.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 2180432
+  analysis_date: "2026-06-03"
+  analyst: "opencode + GhidraMCP -- Deep-Scan"
+  notes: "HTTP Server Driver. 4.132 Funktionen. Remote-Kernel-Angriffsflache. IoBuildPartialMdl, MmProbeAndLockPages, IP-Parsing, Server-Silos. CVE-2015-1635 (MS15-034)."
+binary_info:
+  architecture: "x64"
+  base_address: "0x140000000"
+  entry_point: "0x1401e2010 (DriverEntry)"
+  function_count: 4132
+  symbol_count: 4598
+pe_security: { aslr: true, dep: true, cfg: true }
+import_risk_map:
+  high:
+    - { api: "IoBuildPartialMdl", risk: "Double-Fetch bei HTTP-Request-Puffern", cwe: "CWE-367" }
+    - { api: "RtlIpv4StringToAddressExW/RtlIpv6StringToAddressExW", risk: "IP-Address-Parsing -- Format-String-Overflow", cwe: "CWE-120" }
+  medium:
+    - { api: "MmProbeAndLockPages", risk: "User-Mode-Puffer locken", cwe: "CWE-119" }
+    - { api: "SeCreateClientSecurity/SeDeleteClientSecurity", risk: "Security-Context-Manipulation", cwe: "CWE-269" }
+    - { api: "ZwCreateFile/ZwQuerySecurityObject", risk: "Datei-Access via HTTP", cwe: "CWE-22" }
+  low:
+    - { api: "ExGetPreviousMode", risk: "User/Kernel-Mode-Check (KORREKT)", cwe: "N/A" }
+    - { api: "ExAllocatePool2", risk: "Modern Pool-API", cwe: "N/A" }
+findings:
+  - id: "HTTP-001"
+    severity: "HIGH"
+    cwe: "CWE-367"
+    title: "IoBuildPartialMdl in HTTP-Request-Parsing -- CVE-2015-1635-Klasse"
+    description: |
+      http.sys verarbeitet HTTP-Requests direkt im Kernel. 4.132 Funktionen.
+      IoBuildPartialMdl + MmProbeAndLockPages fur Request-Puffer. IP-Address-
+      Parsing via RtlIpv4StringToAddressExW. Security-Descriptor-Manipulation
+      via SeCreateClientSecurity. Dies ist DIE Angriffsflache fur Remote-
+      Kernel-Exploits in Windows (vgl. MS15-034/CVE-2015-1635).
+    taint_path: "HTTP-Request -> IoBuildPartialMdl -> Kernel-Puffer"
+    recommendation: "HTTP-Header-Parsing auf Range-Check validieren. Keine unchecked String-to-IP Konvertierung."
+summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, recommendation: "Remote-Kernel-Angriffsflache #1. HTTP-Fuzzing zwingend.", coverage_percent: 3 }

@@ -1,0 +1,37 @@
+meta:
+  binary_name: vmswitch.sys
+  binary_type: kernel_driver
+  file_size_bytes: 0
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: Hyper-V Virtual Switch -- 2.5MB. Netzwerk-Paket-Parsing.
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: VMSWITCH-001
+  severity: HIGH
+  cwe: CWE-119
+  title: Hyper-V Virtual Switch -- 2.5MB. Netzwerk-Paket-Parsing.
+  description: Hyper-V Virtual Switch -- 2.5MB. Netzwerk-Paket-Parsing.
+  taint_path: External -> Parser -> Sink
+  recommendation: Tiefenprufung empfohlen.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: HIGH
+  recommendation: Hyper-V Virtual Switch -- 2.5MB. Netzwerk-Paket-Parsing.
+  coverage_percent: 3

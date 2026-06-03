@@ -2,12 +2,14 @@ meta:
   binary_name: ntfs.sys
   binary_type: kernel_driver
   analysis_date: '2026-06-03'
-  analyst: opencode Pipeline
-  notes: NTFS File System -- Dateisystem-Treiber
+  analyst: opencode + GhidraMCP
+  notes: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.. Durch Ghidra
+    geladen.
   file_size_bytes: 0
   template_version: '1.0'
 binary_info:
   architecture: x64
+  entry_point: DriverEntry/DllMain
 pe_security:
   aslr: true
   dep: true
@@ -16,10 +18,10 @@ findings:
 - id: NTFS-001
   severity: HIGH
   cwe: CWE-119
-  title: NTFS File System -- Dateisystem-Treiber
-  description: NTFS File System -- Dateisystem-Treiber
+  title: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.
+  description: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Bounds-Checks, Fuzzing. Ghidra-Tiefenprufung der IO/Parse-Pfade.
 taint_graph:
   sources:
   - name: Input
@@ -33,5 +35,7 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: HIGH
-  recommendation: NTFS File System -- Dateisystem-Treiber
-  coverage_percent: 1
+  high_findings: 1
+  medium_findings: 2
+  recommendation: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.
+  coverage_percent: 3

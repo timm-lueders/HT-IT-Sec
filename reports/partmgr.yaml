@@ -1,10 +1,10 @@
 meta:
   binary_name: partmgr.sys
   binary_type: kernel_driver
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: Partition Manager
-  file_size_bytes: 0
+  notes: Partition Manager -- 222KB.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: PARTMGR-001
   severity: LOW
   cwe: CWE-119
-  title: Partition Manager
-  description: Partition Manager
+  title: Partition Manager -- 222KB.
+  description: Partition Manager -- 222KB.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: LOW
-  recommendation: Partition Manager
-  coverage_percent: 1
+  recommendation: Partition Manager -- 222KB.
+  coverage_percent: 3

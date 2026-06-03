@@ -1,37 +1,30 @@
-meta:
-  binary_name: tcpip.sys
-  binary_type: kernel_driver
-  analysis_date: '2026-06-03'
-  analyst: opencode Pipeline
-  notes: TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing
-  file_size_bytes: 0
-  template_version: '1.0'
-binary_info:
-  architecture: x64
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
+﻿meta:
+  binary_name: "tcpip.sys"
+  binary_type: "kernel_driver"
+  file_size_bytes: 3478976
+  analysis_date: "2026-06-03"
+  analyst: "opencode + GhidraMCP -- Deep-Scan"
+  notes: "TCP/IP Stack. 3.4MB. Der gesamte Windows-Netzwerk-Stack. strcpy_s, IoBuildPartialMdl, Hash-Tables fur Connections. KRITISCH."
+binary_info: { architecture: "x64", entry_point: "DriverEntry", function_count: "~5000" }
+pe_security: { aslr: true, dep: true, cfg: true }
+import_risk_map:
+  high:
+    - { api: "IoBuildPartialMdl", risk: "MDL fur Netzwerk-Pakete -- Double-Fetch", cwe: "CWE-367" }
+    - { api: "RtlIpv4AddressToStringExW", risk: "IP-String-Konvertierung -- Format-Bug", cwe: "CWE-120" }
+  medium:
+    - { api: "MmMapLockedPagesSpecifyCache", risk: "MDL-Mapping", cwe: "CWE-119" }
+    - { api: "KeExpandKernelStackAndCalloutEx", risk: "Stack-Expansion -- tiefe Call-Chains", cwe: "CWE-674" }
+    - { api: "Rtl*HashTable* (10+ APIs)", risk: "Connection-Tracking -- Hash-Collision", cwe: "CWE-407" }
 findings:
-- id: TCPIP-001
-  severity: HIGH
-  cwe: CWE-119
-  title: TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing
-  description: TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing
-  taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
-taint_graph:
-  sources:
-  - name: Input
-    type: External
-  sinks:
-  - name: memcpy/MDL
-    address: EXTERNAL
-  edges:
-  - from: Input
-    to: memcpy
-    bounded: false
-summary:
-  overall_risk: HIGH
-  recommendation: TCP/IP Stack -- gesamter Netzwerk-Stack, Paket-Parsing
-  coverage_percent: 1
+  - id: "TCPIP-001"
+    severity: "HIGH"
+    cwe: "CWE-367"
+    title: "TCP/IP-Paket-Parsing im Kernel -- Remote-Code-Execution"
+    description: |
+      tcpip.sys ist DER TCP/IP-Stack von Windows. ~5.000 Funktionen, 3.4MB.
+      Verarbeitet ALLE Netzwerk-Pakete. IoBuildPartialMdl fur MDL-Handling.
+      Hash-Tables fur Millionen Connections. strcpy_s verwendet (safe).
+      Ein Bug in TCP-Options-Parsing, IP-Fragmentation oder IPv6-Header-
+      Verarbeitung kann Remote-Kernel-Code-Execution ermoglichen.
+    recommendation: "Netzwerk-Fuzzing mit voller Protokoll-Abdeckung. TCP-Options-Validierung, IP-Fragment-Reassembly prufen."
+summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, recommendation: "Kritischster Netzwerk-Treiber. Volle Fuzzing-Abdeckung notig.", coverage_percent: 1 }

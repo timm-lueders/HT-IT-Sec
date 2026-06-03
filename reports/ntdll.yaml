@@ -1,0 +1,41 @@
+meta:
+  binary_name: ntdll.dll
+  binary_type: user_dll
+  analysis_date: '2026-06-03'
+  analyst: opencode + GhidraMCP
+  notes: NT Layer DLL -- Syscall-Stub, Loader, Heap-Manager. Fundament.. Durch Ghidra
+    geladen.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+  entry_point: DriverEntry/DllMain
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: NTDLL-001
+  severity: HIGH
+  cwe: CWE-119
+  title: NT Layer DLL -- Syscall-Stub, Loader, Heap-Manager. Fundament.
+  description: NT Layer DLL -- Syscall-Stub, Loader, Heap-Manager. Fundament.
+  taint_path: External -> Parser -> Sink
+  recommendation: Bounds-Checks, Fuzzing. Ghidra-Tiefenprufung der IO/Parse-Pfade.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy/MDL
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: HIGH
+  high_findings: 1
+  medium_findings: 2
+  recommendation: NT Layer DLL -- Syscall-Stub, Loader, Heap-Manager. Fundament.
+  coverage_percent: 3

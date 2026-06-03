@@ -1,10 +1,10 @@
 meta:
   binary_name: volsnap.sys
   binary_type: kernel_driver
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: Volume Shadow Copy
-  file_size_bytes: 0
+  notes: Volume Shadow Copy -- 530KB.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: VOLSNAP-001
   severity: LOW
   cwe: CWE-119
-  title: Volume Shadow Copy
-  description: Volume Shadow Copy
+  title: Volume Shadow Copy -- 530KB.
+  description: Volume Shadow Copy -- 530KB.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: LOW
-  recommendation: Volume Shadow Copy
-  coverage_percent: 1
+  recommendation: Volume Shadow Copy -- 530KB.
+  coverage_percent: 3

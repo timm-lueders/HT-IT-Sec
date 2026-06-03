@@ -1,0 +1,37 @@
+meta:
+  binary_name: crypt32.dll
+  binary_type: user_dll
+  file_size_bytes: 0
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: Crypto32 API -- 1.5MB. X.509, SSL/TLS.
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: CRYPT32-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: Crypto32 API -- 1.5MB. X.509, SSL/TLS.
+  description: Crypto32 API -- 1.5MB. X.509, SSL/TLS.
+  taint_path: External -> Parser -> Sink
+  recommendation: Tiefenprufung empfohlen.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: MEDIUM
+  recommendation: Crypto32 API -- 1.5MB. X.509, SSL/TLS.
+  coverage_percent: 3

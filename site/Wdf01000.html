@@ -5,7 +5,7 @@
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
 <script>mermaid.initialize({startOnLoad:true,theme:'dark',themeVariables:{primaryColor:'#00fd00',primaryTextColor:'#000',primaryBorderColor:'#00fd00',lineColor:'#00fd00',secondaryColor:'#333',tertiaryColor:'#212121'}});</script>
-<title> -- Security Audit</title>
+<title>Wdf01000.sys -- Security Audit</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 html{
@@ -142,7 +142,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
 </head>
 <body>
 <header>
-<h1></h1>
+<h1>Wdf01000.sys</h1>
 <nav><a href="index.html">[Übersicht]</a></nav>
 </header>
 <aside></aside>
@@ -157,7 +157,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Taint-Graph</h3>
     <div class="grid2">
     <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>Input</td><td>External</td></tr></table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy/MDL</td><td>EXTERNAL</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL</td></tr></table></div>
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
@@ -170,17 +170,17 @@ graph LR
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-LOW">
-        <span class="badge sev-LOW">LOW</span> <b>CWE-119: 969.5</b>
-        <p style="margin-top:6px;font-size:0.9rem">969.5 -- Ghidra-Tiefenprufung empfohlen.</p>
+        <span class="badge sev-LOW">LOW</span> <b>CWE-119: Windows Driver Framework -- 970KB.</b>
+        <p style="margin-top:6px;font-size:0.9rem">Windows Driver Framework -- 970KB.</p>
         <div class="finding-info">Funktion: ? @ ?<br>
-        Taint-Path: External Input -> Parser -> Sink<br>
-        Empfehlung: Bounds-Checks, Input-Validierung, Fuzzing.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Taint-Path: External -> Parser -> Sink<br>
+        Empfehlung: Tiefenprufung empfohlen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-03</div>
     <div><b>Funktionen:</b> 0</div>
     <div><b>Coverage:</b> 3%</div>
-    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline</div>
+    <div><b>Analyst:</b> opencode Pipeline</div>
     <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
@@ -192,7 +192,7 @@ graph LR
     </div>
     <hr>
     <div class="progress-bar risk-LOW"><div class="progress-fill" style="width:3%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">969.5</p></div></main>
+    <p style="margin-top:8px;font-size:0.85rem">Windows Driver Framework -- 970KB.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:40 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:47 -- <span class="cursor"></span></footer>
 </body></html>

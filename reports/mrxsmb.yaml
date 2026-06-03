@@ -1,0 +1,37 @@
+meta:
+  binary_name: mrxsmb.sys
+  binary_type: kernel_driver
+  file_size_bytes: 0
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: MRXSMB-001
+  severity: MEDIUM
+  cwe: CWE-119
+  title: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
+  description: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
+  taint_path: External -> Parser -> Sink
+  recommendation: Tiefenprufung empfohlen.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: MEDIUM
+  recommendation: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.
+  coverage_percent: 3

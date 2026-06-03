@@ -1,10 +1,10 @@
 meta:
   binary_name: comsvcs.dll
   binary_type: user_dll
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: COM+ Services -- DCOM
-  file_size_bytes: 0
+  notes: COM+ Services -- 1.7MB. DCOM-Angriffsflache.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: COMSVCS-001
   severity: MEDIUM
   cwe: CWE-119
-  title: COM+ Services -- DCOM
-  description: COM+ Services -- DCOM
+  title: COM+ Services -- 1.7MB. DCOM-Angriffsflache.
+  description: COM+ Services -- 1.7MB. DCOM-Angriffsflache.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: MEDIUM
-  recommendation: COM+ Services -- DCOM
-  coverage_percent: 1
+  recommendation: COM+ Services -- 1.7MB. DCOM-Angriffsflache.
+  coverage_percent: 3

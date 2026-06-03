@@ -1,10 +1,10 @@
 meta:
   binary_name: TbtBusDrv.sys
   binary_type: kernel_driver
+  file_size_bytes: 0
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: Thunderbolt Bus -- DMA-Angriffsflache
-  file_size_bytes: 0
+  notes: Thunderbolt Bus -- 3.2MB. DMA-Angriffsflache.
   template_version: '1.0'
 binary_info:
   architecture: x64
@@ -16,16 +16,16 @@ findings:
 - id: TBTBUSDRV-001
   severity: HIGH
   cwe: CWE-119
-  title: Thunderbolt Bus -- DMA-Angriffsflache
-  description: Thunderbolt Bus -- DMA-Angriffsflache
+  title: Thunderbolt Bus -- 3.2MB. DMA-Angriffsflache.
+  description: Thunderbolt Bus -- 3.2MB. DMA-Angriffsflache.
   taint_path: External -> Parser -> Sink
-  recommendation: Ghidra-Tiefenprufung empfohlen.
+  recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
   - name: Input
     type: External
   sinks:
-  - name: memcpy/MDL
+  - name: memcpy
     address: EXTERNAL
   edges:
   - from: Input
@@ -33,5 +33,5 @@ taint_graph:
     bounded: false
 summary:
   overall_risk: HIGH
-  recommendation: Thunderbolt Bus -- DMA-Angriffsflache
-  coverage_percent: 1
+  recommendation: Thunderbolt Bus -- 3.2MB. DMA-Angriffsflache.
+  coverage_percent: 3

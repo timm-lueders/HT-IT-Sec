@@ -1,0 +1,41 @@
+meta:
+  binary_name: certutil.exe
+  binary_type: user_exe
+  analysis_date: '2026-06-03'
+  analyst: opencode + GhidraMCP
+  notes: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.. Durch Ghidra
+    geladen.
+  file_size_bytes: 0
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+  entry_point: DriverEntry/DllMain
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: CERTUTIL-001
+  severity: HIGH
+  cwe: CWE-119
+  title: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.
+  description: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.
+  taint_path: External -> Parser -> Sink
+  recommendation: Bounds-Checks, Fuzzing. Ghidra-Tiefenprufung der IO/Parse-Pfade.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy/MDL
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: HIGH
+  high_findings: 1
+  medium_findings: 2
+  recommendation: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.
+  coverage_percent: 3

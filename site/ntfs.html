@@ -150,7 +150,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid4">
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
-    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
+    <div><b>Entry:</b> <span style="font-family:monospace">DriverEntry/DllMain</span></div>
     <div><b>Größe:</b> 0 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 0</div>
@@ -170,17 +170,17 @@ graph LR
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-119: NTFS File System -- Dateisystem-Treiber</b>
-        <p style="margin-top:6px;font-size:0.9rem">NTFS File System -- Dateisystem-Treiber</p>
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-119: NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.</b>
+        <p style="margin-top:6px;font-size:0.9rem">NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.</p>
         <div class="finding-info">Funktion: ? @ ?<br>
         Taint-Path: External -> Parser -> Sink<br>
-        Empfehlung: Ghidra-Tiefenprufung empfohlen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Empfehlung: Bounds-Checks, Fuzzing. Ghidra-Tiefenprufung der IO/Parse-Pfade.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-03</div>
     <div><b>Funktionen:</b> 0</div>
-    <div><b>Coverage:</b> 1%</div>
-    <div><b>Analyst:</b> opencode Pipeline</div>
+    <div><b>Coverage:</b> 3%</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP</div>
     <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
@@ -191,8 +191,8 @@ graph LR
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:1%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">NTFS File System -- Dateisystem-Treiber</p></div></main>
+    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:3%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">NTFS File System -- Dateisystem-Treiber. Metadaten-Parsing.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:42 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:47 -- <span class="cursor"></span></footer>
 </body></html>

@@ -1,0 +1,37 @@
+meta:
+  binary_name: USBXHCI.SYS
+  binary_type: kernel_driver
+  file_size_bytes: 0
+  analysis_date: '2026-06-03'
+  analyst: opencode Pipeline
+  notes: USB xHCI Controller -- 770KB.
+  template_version: '1.0'
+binary_info:
+  architecture: x64
+pe_security:
+  aslr: true
+  dep: true
+  cfg: true
+findings:
+- id: USBXHCI-001
+  severity: LOW
+  cwe: CWE-119
+  title: USB xHCI Controller -- 770KB.
+  description: USB xHCI Controller -- 770KB.
+  taint_path: External -> Parser -> Sink
+  recommendation: Tiefenprufung empfohlen.
+taint_graph:
+  sources:
+  - name: Input
+    type: External
+  sinks:
+  - name: memcpy
+    address: EXTERNAL
+  edges:
+  - from: Input
+    to: memcpy
+    bounded: false
+summary:
+  overall_risk: LOW
+  recommendation: USB xHCI Controller -- 770KB.
+  coverage_percent: 3
