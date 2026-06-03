@@ -1,7 +1,7 @@
 meta:
   binary_name: mrxsmb.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 951768
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: SMB Client Redirector -- 930KB. Netzwerk-Protokoll.

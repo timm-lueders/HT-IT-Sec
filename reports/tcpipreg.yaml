@@ -1,7 +1,7 @@
 meta:
   binary_name: tcpipreg.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 86016
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: TCP/IP Registry -- 50KB.

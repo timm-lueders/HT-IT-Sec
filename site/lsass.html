@@ -151,7 +151,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Typ:</b> user_exe</div>
     <div><b>Arch:</b> x64</div>
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 0 bytes</div>
+    <div><b>Größe:</b> 84,200 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> ~100</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>DLL-Laden von Authentifizierungs-Packages</td><td>CWE-426</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> NdrServerCallAll/NdrServerCall2</td><td>RPC-Server -- Remote-Angriffsflache</td><td>CWE-20</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SspirAcquireCredentialsHandle</td><td>SSPI-Credential-Verarbeitung</td><td>CWE-287</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SspirProcessSecurityContext</td><td>SSPI-Token-Validierung</td><td>CWE-287</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> OpenProcessToken/GetTokenInformation</td><td>Token-Zugriff</td><td>CWE-269</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
@@ -199,5 +199,5 @@ oder Token-Parsing kann zur SYSTEM-Kompromittierung fuhren.
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:15%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">RPC+SSPI-Angriffsflache. Token-Validierung und DLL-Laden hart absichern.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 04:47 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 05:00 -- <span class="cursor"></span></footer>
 </body></html>

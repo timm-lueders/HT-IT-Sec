@@ -1,7 +1,7 @@
 meta:
   binary_name: comsvcs.dll
   binary_type: user_dll
-  file_size_bytes: 0
+  file_size_bytes: 1728512
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: COM+ Services -- 1.7MB. DCOM-Angriffsflache.

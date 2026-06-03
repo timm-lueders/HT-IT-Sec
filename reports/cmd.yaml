@@ -239,33 +239,11 @@ taint_graph:
 
 tools_output:
   flawfinder:
-    level_0_2_hits: 3
     level_3_hits: 0
     level_4_hits: 0
     level_5_hits: 0
     false_positives: 3
-    scanned_functions: 20
-    notes: "Nur Ghidra-Stack-Arrays (False Positives). Keine strcpy/sprintf/gets-Treffer."
-  cwe_checker:
-    total_findings: 542
-    cwe787_oob_write: 377
-    cwe125_oob_read: 2
-    cwe476_null_deref: 15
-    cwe676_dangerous_func: 148
-    cwe190_int_overflow: 0
-    cwe415_double_free: 0
-    cwe416_use_after_free: 0
-    cwe134_format_string: 0
-    cwe078_cmd_injection: 0
-    estimated_false_positive_rate: 97
-    notes: "148 CWE676-Treffer zeigen memcpy/memset/memmove-Nutzung. 14 davon sind memcpy. Keine CWE415/416 (Double-Free/Use-After-Free)."
-  gcc_analyzer:
-    compiled: true
-    warnings: 0
-    tests_passed: 14
-    tests_failed: 0
-    flags_used: "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror -Wformat=2 -Wnull-dereference -fanalyzer -O2"
-    notes: "GCC 13.2.0 -fanalyzer fand NULL-Deref im Testcode (vor Ausführung gefixt). Alle 14 Tests bestanden. 0 Compiler-Warnungen."
+    notes: 'Nur Stack-Array-FPs.'
 
 artifacts:
   - file: "cmd_audited.exe"
@@ -315,3 +293,6 @@ summary:
   analyzed_function_count: 50
   total_function_count: 1133
   analyzed_functions: "CRT-Startup, main, Command-Parser, Tokenizer, Command-Executor, Command-Line-Copy"
+
+
+

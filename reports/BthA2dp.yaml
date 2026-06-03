@@ -1,7 +1,7 @@
 meta:
   binary_name: BthA2dp.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 614400
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Bluetooth A2DP Audio -- 600KB.

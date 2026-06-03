@@ -1,7 +1,7 @@
 meta:
   binary_name: storport.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 2581976
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Storage Port Driver -- 2.5MB. Storport-Miniport-Basis.

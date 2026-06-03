@@ -4,7 +4,7 @@ meta:
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   notes: Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI, Kerberos/NTLM.
-  file_size_bytes: 0
+  file_size_bytes: 84200
   template_version: '1.0'
 binary_info:
   architecture: x64

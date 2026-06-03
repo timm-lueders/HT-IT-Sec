@@ -1,7 +1,7 @@
 meta:
   binary_name: pci.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 611824
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: PCI Bus Driver -- 598KB.

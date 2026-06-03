@@ -1,7 +1,7 @@
 meta:
   binary_name: ksecpkg.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 230888
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Kernel Security Package -- 226KB. SSPI im Kernel.

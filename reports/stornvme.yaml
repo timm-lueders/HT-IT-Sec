@@ -1,7 +1,7 @@
 meta:
   binary_name: stornvme.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 316904
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: NVMe Storage Driver -- 310KB.

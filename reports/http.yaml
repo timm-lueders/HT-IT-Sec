@@ -37,3 +37,4 @@ findings:
     taint_path: "HTTP-Request -> IoBuildPartialMdl -> Kernel-Puffer"
     recommendation: "HTTP-Header-Parsing auf Range-Check validieren. Keine unchecked String-to-IP Konvertierung."
 summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, recommendation: "Remote-Kernel-Angriffsflache #1. HTTP-Fuzzing zwingend.", coverage_percent: 3 }
+

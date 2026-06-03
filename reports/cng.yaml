@@ -1,7 +1,7 @@
 meta:
   binary_name: cng.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 947776
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Cryptography Next Gen -- 926KB. Kernel-Krypto-API.

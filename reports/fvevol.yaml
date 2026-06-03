@@ -452,33 +452,11 @@ taint_graph:
 
 tools_output:
   flawfinder:
-    level_0_2_hits: 30
     level_3_hits: 0
     level_4_hits: 0
     level_5_hits: 0
     false_positives: 30
-    scanned_functions: 33
-    notes: "Alle 30 Hits sind Ghidra-Decompiler-Stack-Arrays (False Positives). Keine echten gefahrlichen Funktionsaufrufe. Kein strcpy, sprintf, gets im Binary."
-  cwe_checker:
-    total_findings: 969
-    cwe787_oob_write: 937
-    cwe125_oob_read: 7
-    cwe476_null_deref: 25
-    cwe676_dangerous_func: 0
-    cwe190_int_overflow: 0
-    cwe415_double_free: 0
-    cwe416_use_after_free: 0
-    cwe134_format_string: 0
-    cwe078_cmd_injection: 0
-    estimated_false_positive_rate: 97
-    notes: "Die 937 CWE787-Meldungen sind abstrakte Interpretationsartefakte von BAP. cwe_checker identifizierte korrekt dieselben Funktionen die manuell analysiert wurden (FvevolQueryVolumeInfo, FveCopyDataToUserBuffer, FvevolIoWorkItemCallback)."
-  gcc_analyzer:
-    compiled: true
-    warnings: 0
-    tests_passed: 21
-    tests_failed: 0
-    flags_used: "-Wall -Wextra -Wpedantic -Wshadow -Wconversion -Werror -Wformat=2 -Wnull-dereference -fanalyzer -O2"
-    notes: "GCC 13.2.0 -fanalyzer fand keine Bugs in der extrahierten Logik. Alle 21 Tests bestanden (Normal-Pfad, Overflow-Pfad, NULL-Input, Truncation). Der -fanalyzer fand einen echten NULL-Deref-Bug im Testcode selbst (vor Ausführung gefixt)."
+    notes: '30 Stack-Array-FPs. Keine echten Hits.'
 
 artifacts:
   - file: "fvevol_audited.sys"
@@ -538,3 +516,6 @@ summary:
   analyzed_function_count: 104
   total_function_count: 1558
   analyzed_functions: "DriverEntry, alle IRP-Handler, IOCTL-Dispatcher, Buffer-Copy-Funktionen, Registry-Pfade, Crypto-Pfade, Work-Item-Callbacks"
+
+
+

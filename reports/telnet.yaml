@@ -56,3 +56,4 @@ summary:
   recommendation: "memcpy->memcpy_s, atoi->strtol_s migrieren. 130 Funktionen manuell auditierbar."
   coverage_percent: 5
 
+

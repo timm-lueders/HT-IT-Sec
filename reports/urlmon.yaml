@@ -5,7 +5,7 @@ meta:
   analyst: opencode + GhidraMCP
   notes: URL Moniker -- Internet Explorer Komponente. 4.796 Funktionen. memcpy+memcpy_s
     gemischt. GetPortFromUrlScheme. DCOM-basiert.. Durch Ghidra geladen.
-  file_size_bytes: 0
+  file_size_bytes: 1908736
   template_version: '1.0'
 binary_info:
   architecture: x64

@@ -1,7 +1,7 @@
 meta:
   binary_name: powershell.exe
   binary_type: user_exe
-  file_size_bytes: 0
+  file_size_bytes: 454656
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: PowerShell -- 444KB. Script-Engine.

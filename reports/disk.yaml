@@ -1,7 +1,7 @@
 meta:
   binary_name: disk.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 148984
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Disk Class Driver -- 146KB.

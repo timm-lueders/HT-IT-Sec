@@ -1,7 +1,7 @@
 meta:
   binary_name: crypt32.dll
   binary_type: user_dll
-  file_size_bytes: 0
+  file_size_bytes: 1538632
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Crypto32 API -- 1.5MB. X.509, SSL/TLS.

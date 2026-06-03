@@ -1,7 +1,7 @@
 meta:
   binary_name: Wdf01000.sys
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 992744
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: Windows Driver Framework -- 970KB.

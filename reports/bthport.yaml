@@ -4,7 +4,7 @@ meta:
   analysis_date: '2026-06-03'
   analyst: opencode + GhidraMCP
   notes: Bluetooth Port -- drahtlose Angriffsflache. BT-Protokoll.. Durch Ghidra geladen.
-  file_size_bytes: 0
+  file_size_bytes: 2338816
   template_version: '1.0'
 binary_info:
   architecture: x64

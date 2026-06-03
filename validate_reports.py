@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 validate_reports.py -- Pruft und repariert alle YAML-Reports.
 Findet: Duplikate, leere Felder, falsche Typen, korrupte Eintrage.
@@ -76,6 +76,21 @@ def fix_empty_fields(report_file):
     
     m = data.setdefault("meta", {})
     if not m.get("file_size_bytes"): m["file_size_bytes"] = 0
+    # Try to get actual file size from disk
+    if m.get("file_size_bytes", 0) == 0:
+        bin_name = m.get("binary_name", "")
+        if bin_name:
+            paths = [
+                Path("C:/Windows/System32/drivers") / bin_name,
+                Path("C:/Windows/System32") / bin_name,
+            ]
+            for p in paths:
+                try:
+                    if p.exists():
+                        m["file_size_bytes"] = p.stat().st_size
+                        break
+                except:
+                    pass
     if not m.get("analysis_date"): m["analysis_date"] = "2026-06-03"
     if not m.get("analyst"): m["analyst"] = "opencode Pipeline"
     if not m.get("template_version"): m["template_version"] = "1.0"
@@ -132,3 +147,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

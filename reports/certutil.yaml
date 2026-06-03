@@ -5,7 +5,7 @@ meta:
   analyst: opencode + GhidraMCP
   notes: Certificate Utility -- X.509/ASN.1-Parsing. Download-Funktion.. Durch Ghidra
     geladen.
-  file_size_bytes: 0
+  file_size_bytes: 1589248
   template_version: '1.0'
 binary_info:
   architecture: x64

@@ -1,7 +1,7 @@
 meta:
   binary_name: USBXHCI.SYS
   binary_type: kernel_driver
-  file_size_bytes: 0
+  file_size_bytes: 787960
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
   notes: USB xHCI Controller -- 770KB.
