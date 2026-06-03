@@ -4,10 +4,10 @@
   file_size_bytes: 1200128
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "WiFi Class Extension -- WLAN-Treiber-Basis"
+  notes: "Ghidra-Schatzt: ~1800 Funktionen (basierend auf DateigroBe). WiFi Class Extension -- WLAN-Treiber-Basis"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 1800
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "WIFICX-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "MEDIUM"
   recommendation: "WiFi Class Extension -- WLAN-Treiber-Basis"
   coverage_percent: 1
+

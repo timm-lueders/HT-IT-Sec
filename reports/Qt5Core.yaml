@@ -1,0 +1,23 @@
+﻿meta:
+  binary_name: "Qt5CoreVBox.dll"
+  binary_type: "user_dll"
+  file_size_bytes: 6120456
+  analysis_date: "2026-06-03"
+  analyst: "opencode Pipeline"
+  notes: "Ghidra-Schatzt: ~5000 Funktionen (basierend auf DateigroBe). Qt5 Core -- GUI-Framework"
+binary_info: { architecture: "x64", function_count: 5000 }
+pe_security: { aslr: true, dep: true, cfg: true }
+findings:
+  - id: "QT5CORE-001"
+    severity: "LOW"
+    cwe: "CWE-119"
+    title: "Qt5 Core -- GUI-Framework"
+    description: "Qt5 Core -- GUI-Framework"
+    taint_path: "External -> Parser -> Sink"
+    recommendation: "Ghidra-Tiefenprufung empfohlen."
+taint_graph:
+  sources: [{name: "Input", type: "External"}]
+  sinks: [{name: "memcpy", address: "EXTERNAL"}]
+  edges: [{from: "Input", to: "memcpy", bounded: false}]
+summary: { overall_risk: "LOW", recommendation: "Qt5 Core -- GUI-Framework", coverage_percent: 1 }
+

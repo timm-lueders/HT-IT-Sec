@@ -4,10 +4,10 @@
   file_size_bytes: 690640
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "Intel Power Engine Plugin"
+  notes: "Ghidra-Schatzt: ~900 Funktionen (basierend auf DateigroBe). Intel Power Engine Plugin"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 900
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "INTELPEP-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "LOW"
   recommendation: "Intel Power Engine Plugin"
   coverage_percent: 1
+

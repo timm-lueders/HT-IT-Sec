@@ -21,8 +21,9 @@ tools_output:
   cwe_checker:
     total_findings: 3216
     cwe787_oob_write: 2826
-    cwe676_dangerous_func: 0
+    cwe125_oob_read: 34
     cwe476_null_deref: 356
+    cwe676_dangerous_func: 0
     notes: 'cwe_checker: 3216 Findings.'
 findings:
   - id: "TCPIP-001"

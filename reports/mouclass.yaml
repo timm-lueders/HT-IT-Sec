@@ -4,10 +4,10 @@
   file_size_bytes: 95552
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "Mouse Class Driver"
+  notes: "Ghidra-Schatzt: ~250 Funktionen (basierend auf DateigroBe). Mouse Class Driver"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 250
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "MOUCLASS-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "LOW"
   recommendation: "Mouse Class Driver"
   coverage_percent: 1
+

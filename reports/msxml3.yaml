@@ -19,6 +19,8 @@ tools_output:
   cwe_checker:
     total_findings: 3138
     cwe787_oob_write: 2818
+    cwe125_oob_read: 13
+    cwe476_null_deref: 66
     cwe676_dangerous_func: 241
     notes: 'cwe_checker: 3138 Findings.'
 findings:

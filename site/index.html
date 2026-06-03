@@ -144,7 +144,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
 </style>
 </head><body>
 <header><h1>Binary Security Audit Pipeline<span class="cursor"></span></h1>
-<nav><span class="stats">67 Binaries analysiert</span></nav></header>
+<nav><span class="stats">75 Binaries analysiert</span></nav></header>
 <aside></aside>
 <main>
 <div class="card"><h3>Übersicht</h3>
@@ -341,9 +341,21 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
         <td style="font-family:monospace">x64</td>
         <td><span class="badge sev-HIGH">HIGH</span></td>
         <td>C:0 H:1 M:1 L:0</td>
-        <td style="font-size:0.8rem;color:#888">2026-06-02</td></tr><tr class="binary-row" onclick="location.href='netio.html'">
+        <td style="font-size:0.8rem;color:#888">2026-06-02</td></tr><tr class="binary-row" onclick="location.href='netdhcp.html'">
+        <td><a href="netdhcp.html">VBoxNetDHCP.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
+        <td>C:0 H:0 M:1 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='netio.html'">
         <td><a href="netio.html">netio.sys</a></td>
         <td>kernel_driver</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
+        <td>C:0 H:0 M:1 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='netnat.html'">
+        <td><a href="netnat.html">VBoxNetNAT.dll</a></td>
+        <td>user_dll</td>
         <td style="font-family:monospace">x64</td>
         <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
         <td>C:0 H:0 M:1 L:0</td>
@@ -377,6 +389,24 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
         <td style="font-family:monospace">x64</td>
         <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
         <td>C:0 H:0 M:1 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='proxystub.html'">
+        <td><a href="proxystub.html">VBoxProxyStub.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
+        <td>C:0 H:0 M:1 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='python310.html'">
+        <td><a href="python310.html">python310.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
+        <td>C:0 H:0 M:1 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='Qt5Core.html'">
+        <td><a href="Qt5Core.html">Qt5CoreVBox.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-LOW">LOW</span></td>
+        <td>C:0 H:0 M:0 L:1</td>
         <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='rdbss.html'">
         <td><a href="rdbss.html">rdbss.sys</a></td>
         <td>kernel_driver</td>
@@ -473,13 +503,31 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
         <td style="font-family:monospace">x64</td>
         <td><span class="badge sev-LOW">LOW</span></td>
         <td>C:0 H:0 M:0 L:1</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='VBoxDD.html'">
+        <td><a href="VBoxDD.html">VBoxDD.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-HIGH">HIGH</span></td>
+        <td>C:0 H:1 M:0 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='VBoxRT.html'">
+        <td><a href="VBoxRT.html">VBoxRT.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
+        <td>C:0 H:0 M:1 L:0</td>
         <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='VBoxSup.html'">
         <td><a href="VBoxSup.html">VBoxSup.sys</a></td>
         <td>kernel_driver</td>
         <td style="font-family:monospace">x64</td>
         <td><span class="badge sev-MEDIUM">MEDIUM</span></td>
         <td>C:0 H:0 M:1 L:1</td>
-        <td style="font-size:0.8rem;color:#888">2026-06-02</td></tr><tr class="binary-row" onclick="location.href='vfpext.html'">
+        <td style="font-size:0.8rem;color:#888">2026-06-02</td></tr><tr class="binary-row" onclick="location.href='VBoxVMM.html'">
+        <td><a href="VBoxVMM.html">VBoxVMM.dll</a></td>
+        <td>user_dll</td>
+        <td style="font-family:monospace">x64</td>
+        <td><span class="badge sev-HIGH">HIGH</span></td>
+        <td>C:0 H:1 M:0 L:0</td>
+        <td style="font-size:0.8rem;color:#888">2026-06-03</td></tr><tr class="binary-row" onclick="location.href='vfpext.html'">
         <td><a href="vfpext.html">vfpext.sys</a></td>
         <td>kernel_driver</td>
         <td style="font-family:monospace">x64</td>
@@ -553,5 +601,5 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
         <td>C:0 H:1 M:1 L:0</td>
         <td style="font-size:0.8rem;color:#888">2026-06-02</td></tr></table></div>
 </main><aside></aside>
-<footer>Pipeline v1.0 -- 2026-06-03 14:33 -- <span class="cursor"></span></footer>
+<footer>Pipeline v1.0 -- 2026-06-03 16:10 -- <span class="cursor"></span></footer>
 </body></html>

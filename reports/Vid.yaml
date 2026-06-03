@@ -4,10 +4,10 @@
   file_size_bytes: 910832
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "Virtualization Infrastructure Driver"
+  notes: "Ghidra-Schatzt: ~1200 Funktionen (basierend auf DateigroBe). Virtualization Infrastructure Driver"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 1200
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "VID-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "MEDIUM"
   recommendation: "Virtualization Infrastructure Driver"
   coverage_percent: 1
+

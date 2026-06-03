@@ -4,10 +4,10 @@
   file_size_bytes: 1671168
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "Volume Filter Extension"
+  notes: "Ghidra-Schatzt: ~2500 Funktionen (basierend auf DateigroBe). Volume Filter Extension"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 2500
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "VFPEXT-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "MEDIUM"
   recommendation: "Volume Filter Extension"
   coverage_percent: 1
+

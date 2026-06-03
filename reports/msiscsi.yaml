@@ -4,10 +4,10 @@
   file_size_bytes: 333240
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "iSCSI Initiator"
+  notes: "Ghidra-Schatzt: ~600 Funktionen (basierend auf DateigroBe). iSCSI Initiator"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 600
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "MSISCSI-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "MEDIUM"
   recommendation: "iSCSI Initiator"
   coverage_percent: 1
+

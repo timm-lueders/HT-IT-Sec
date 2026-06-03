@@ -4,10 +4,10 @@
   file_size_bytes: 3532240
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "ReFS File System Driver -- NTFS-Nachfolger"
+  notes: "Ghidra-Schatzt: ~5500 Funktionen (basierend auf DateigroBe). ReFS File System Driver -- NTFS-Nachfolger"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 5500
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "REFS-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "HIGH"
   recommendation: "ReFS File System Driver -- NTFS-Nachfolger"
   coverage_percent: 1
+

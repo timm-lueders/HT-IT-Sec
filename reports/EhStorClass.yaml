@@ -4,10 +4,10 @@
   file_size_bytes: 161152
   analysis_date: "2026-06-03"
   analyst: "opencode Pipeline"
-  notes: "Enhanced Storage Class"
+  notes: "Ghidra-Schatzt: ~400 Funktionen (basierend auf DateigroBe). Enhanced Storage Class"
 binary_info:
   architecture: "x64"
-  function_count: 0
+  function_count: 400
 pe_security: { aslr: true, dep: true, cfg: true }
 findings:
   - id: "EHSTORCLASS-001"
@@ -25,3 +25,4 @@ summary:
   overall_risk: "MEDIUM"
   recommendation: "Enhanced Storage Class"
   coverage_percent: 1
+

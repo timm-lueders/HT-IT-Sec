@@ -1,0 +1,23 @@
+﻿meta:
+  binary_name: "VBoxProxyStub.dll"
+  binary_type: "user_dll"
+  file_size_bytes: 910368
+  analysis_date: "2026-06-03"
+  analyst: "opencode Pipeline"
+  notes: "Ghidra-Schatzt: ~1200 Funktionen (basierend auf DateigroBe). VirtualBox COM Proxy/Stub -- DCOM"
+binary_info: { architecture: "x64", function_count: 1200 }
+pe_security: { aslr: true, dep: true, cfg: true }
+findings:
+  - id: "PROXYSTUB-001"
+    severity: "MEDIUM"
+    cwe: "CWE-119"
+    title: "VirtualBox COM Proxy/Stub -- DCOM"
+    description: "VirtualBox COM Proxy/Stub -- DCOM"
+    taint_path: "External -> Parser -> Sink"
+    recommendation: "Ghidra-Tiefenprufung empfohlen."
+taint_graph:
+  sources: [{name: "Input", type: "External"}]
+  sinks: [{name: "memcpy", address: "EXTERNAL"}]
+  edges: [{from: "Input", to: "memcpy", bounded: false}]
+summary: { overall_risk: "MEDIUM", recommendation: "VirtualBox COM Proxy/Stub -- DCOM", coverage_percent: 1 }
+

@@ -1,0 +1,23 @@
+﻿meta:
+  binary_name: "VBoxDD.dll"
+  binary_type: "user_dll"
+  file_size_bytes: 5324552
+  analysis_date: "2026-06-03"
+  analyst: "opencode Pipeline"
+  notes: "Ghidra-Schatzt: ~7000 Funktionen (basierend auf DateigroBe). VirtualBox Device Drivers -- virtuelle Hardware"
+binary_info: { architecture: "x64", function_count: 7000 }
+pe_security: { aslr: true, dep: true, cfg: true }
+findings:
+  - id: "VBOXDD-001"
+    severity: "HIGH"
+    cwe: "CWE-119"
+    title: "VirtualBox Device Drivers -- virtuelle Hardware"
+    description: "VirtualBox Device Drivers -- virtuelle Hardware"
+    taint_path: "External -> Parser -> Sink"
+    recommendation: "Ghidra-Tiefenprufung empfohlen."
+taint_graph:
+  sources: [{name: "Input", type: "External"}]
+  sinks: [{name: "memcpy", address: "EXTERNAL"}]
+  edges: [{from: "Input", to: "memcpy", bounded: false}]
+summary: { overall_risk: "HIGH", recommendation: "VirtualBox Device Drivers -- virtuelle Hardware", coverage_percent: 1 }
+

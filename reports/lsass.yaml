@@ -18,7 +18,11 @@ import_risk_map:
 tools_output:
   cwe_checker:
     total_findings: 44
-    notes: 'Docker cwe_checker: 44 Findings.'
+    cwe787_oob_write: 29
+    cwe125_oob_read: 0
+    cwe476_null_deref: 0
+    cwe676_dangerous_func: 15
+    notes: 'cwe_checker: 44 Findings.'
 findings:
   - id: "LSA-001"
     severity: "HIGH"
