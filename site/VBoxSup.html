@@ -150,39 +150,93 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid4">
     <div><b>Typ:</b> kernel_driver</div>
     <div><b>Arch:</b> x64</div>
-    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
-    <div><b>Größe:</b> 1,062,080 bytes</div>
+    <div><b>Entry:</b> <span style="font-family:monospace">0x140019190 (DriverEntry)</span></div>
+    <div><b>Größe:</b> 1,201,940 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 0</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> DeviceIoControl</td><td>IOCTL-Dispatch -- Hauptangriffsflache fur Treiber</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping fur Shared Folders</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> IoAllocateMdl/IoFreeMdl</td><td>MDL-Management</td><td>N/A</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
+    <div><b>Funktionen:</b> 1863</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv. High-Entropy fur Kernel-Treiber irrelevant.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei MDL-Manipulation</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmProbeAndLockPages</td><td>User-Mode-Puffer in Kernel locken -- braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages</td><td>MDL-Mapping -- Zugriff auf User-Puffer im Kernel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ZwCreateFile/ZwReadFile/ZwQueryDirectoryFile</td><td>File-System-Zugriff aus Kernel -- Pfad-Traversal moglich</td><td>CWE-22</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ObReferenceObjectByHandle</td><td>Handle-Validierung -- muss vor Zugriff erfolgen</td><td>CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForRead</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForWrite</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExGetPreviousMode</td><td>User/Kernel-Mode-Check (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SeCaptureSubjectContext</td><td>Security-Token-Prufung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ASM* (asm helpers)</td><td>Kritische Sektionen, atomare Operationen, CPUID</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    <div class="grid2">
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>User-Mode IOCTL (via DeviceIoControl)</td><td>Kernel Entry -- METHOD_NEITHER/BUFFERED</td></tr><tr><td>Source</td><td>Netzwerk-Pakete (Bridged/NAT)</td><td>Remote Input -- IPv4/TCP/UDP</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>RTR0MemUserCopyFrom/To</td><td>0x14002ac00</td></tr><tr><td>Sink</td><td>MmMapLockedPages</td><td>EXTERNAL</td></tr><tr><td>Sink</td><td>ZwCreateFile/ZwReadFile</td><td>EXTERNAL</td></tr></table></div>
+    </div>
+    <div class="mermaid" style="margin-top:15px">
+graph LR
+    User_Mode_IOCTL["User-Mode IOCTL"] -->|"BOUNDED"| RTR0MemUserCopyFrom_To["RTR0MemUserCopyFrom/To"]
+    User_Mode_IOCTL["User-Mode IOCTL"] -->|"BOUNDED"| MmMapLockedPages["MmMapLockedPages"]
+    Netzwerk_Pakete["Netzwerk-Pakete"] -->|"UNCHECKED"| MmMapLockedPages["MmMapLockedPages"]
+</div>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>BOUNDED</td><td>User-Mode IOCTL</td><td>RTR0MemUserCopyFrom/To</td><td>ProbeForRead/Write + ExGetPreviousMode</td></tr><tr><td>BOUNDED</td><td>User-Mode IOCTL</td><td>MmMapLockedPages</td><td>IoBuildPartialMdl + ProbeForRead</td></tr><tr><td>UNCHECKED</td><td>Netzwerk-Pakete</td><td>MmMapLockedPages</td><td>Nicht verifiziert</td></tr></table>
+    </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
-    </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-119: DeviceIoControl-Handler -- Drittanbieter-IOCTL</b>
-        <p style="margin-top:6px;font-size:0.9rem">VBoxSup.sys verarbeitet IOCTLs von User-Mode VirtualBox-Prozessen. Fehlende oder unzureichende Puffer-Validierung kann zu Kernel-Overflows fuhren.</p>
-        <div class="finding-info">Funktion: N/A @ N/A<br>
+    </table></div><div class="card"><h3>Findings (4)</h3><div class="finding finding-MEDIUM">
+        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-367: IoBuildPartialMdl in IOCTL-Pfad</b>
+        <p style="margin-top:6px;font-size:0.9rem">VBoxSup.sys importiert IoBuildPartialMdl -- klassisches Double-Fetch-
+Risiko. Zwischen dem ProbeForWrite-Check und der tatsachlichen MDL-
+Verarbeitung kann ein paralleler Thread den User-Mode-Puffer andern.
+VirtualBox implementiert jedoch ProbeForRead+ProbeForWrite sowie
+ExGetPreviousMode was das Risiko reduziert.
+</p>
+        <div class="finding-info">Funktion: SUPR0IoCtlPerform @ 0x140019700<br>
+        Taint-Path: User IOCTL -> ProbeForWrite -> IoBuildPartialMdl -> Kernel Access<br>
+        Empfehlung: Auf MmProbeAndLockPages + MmMapLockedPagesSpecifyCache migrieren.</div></div><div class="finding finding-LOW">
+        <span class="badge sev-LOW">LOW</span> <b>CWE-22: Dateisystem-Zugriff aus Kernel-Treiber</b>
+        <p style="margin-top:6px;font-size:0.9rem">VBoxSup.sys kann Dateien uber ZwCreateFile/ZwReadFile offnen (Modul-
+Loader). Ein bosartiger Pfad konnte zum Lesen beliebiger Kernel-
+Dateien fuhren. Pfad-Validierung ist kritisch.
+</p>
+        <div class="finding-info">Funktion: SUPR0LdrModByName + ZwCreateFile @ 0x1400032d0<br>
+        Taint-Path: User IOCTL -> Pfad -> ZwCreateFile -> ZwReadFile<br>
+        Empfehlung: Pfad-Validierung gegen RTL_FILE_ROOT sicherstellen.</div></div><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>N/A: Vorbildliche Sicherheitspraktiken identifiziert</b>
+        <p style="margin-top:6px;font-size:0.9rem">VBoxSup.sys implementiert mehrere Sicherheitspraktiken die in
+Drittanbieter-Treibern selten sind:
+- ProbeForRead + ProbeForWrite vor User-Buffer-Zugriff
+- ExGetPreviousMode zur Unterscheidung User/Kernel-Caller
+- SeCaptureSubjectContext fur Access-Checks
+- RTR0MemUserCopyFrom/To fur sichere User-Mem-Kopien
+- ObReferenceObjectByHandle fur Handle-Validierung
+Dies deutet auf ein reifes Security-Development-Lifecycle hin.
+</p>
+        <div class="finding-info">Funktion: Global @ N/A<br>
         Taint-Path: -<br>
-        Empfehlung: Alle IOCTL-Pfade auf ProbeForRead/ProbeForWrite und Bounds-Checks prufen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Empfehlung: Best Practices beibehalten. IoBuildPartialMdl ersetzen.</div></div><div class="finding finding-INFO">
+        <span class="badge sev-INFO">INFO</span> <b>N/A: Netzwerk-Paket-Parsing im Kernel (RTNetIPv4*)</b>
+        <p style="margin-top:6px;font-size:0.9rem">VBoxSup.sys enthalt Netzwerk-Paket-Parsing-Funktionen fur IPv4,
+TCP und UDP. Diese werden fur VirtualBox-Netzwerk-Bridging und
+NAT verwendet. Fehler im Paket-Parsing sind eine Remote-Kernel-
+Angriffsflache (CWE-120).
+</p>
+        <div class="finding-info">Funktion: RTNetIPv4* (14 Exports) @ 0x140031bd0+<br>
+        Taint-Path: Netzwerk-Paket -> RTNetIPv4IsHdrValid -> TCP/UDP-Validierung<br>
+        Empfehlung: Netzwerk-Paket-Parser auf Langenvalidierung prufen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
-    <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
+    <div><b>Risiko:</b> <span class="badge sev-MEDIUM">MEDIUM</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 0</div>
-    <div><b>Coverage:</b> 0%</div>
-    <div><b>Analyst:</b> opencode Pipeline</div>
-    <div><b>Dauer:</b> 5 min</div>
+    <div><b>Funktionen:</b> 1863</div>
+    <div><b>Coverage:</b> 8%</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Dauer:</b> 20 min</div>
     </div>
     <hr>
     <div class="grid4">
     <div>CRITICAL<br><span class="count">0</span></div>
-    <div>HIGH<br><span class="count">1</span></div>
-    <div>MEDIUM<br><span class="count">0</span></div>
-    <div>LOW<br><span class="count">0</span></div>
+    <div>HIGH<br><span class="count">0</span></div>
+    <div>MEDIUM<br><span class="count">1</span></div>
+    <div>LOW<br><span class="count">1</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:0%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">Drittanbieter-Kernel-Treiber -- erhobtes Risiko. Tiefenprufung aller IOCTL-Handler empfohlen.</p></div></main>
+    <div class="progress-bar risk-MEDIUM"><div class="progress-fill" style="width:8%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">VirtualBox Supervisor -- uberdurchschnittlich gut abgesichert fur
+einen Drittanbieter-Kernel-Treiber. ProbeForRead/Write, ExGetPreviousMode
+und SeCaptureSubjectContext sind vorhanden. Hauptkritikpunkte:
+- IoBuildPartialMdl durch MmProbeAndLockPages ersetzen
+- Netzwerk-Paket-Parser auf Bounds-Checks prufen
+- Dateisystem-Pfade validieren
+Insgesamt: Professioneller Treiber mit Security-Awareness.
+</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:19 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:49 -- <span class="cursor"></span></footer>
 </body></html>
