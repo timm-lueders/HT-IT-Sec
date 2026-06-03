@@ -93,42 +93,36 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl Input
-    type: IOCTL (METHOD_NEITHER)
-    irp_field: Irp->UserBuffer @ 0x70
-  - id: mdl_read
-    name: IRP_MJ_READ MdlAddress
+    name: DeviceIoControl
+    type: IOCTL
+    irp: Irp->UserBuffer @0x70
+  - id: read
+    name: IRP_MJ_READ
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
-  - id: mdl_write
-    name: IRP_MJ_WRITE MdlAddress
+    irp: Irp->MdlAddress @0x10
+  - id: write
+    name: IRP_MJ_WRITE
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
+    irp: Irp->MdlAddress @0x10
   validators:
   - id: pm
     name: ExGetPreviousMode
     type: Mode Check
-    note: Prüft ob Caller User oder Kernel Mode
   sinks:
-  - id: mdl
-    name: MmMapLockedPages
-    type: MDL Mapping
-    address: EXTERNAL
+  - id: md
+    name: MDL-Mapping
+    addr: EXTERNAL
     risk: CWE-119
   edges:
   - from: ioctl
     to: pm
-    label: Mode Check
+    label: Data Flow
     status: BOUNDED
-  - from: pm
-    to: mdl
-    label: MDL Mapping
-    status: CONDITIONAL
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
-    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
-    \ MdlAddress\"]\n  end\n  subgraph \"Validation Layer\"\n    pm{{ExGetPreviousMode}}\n\
-    \  end\n  subgraph \"Data Sinks\"\n    mdl[\"MmMapLockedPages\"]\n  end\n    ioctl\
-    \ -->|\"Mode Check\"| pm\n    pm -.->|\"MDL Mapping\"| mdl\n    style mdl fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
+    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
+    Validierung\"\n    pm{{ExGetPreviousMode}}\n  end\n  subgraph \"Sinks\"\n    md[\"\
+    MDL-Mapping\"]\n  end\n    ioctl -->|\"Mode Check\"| pm\n    pm ==>|\"EXTERNAL\"\
+    | md\n    style md fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   critical_findings: 0

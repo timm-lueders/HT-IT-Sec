@@ -173,78 +173,51 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl Input
-    type: IOCTL (METHOD_NEITHER)
-    irp_field: Irp->UserBuffer @ 0x70
-  - id: mdl_read
-    name: IRP_MJ_READ MdlAddress
+    name: DeviceIoControl
+    type: IOCTL
+    irp: Irp->UserBuffer @0x70
+  - id: read
+    name: IRP_MJ_READ
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
-  - id: mdl_write
-    name: IRP_MJ_WRITE MdlAddress
+    irp: Irp->MdlAddress @0x10
+  - id: write
+    name: IRP_MJ_WRITE
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
+    irp: Irp->MdlAddress @0x10
   validators:
-  - id: pr
-    name: ProbeForRead
-    type: Buffer Probe
-    note: Validiert User-Buffer vor Lesezugriff
   - id: pw
     name: ProbeForWrite
     type: Buffer Probe
-    note: Validiert User-Buffer vor Schreibzugriff
+  - id: pr
+    name: ProbeForRead
+    type: Buffer Probe
   - id: pm
     name: ExGetPreviousMode
     type: Mode Check
-    note: Prüft ob Caller User oder Kernel Mode
-  - id: sec
+  - id: sc
     name: SeCaptureSubjectContext
-    type: Security Check
-    note: Prüft Security-Token des Callers
+    type: Security
   sinks:
-  - id: read
-    name: ZwReadFile/ReadFile
-    type: Disk I/O Read
-    address: EXTERNAL
-  - id: mdl
-    name: MmMapLockedPages
-    type: MDL Mapping
-    address: EXTERNAL
+  - id: zr
+    name: ZwReadFile
+    addr: EXTERNAL
+  - id: md
+    name: MDL-Mapping
+    addr: EXTERNAL
     risk: CWE-119
   edges:
   - from: ioctl
-    to: pr
-    label: Buffer Probe
-    status: BOUNDED
-  - from: pr
     to: pw
-    label: Buffer Probe
+    label: Data Flow
     status: BOUNDED
-  - from: pw
-    to: pm
-    label: Mode Check
-    status: BOUNDED
-  - from: pm
-    to: sec
-    label: Security Check
-    status: BOUNDED
-  - from: sec
-    to: read
-    label: Disk I/O Read
-    status: BOUNDED
-  - from: sec
-    to: mdl
-    label: MDL Mapping
-    status: CONDITIONAL
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
-    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
-    \ MdlAddress\"]\n  end\n  subgraph \"Validation Layer\"\n    pr{{ProbeForRead}}\n\
-    \    pw{{ProbeForWrite}}\n    pm{{ExGetPreviousMode}}\n    sec{{SeCaptureSubjectContext}}\n\
-    \  end\n  subgraph \"Data Sinks\"\n    read[\"ZwReadFile/ReadFile\"]\n    mdl[\"\
-    MmMapLockedPages\"]\n  end\n    ioctl -->|\"Buffer Probe\"| pr\n    pr -->|\"\
-    Buffer Probe\"| pw\n    pw -->|\"Mode Check\"| pm\n    pm -->|\"Security Check\"\
-    | sec\n    sec -->|\"Disk I/O Read\"| read\n    sec -.->|\"MDL Mapping\"| mdl\n\
-    \    style mdl fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
+    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
+    Validierung\"\n    pw{{ProbeForWrite}}\n    pr{{ProbeForRead}}\n    pm{{ExGetPreviousMode}}\n\
+    \    sc{{SeCaptureSubjectContext}}\n  end\n  subgraph \"Sinks\"\n    zr[\"ZwReadFile\"\
+    ]\n    md[\"MDL-Mapping\"]\n  end\n    ioctl -->|\"Buffer Probe\"| pw\n    ioctl\
+    \ -->|\"Buffer Probe\"| pr\n    ioctl -->|\"Mode Check\"| pm\n    ioctl -->|\"\
+    Security\"| sc\n    sc -->|\"EXTERNAL\"| zr\n    sc ==>|\"EXTERNAL\"| md\n   \
+    \ style md fill:#ff8c00,stroke:#333"
 tools_output:
   flawfinder:
     notes: Nicht auf VBoxSup.sys angewendet (kein Decompiler-Export)

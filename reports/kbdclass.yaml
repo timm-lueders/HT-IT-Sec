@@ -24,40 +24,34 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl Input
-    type: IOCTL (METHOD_NEITHER)
-    irp_field: Irp->UserBuffer @ 0x70
-  - id: mdl_read
-    name: IRP_MJ_READ MdlAddress
+    name: DeviceIoControl
+    type: IOCTL
+    irp: Irp->UserBuffer @0x70
+  - id: read
+    name: IRP_MJ_READ
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
-  - id: mdl_write
-    name: IRP_MJ_WRITE MdlAddress
+    irp: Irp->MdlAddress @0x10
+  - id: write
+    name: IRP_MJ_WRITE
     type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
+    irp: Irp->MdlAddress @0x10
   validators:
-  - id: unknown
+  - id: v0
     name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+    type: '?'
   sinks:
-  - id: unknown
-    name: Unbekannte Sinks
-    type: Unknown
-    note: Keine spezifischen Sinks via Import-Analyse identifiziert
+  - id: s0
+    name: Unbekannt
+    addr: '?'
   edges:
   - from: ioctl
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: unknown
-    label: Unknown
+    to: v0
+    label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
-    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
-    \ MdlAddress\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"Unbekannte Sinks\"\
-    ]\n  end\n    ioctl ==>|\"Unknown\"| unknown\n    unknown -->|\"Unknown\"| unknown"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
+    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
+    Sinks\"\n    s0[\"Unbekannt\"]\n  end\n    ioctl -->|\"?\"| v0\n    v0 -->|\"\
+    ?\"| s0"
 summary:
   overall_risk: LOW
   recommendation: Keyboard Class Driver

@@ -66,48 +66,35 @@ findings:
   recommendation: Alle memcpy-Aufrufe auf _o_memcpy_s migrieren.
 taint_graph:
   sources:
-  - id: cmdline
-    name: GetCommandLineW()
-    type: Process Args
-    function: main
-  - id: console
-    name: ReadConsoleW()
-    type: Console Input
-    function: main
+  - id: cmd
+    name: GetCommandLineW
+    type: Args
+  - id: con
+    name: ReadConsoleW
+    type: Input
   validators:
-  - id: unknown
+  - id: v0
     name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+    type: '?'
   sinks:
-  - id: memcpy
+  - id: mc
     name: memcpy
-    type: Memory Copy
-    address: EXTERNAL
+    addr: EXTERNAL
     risk: CWE-119
-  - id: dll
-    name: LoadLibraryExW
-    type: DLL Loading
-    address: EXTERNAL
+  - id: ll
+    name: LoadLibrary
+    addr: EXTERNAL
     risk: CWE-426
   edges:
-  - from: cmdline
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: memcpy
-    label: Memory Copy
-    status: CONDITIONAL
-  - from: unknown
-    to: dll
-    label: DLL Loading
-    status: CONDITIONAL
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
-    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"\
-    memcpy\"]\n    dll[\"LoadLibraryExW\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n\
-    \    unknown -.->|\"Memory Copy\"| memcpy\n    unknown -.->|\"DLL Loading\"| dll\n\
-    \    style memcpy fill:#ff8c00,stroke:#333\n    style dll fill:#ff8c00,stroke:#333"
+  - from: cmd
+    to: v0
+    label: Data Flow
+    status: BOUNDED
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
+    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    mc[\"memcpy\"]\n\
+    \    ll[\"LoadLibrary\"]\n  end\n    cmd -->|\"?\"| v0\n    v0 ==>|\"EXTERNAL\"\
+    | mc\n    v0 ==>|\"EXTERNAL\"| ll\n    style mc fill:#ff8c00,stroke:#333\n   \
+    \ style ll fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   high_findings: 1

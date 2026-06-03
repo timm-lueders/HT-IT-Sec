@@ -22,37 +22,28 @@ findings:
   recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
 taint_graph:
   sources:
-  - id: cmdline
-    name: GetCommandLineW()
-    type: Process Args
-    function: main
-  - id: console
-    name: ReadConsoleW()
-    type: Console Input
-    function: main
+  - id: cmd
+    name: GetCommandLineW
+    type: Args
+  - id: con
+    name: ReadConsoleW
+    type: Input
   validators:
-  - id: unknown
+  - id: v0
     name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+    type: '?'
   sinks:
-  - id: unknown
-    name: Unbekannte Sinks
-    type: Unknown
-    note: Keine spezifischen Sinks via Import-Analyse identifiziert
+  - id: s0
+    name: Unbekannt
+    addr: '?'
   edges:
-  - from: cmdline
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: unknown
-    label: Unknown
+  - from: cmd
+    to: v0
+    label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
-    ]\n    console[\"ReadConsoleW()\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"\
-    Unbekannte Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown\
-    \ -->|\"Unknown\"| unknown"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
+    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    s0[\"Unbekannt\"\
+    ]\n  end\n    cmd -->|\"?\"| v0\n    v0 -->|\"?\"| s0"
 summary:
   overall_risk: MEDIUM
   recommendation: DirectX MMS. GPU-Kernel-MM.

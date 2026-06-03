@@ -43,56 +43,36 @@ findings:
   recommendation: Entity-Expansion-Limits. XXE-Protection aktivieren.
 taint_graph:
   sources:
-  - id: cmdline
-    name: GetCommandLineW()
-    type: Process Args
-    function: main
-  - id: console
-    name: ReadConsoleW()
-    type: Console Input
-    function: main
+  - id: cmd
+    name: GetCommandLineW
+    type: Args
+  - id: con
+    name: ReadConsoleW
+    type: Input
   - id: com
-    name: COM/DCOM Activation
-    type: RPC/COM Input
-    function: DllGetClassObject
-  - id: exports
-    name: Exported API Calls
-    type: Function Parameters
-    function: Various Exports
+    name: COM/DCOM
+    type: RPC
   validators:
-  - id: unknown
+  - id: v0
     name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+    type: '?'
   sinks:
-  - id: memcpy
+  - id: mc
     name: memcpy
-    type: Memory Copy
-    address: EXTERNAL
+    addr: EXTERNAL
     risk: CWE-119
-  - id: crypto
-    name: BCryptEncrypt/Decrypt
-    type: Crypto Engine
-    address: EXTERNAL
+  - id: bc
+    name: BCryptEncrypt
+    addr: EXTERNAL
   edges:
-  - from: cmdline
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: memcpy
-    label: Memory Copy
-    status: CONDITIONAL
-  - from: unknown
-    to: crypto
-    label: Crypto Engine
+  - from: cmd
+    to: v0
+    label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
-    ]\n    console[\"ReadConsoleW()\"]\n    com[\"COM/DCOM Activation\"]\n    exports[\"\
-    Exported API Calls\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"memcpy\"\
-    ]\n    crypto[\"BCryptEncrypt/Decrypt\"]\n  end\n    cmdline ==>|\"Unknown\"|\
-    \ unknown\n    unknown -.->|\"Memory Copy\"| memcpy\n    unknown -->|\"Crypto\
-    \ Engine\"| crypto\n    style memcpy fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
+    ]\n    con[\"ReadConsoleW\"]\n    com[\"COM/DCOM\"]\n  end\n  subgraph \"Sinks\"\
+    \n    mc[\"memcpy\"]\n    bc[\"BCryptEncrypt\"]\n  end\n    cmd -->|\"?\"| v0\n\
+    \    v0 ==>|\"EXTERNAL\"| mc\n    v0 -->|\"EXTERNAL\"| bc\n    style mc fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: HIGH
   high_findings: 1

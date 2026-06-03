@@ -65,50 +65,38 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl Input
-    type: IOCTL (METHOD_NEITHER)
-    irp_field: Irp->UserBuffer @ 0x70
-  - id: mdl_read
-    name: IRP_MJ_READ MdlAddress
-    type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
-  - id: mdl_write
-    name: IRP_MJ_WRITE MdlAddress
-    type: DIRECT_IO
-    irp_field: Irp->MdlAddress @ 0x10
-  validators:
-  - id: unknown
-    name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
-  sinks:
-  - id: memcpy
-    name: memcpy_s
-    type: Memory Copy
-    address: EXTERNAL
-    risk: N/A
+    name: DeviceIoControl
+    type: IOCTL
+    irp: Irp->UserBuffer @0x70
   - id: read
-    name: ZwReadFile/ReadFile
-    type: Disk I/O Read
-    address: EXTERNAL
+    name: IRP_MJ_READ
+    type: DIRECT_IO
+    irp: Irp->MdlAddress @0x10
+  - id: write
+    name: IRP_MJ_WRITE
+    type: DIRECT_IO
+    irp: Irp->MdlAddress @0x10
+  validators:
+  - id: v0
+    name: Unbekannte Validierung
+    type: '?'
+  sinks:
+  - id: mc
+    name: memcpy
+    addr: EXTERNAL
+    risk: CWE-119
+  - id: zr
+    name: ZwReadFile
+    addr: EXTERNAL
   edges:
   - from: ioctl
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: memcpy
-    label: Memory Copy
+    to: v0
+    label: Data Flow
     status: BOUNDED
-  - from: unknown
-    to: read
-    label: Disk I/O Read
-    status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    ioctl[\"DeviceIoControl\
-    \ Input\"]\n    mdl_read[\"IRP_MJ_READ MdlAddress\"]\n    mdl_write[\"IRP_MJ_WRITE\
-    \ MdlAddress\"]\n  end\n  subgraph \"Data Sinks\"\n    memcpy[\"memcpy_s\"]\n\
-    \    read[\"ZwReadFile/ReadFile\"]\n  end\n    ioctl ==>|\"Unknown\"| unknown\n\
-    \    unknown -->|\"Memory Copy\"| memcpy\n    unknown -->|\"Disk I/O Read\"| read"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
+    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
+    Sinks\"\n    mc[\"memcpy\"]\n    zr[\"ZwReadFile\"]\n  end\n    ioctl -->|\"?\"\
+    | v0\n    v0 ==>|\"EXTERNAL\"| mc\n    v0 -->|\"EXTERNAL\"| zr\n    style mc fill:#ff8c00,stroke:#333"
 summary:
   overall_risk: LOW
   high_findings: 0

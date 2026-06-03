@@ -156,40 +156,28 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Funktionen:</b> 1133</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ExpandEnvironmentStringsW</td><td>Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion</td><td>CWE-120</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessW</td><td>Prozess-Erstellung -- Command Injection bei ungeprüftem Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessAsUserW</td><td>Prozess-Erstellung mit User-Kontext -- same risk</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ShellExecuteWorker</td><td>Shell-Ausführung -- hochstes Risiko bei User-Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memmove</td><td>Puffer-Sink, braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memset</td><td>Puffer-Initialisierung -- sicher bei fester Größe</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> GetFullPathNameW</td><td>Pfad-Expansion -- kann Puffer überlaufen</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SearchPathW</td><td>DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-LOW">LOW</span> HeapAlloc/HeapReAlloc/HeapFree</td><td>Heap-Operationen -- Double-Free/Use-After-Free möglich</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlDosPathNameToNtPathName_U</td><td>Pfad-Konvertierung -- braucht validierten Input</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf_s</td><td>Safe Format-String (mit _s-Suffix = Längenbegrenzung)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf</td><td>Format-String (ohne _s -- unsicherer, aber nur intern)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-INFO">INFO</span> GetCommandLineW</td><td>Command-Line Source -- Startpunkt der Taint-Analyse</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ReadConsoleW</td><td>Console-Input Source</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> SetConsoleCtrlHandler</td><td>Signal-Handler -- korrekt registriert</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Input Sources"
-    A[GetCommandLineW<br/>Command Line Args]
-    B[ReadConsoleW<br/>Interactive Input]
-    C[ExpandEnvironmentStringsW<br/>Env Vars ⚠️ CWE-120]
+  subgraph "Quellen Input"
+    cmd["GetCommandLineW"]
+    con["ReadConsoleW"]
   end
-  subgraph "Validation"
-    D{{0x2000 Char Limit<br/>CmdCopyCommandLine<br/>@ 0x1400249b0}}
-    E[calloc 0x4000<br/>Null-Terminator]
-    F[HeapEnableTermination<br/>OnCorruption]
+  subgraph "Sinks"
+    mc["memcpy"]
+    mm["memmove"]
+    cp["CreateProcess"]
   end
-  subgraph "Execution Sinks"
-    G[CreateProcessW<br/>@ kernel32.dll<br/>CWE-78]
-    H[ShellExecuteWorker<br/>@ shell32.dll]
-    I[memcpy<br/>@ ucrtbase.dll<br/>CWE-119]
-  end
-  A -->|"wcslen <= 0x2000"| D
-  B -->|"ReadConsoleW in Buffer"| D
-  D -->|"copy loop with sentinel"| E
-  E -->|"CmdParseAndExecute"| G
-  E -->|"Start-Befehl"| H
-  C -.->|"⚠️ UNCHECKED"| I
-  F -.->|"PROTECTED"| I
-  style C fill:#ff8c00,stroke:#333
-  style I fill:#ff8c00,stroke:#333
-  style D fill:#00fd00,stroke:#333
-  style E fill:#00fd00,stroke:#333
-</div>
+    cmd -->|"?"| v0
+    v0 ==>|"EXTERNAL"| mc
+    v0 -->|"EXTERNAL"| mm
+    v0 ==>|"EXTERNAL"| cp
+    style mc fill:#ff8c00,stroke:#333
+    style cp fill:#ff8c00,stroke:#333</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW()</td><td>Process Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW()</td><td>Console Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ExpandEnvironmentStringsW()</td><td>Env Var Expansion</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>CreateProcessW()</td><td>Process Creation</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL:kernel32.dll</td></tr><tr><td>ShellExecuteWorker</td><td>Shell Execution</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL:shell32.dll</td></tr><tr><td>memcpy</td><td>Memory Copy</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL:ucrtbase.dll</td></tr><tr><td>RegSetValueExW()</td><td>Registry Write</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL:advapi32.dll</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW</td><td>Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW</td><td>Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>memcpy</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>memmove</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>CreateProcess</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>0x2000 Zeichen-Limit</td><td>Buffer Size Check</td><td style='font-size:0.8rem'>Bei >8190 Zeichen wird abgelehnt</td></tr><tr><td>Null-Terminator Check</td><td>String Safety</td><td style='font-size:0.8rem'>Buffer wird garantiert null-terminiert</td></tr><tr><td>HeapEnableTerminationOnCorruption</td><td>Heap Hardening</td><td style='font-size:0.8rem'>Beendet Prozess bei Heap-Korruption</td></tr></table>
-        <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>wcslen(cmdline) <= 0x2000</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>ReadConsoleW() in 0x4000 Buffer</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>calloc(0x4000) + Null-Terminator</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-HIGH'>INFO</span></td><td>CmdParseAndExecute() -> CreateProcessW()</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-HIGH'>UNCHECKED</span></td><td>ExpandEnvironmentStringsW -> memcpy</td><td style='font-size:0.8rem'>Nicht im analysierten Scope</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-HIGH'>INFO</span></td><td>Start-Befehl -> ShellExecuteWorker</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-HIGH'>PROTECTED</span></td><td>Heap-Operationen geschutzt</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>Unbekannte Validierung</td><td>?</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
@@ -265,5 +253,5 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
   priorisieren.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:54 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
 </body></html>

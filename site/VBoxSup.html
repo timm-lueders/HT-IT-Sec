@@ -156,35 +156,35 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Funktionen:</b> 1863</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv. High-Entropy fur Kernel-Treiber irrelevant.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei MDL-Manipulation</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmProbeAndLockPages</td><td>User-Mode-Puffer in Kernel locken -- braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages</td><td>MDL-Mapping -- Zugriff auf User-Puffer im Kernel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ZwCreateFile/ZwReadFile/ZwQueryDirectoryFile</td><td>File-System-Zugriff aus Kernel -- Pfad-Traversal moglich</td><td>CWE-22</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ObReferenceObjectByHandle</td><td>Handle-Validierung -- muss vor Zugriff erfolgen</td><td>CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForRead</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForWrite</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExGetPreviousMode</td><td>User/Kernel-Mode-Check (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SeCaptureSubjectContext</td><td>Security-Token-Prufung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ASM* (asm helpers)</td><td>Kritische Sektionen, atomare Operationen, CPUID</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Input Sources"
-    ioctl["DeviceIoControl Input"]
-    mdl_read["IRP_MJ_READ MdlAddress"]
-    mdl_write["IRP_MJ_WRITE MdlAddress"]
+  subgraph "Quellen Input"
+    ioctl["DeviceIoControl"]
+    read["IRP_MJ_READ"]
+    write["IRP_MJ_WRITE"]
   end
-  subgraph "Validation Layer"
-    pr{{ProbeForRead}}
+  subgraph "Validierung"
     pw{{ProbeForWrite}}
+    pr{{ProbeForRead}}
     pm{{ExGetPreviousMode}}
-    sec{{SeCaptureSubjectContext}}
+    sc{{SeCaptureSubjectContext}}
   end
-  subgraph "Data Sinks"
-    read["ZwReadFile/ReadFile"]
-    mdl["MmMapLockedPages"]
+  subgraph "Sinks"
+    zr["ZwReadFile"]
+    md["MDL-Mapping"]
   end
+    ioctl -->|"Buffer Probe"| pw
     ioctl -->|"Buffer Probe"| pr
-    pr -->|"Buffer Probe"| pw
-    pw -->|"Mode Check"| pm
-    pm -->|"Security Check"| sec
-    sec -->|"Disk I/O Read"| read
-    sec -.->|"MDL Mapping"| mdl
-    style mdl fill:#ff8c00,stroke:#333</div>
+    ioctl -->|"Mode Check"| pm
+    ioctl -->|"Security"| sc
+    sc -->|"EXTERNAL"| zr
+    sc ==>|"EXTERNAL"| md
+    style md fill:#ff8c00,stroke:#333</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl Input</td><td>IOCTL (METHOD_NEITHER)</td><td style='font-family:monospace;font-size:0.75rem'>Irp->UserBuffer @ 0x70</td></tr><tr><td>IRP_MJ_READ MdlAddress</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>Irp->MdlAddress @ 0x10</td></tr><tr><td>IRP_MJ_WRITE MdlAddress</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>Irp->MdlAddress @ 0x10</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>ZwReadFile/ReadFile</td><td>Disk I/O Read</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL</td></tr><tr><td>MmMapLockedPages</td><td>MDL Mapping</td><td style='font-family:monospace;font-size:0.75rem'>EXTERNAL</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_WRITE</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>ZwReadFile</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>MDL-Mapping</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ProbeForRead</td><td>Buffer Probe</td><td style='font-size:0.8rem'>Validiert User-Buffer vor Lesezugriff</td></tr><tr><td>ProbeForWrite</td><td>Buffer Probe</td><td style='font-size:0.8rem'>Validiert User-Buffer vor Schreibzugriff</td></tr><tr><td>ExGetPreviousMode</td><td>Mode Check</td><td style='font-size:0.8rem'>Prüft ob Caller User oder Kernel Mode</td></tr><tr><td>SeCaptureSubjectContext</td><td>Security Check</td><td style='font-size:0.8rem'>Prüft Security-Token des Callers</td></tr></table>
-        <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Mode Check</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Security Check</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Disk I/O Read</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td><span class='badge sev-MEDIUM'>CONDITIONAL</span></td><td>MDL Mapping</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ProbeForWrite</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ProbeForRead</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ExGetPreviousMode</td><td>Mode Check</td><td style='font-size:0.8rem'>-</td></tr><tr><td>SeCaptureSubjectContext</td><td>Security</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
@@ -257,5 +257,5 @@ und SeCaptureSubjectContext sind vorhanden. Hauptkritikpunkte:
 Insgesamt: Professioneller Treiber mit Security-Awareness.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:54 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
 </body></html>

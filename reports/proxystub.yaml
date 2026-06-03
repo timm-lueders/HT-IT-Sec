@@ -23,46 +23,31 @@ findings:
   recommendation: Ghidra-Tiefenprufung empfohlen.
 taint_graph:
   sources:
-  - id: cmdline
-    name: GetCommandLineW()
-    type: Process Args
-    function: main
-  - id: console
-    name: ReadConsoleW()
-    type: Console Input
-    function: main
+  - id: cmd
+    name: GetCommandLineW
+    type: Args
+  - id: con
+    name: ReadConsoleW
+    type: Input
   - id: com
-    name: COM/DCOM Activation
-    type: RPC/COM Input
-    function: DllGetClassObject
-  - id: exports
-    name: Exported API Calls
-    type: Function Parameters
-    function: Various Exports
+    name: COM/DCOM
+    type: RPC
   validators:
-  - id: unknown
+  - id: v0
     name: Unbekannte Validierung
-    type: Unknown
-    note: Keine spezifischen Validatoren via Import-Analyse identifiziert
+    type: '?'
   sinks:
-  - id: unknown
-    name: Unbekannte Sinks
-    type: Unknown
-    note: Keine spezifischen Sinks via Import-Analyse identifiziert
+  - id: s0
+    name: Unbekannt
+    addr: '?'
   edges:
-  - from: cmdline
-    to: unknown
-    label: Unknown
-    status: UNCHECKED
-  - from: unknown
-    to: unknown
-    label: Unknown
+  - from: cmd
+    to: v0
+    label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Input Sources\"\n    cmdline[\"GetCommandLineW()\"\
-    ]\n    console[\"ReadConsoleW()\"]\n    com[\"COM/DCOM Activation\"]\n    exports[\"\
-    Exported API Calls\"]\n  end\n  subgraph \"Data Sinks\"\n    unknown[\"Unbekannte\
-    \ Sinks\"]\n  end\n    cmdline ==>|\"Unknown\"| unknown\n    unknown -->|\"Unknown\"\
-    | unknown"
+  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
+    ]\n    con[\"ReadConsoleW\"]\n    com[\"COM/DCOM\"]\n  end\n  subgraph \"Sinks\"\
+    \n    s0[\"Unbekannt\"]\n  end\n    cmd -->|\"?\"| v0\n    v0 -->|\"?\"| s0"
 summary:
   overall_risk: MEDIUM
   recommendation: VirtualBox COM Proxy/Stub -- DCOM
