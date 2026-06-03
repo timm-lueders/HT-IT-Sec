@@ -1,4 +1,4 @@
-meta:
+﻿meta:
   template_version: "1.0"
   binary_name: "telnet.exe"
   binary_type: "user_exe"
@@ -55,3 +55,4 @@ summary:
   low_findings: 1
   recommendation: "memcpy->memcpy_s, atoi->strtol_s migrieren. 130 Funktionen manuell auditierbar."
   coverage_percent: 5
+
