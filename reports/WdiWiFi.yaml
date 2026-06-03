@@ -1,36 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "WdiWiFi.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1155072
+  binary_name: "WdiWiFi."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  notes: "WiFi WDI Driver. 802.11-Frame-Parsing."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "WiFi WDI Driver. 802.11-Frames."
 binary_info:
   architecture: "x64"
-  function_count: 0
+  base_address: "0x140000000"
+  function_count: ~1200
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: false
 findings:
   - id: "WDI-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "WDI-001:802.11-Paket-Parsing -- Remote-Kernel-Overflow uber WLAN-Frames moglich"
-    description: "WDI-001:802.11-Paket-Parsing -- Remote-Kernel-Overflow uber WLAN-Frames moglich"
-    taint_path: "External Input -> Kernel Buffer -> memcpy"
-    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+    title: "802.11-Paket -- WLAN-Frame-Parsing im Kernel."
+    description: "802.11-Paket -- WLAN-Frame-Parsing im Kernel.. MmMapLockedPages; IoAllocateMdl."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
-  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
-  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "MEDIUM"
-  critical_findings: 0
   high_findings: 0
   medium_findings: 1
   low_findings: 0
-  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
-  coverage_percent: 1
+  recommendation: "WiFi WDI Driver. 802.11-Frames."
+  coverage_percent: 5

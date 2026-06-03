@@ -1,57 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "services.exe"
-  binary_type: "user_exe"
-  file_size_bytes: 898048
+  binary_name: "services."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
-  notes: "Service Control Manager. RPC-basiert, Service-Start/Stop."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "Service Control Manager. RPC-basiert."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  entry_point: ""
   function_count: 1480
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: True
-  notes: "CFG aktiv."
-import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
 findings:
-  - id: "SERVICES-001"
+  - id: "SVC-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "SVC-001:Dienst-DLL-Laden mit SYSTEM -- Pfad-Validierung kritisch"
-    function: "N/A"
-    address: "N/A"
-    description: "SVC-001:Dienst-DLL-Laden mit SYSTEM -- Pfad-Validierung kritisch"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "Dienst-Installationspfade auf Schreibschutz prufen."
+    title: "Dienst-Start mit SYSTEM -- Pfad-Validierung kritisch."
+    description: "Dienst-Start mit SYSTEM -- Pfad-Validierung kritisch.. LoadLibraryExW; CreateProcessW; RegSetValueExW."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
-  sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
-  edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "MEDIUM"
-  critical_findings: 0
   high_findings: 0
-  medium_findings: 2
+  medium_findings: 1
   low_findings: 0
-  recommendation: "Dienst-Installationspfade auf Schreibschutz prufen."
+  recommendation: "Service Control Manager. RPC-basiert."
   coverage_percent: 5

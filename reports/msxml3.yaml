@@ -1,28 +1,30 @@
-meta:
-  template_version: "1.0"
+﻿meta:
   binary_name: "msxml3.dll"
   binary_type: "user_dll"
   file_size_bytes: 1593152
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline"
-  notes: "MSXML 3.0 XML Parser. Klassische CWE-Quelle: XSLT, Schema, DOM. 1,5 MB."
-binary_info: { architecture: "x64", function_count: 0 }
-pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: false }
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  notes: "MSXML 3.0 XML Parser. COM-basiert. XSLT, Schema, DOM, SAX. BCrypt fur XML-Signaturen. memcpy+memcpy_s gemischt."
+binary_info: { architecture: "x64", function_count: "~2500" }
+pe_security: { aslr: true, dep: true, cfg: true }
 import_risk_map:
   high:
-    - { api: "memcpy", risk: "UNSAFE -- XML-Parsing mit rohen memcpy-Operationen", cwe: "CWE-119" }
+    - { api: "CoCreateInstance/CLSIDFromProgID", risk: "COM-Objekt-Erstellung -- beliebige COM-Instanziierung", cwe: "CWE-427" }
+    - { api: "memcpy", risk: "XML-String-Kopie ohne Langenprufung -- billion laughs", cwe: "CWE-119" }
+    - { api: "VirtualAlloc/VirtualFree", risk: "Speicher fur XML-DOM -- Entity-Expansion zu OOM", cwe: "CWE-400" }
   medium:
-    - { api: "malloc/free/realloc", risk: "Heap -- UAF bei DOM-Manipulation", cwe: "CWE-416" }
-    - { api: "CreateFileW/ReadFile", risk: "XML-Datei einlesen -- Pfad-Traversal", cwe: "CWE-22" }
+    - { api: "BCryptCreateHash/BCryptHashData", risk: "XML-DSig-Verarbeitung -- Signatur-Validierung", cwe: "CWE-347" }
+    - { api: "CreateStreamOnHGlobal", risk: "Stream-basiertes XML-Parsing", cwe: "CWE-20" }
+    - { api: "CreateFileW/ReadFile", risk: "Datei-I/O fur XML-Dokumente -- Pfad-Traversal", cwe: "CWE-22" }
 findings:
   - id: "MSX-001"
     severity: "HIGH"
-    cwe: "CWE-119"
-    title: "XML-Parser -- Buffer-Overflow bei bösartigen XML-Dokumenten"
-    description: "MSXML3 parst XML-Dokumente. Bösartige XML-Strukturen (tiefe Verschachtelung, große Entitaten) konnen zu Buffer-Overflows fuhren."
-    recommendation: "XML-Bomben-Mitigation, Entity-Expansion-Limits prufen."
-summary:
-  overall_risk: "HIGH"
-  high_findings: 1
-  recommendation: "XML-Parser-Angriffsflache -- fuzzing mit AFL/libFuzzer empfohlen."
-  coverage_percent: 0
+    cwe: "CWE-776"
+    title: "XML Entity Expansion -- Billion Laughs / XXE"
+    description: "MSXML3 parst XML mit Entity-Expansion. Bösartige XML-Dokumente mit rekursiven Entities (Billion Laughs) konnen zu Speicheruberlauf und DoS fuhren. memcpy ohne _s wird verwendet."
+    recommendation: "Entity-Expansion-Limits setzen. XXE-Protection aktivieren. Alle memcpy auf memcpy_s migrieren."
+taint_graph:
+  sources: [{name: "XML-Dokument", type: "Datei/Netzwerk/COM-Stream"}]
+  sinks: [{name: "memcpy", address: "EXTERNAL"}, {name: "VirtualAlloc", address: "EXTERNAL"}, {name: "CoCreateInstance", address: "EXTERNAL"}]
+  edges: [{from: "XML-Dokument", to: "memcpy", bounded: false}, {from: "XML-Dokument", to: "CoCreateInstance", bounded: false, check_location: "COM-ProgID aus XML"}]
+summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, coverage_percent: 3 }

@@ -1,57 +1,64 @@
-meta:
+﻿meta:
   template_version: "1.0"
   binary_name: "winlogon.exe"
   binary_type: "user_exe"
-  file_size_bytes: 958464
+  file_size_bytes: 966128
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
-  notes: "Windows Logon. Authentifizierung, SAS, Benachrichtigungs-Packages."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "Windows Logon Process. 2.349 Funktionen. SAS, GINA/Credential-Providers, Authentifizierung. Kritischster User-Mode-Prozess."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  entry_point: ""
-  function_count: 1329
+  function_count: 2349
+  symbol_count: 3359
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: True
-  notes: "CFG aktiv."
+  high_entropy_aslr: true
 import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
+  high:
+    - { api: "LoadLibraryExW", risk: "DLL-Laden von Credential-Providern -- Pfad-Hijacking zu SYSTEM-RCE", cwe: "CWE-426" }
+  medium:
+    - { api: "memcpy", risk: "UNSAFE -- _o_memcpy_s existiert parallel", cwe: "CWE-119" }
+    - { api: "_o___stdio_common_vswprintf", risk: "Format-String ohne _s", cwe: "CWE-134" }
+    - { api: "HeapAlloc/HeapFree", risk: "Heap-Management -- Double-Free/UAF", cwe: "CWE-415/CWE-416" }
+  low:
+    - { api: "_o_wcscpy_s/_o_wcscat_s/_o_wcstok_s", risk: "Safe String-Varianten (korrekt)", cwe: "N/A" }
+    - { api: "_o_memcpy_s", risk: "Safe Memory-Copy (korrekt)", cwe: "N/A" }
 findings:
-  - id: "WINLOGON-001"
+  - id: "WLG-001"
+    severity: "HIGH"
+    cwe: "CWE-426"
+    title: "Credential-Provider-DLL-Laden via LoadLibraryExW"
+    description: |
+      winlogon.exe ladt GINA/Credential-Provider-DLLs uber LoadLibraryExW.
+      Ein Angreifer mit Schreibzugriff auf den DLL-Pfad kann bösartigen Code
+      mit SYSTEM-Rechten ausfuhren. 2.349 Funktionen deuten auf komplexe
+      Authentifizierungslogik hin. memcpy wird parallel zu _o_memcpy_s genutzt
+      -- inkonsistente Sicherheitspraxis.
+    taint_path: "Registry -> DLL-Pfad -> LoadLibraryExW -> SYSTEM-Code-Ausfuhrung"
+    recommendation: "DLL-Signaturprufung. Pfad-Hardening gegen Hijacking."
+  - id: "WLG-002"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren"
-    function: "N/A"
-    address: "N/A"
-    description: "WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "DLL-Signaturprufung und Pfad-Hardening sicherstellen."
+    title: "memcpy parallel zu _o_memcpy_s"
+    description: "Inkonsistente API-Nutzung: memcpy und _o_memcpy_s existieren nebeneinander."
+    recommendation: "Alle memcpy-Aufrufe auf _o_memcpy_s migrieren."
 taint_graph:
   sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
+    - { name: "Registry (Credential-Provider-Pfade)", type: "Konfiguration" }
+    - { name: "SAS (Secure Attention Sequence)", type: "Tastatur-Input" }
   sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
+    - { name: "LoadLibraryExW", address: "EXTERNAL:kernel32.dll", type: "DLL-Laden" }
+    - { name: "memcpy", address: "EXTERNAL:ucrtbase.dll", type: "Memory Copy" }
   edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+    - { from: "Registry", to: "LoadLibraryExW", bounded: false, check_location: "Pfad-Validierung unbekannt" }
 summary:
   overall_risk: "HIGH"
-  critical_findings: 0
   high_findings: 1
   medium_findings: 1
-  low_findings: 1
-  recommendation: "DLL-Signaturprufung und Pfad-Hardening sicherstellen."
-  coverage_percent: 5
+  low_findings: 0
+  recommendation: "DLL-Hijacking via Credential-Provider-Pfad. Signaturvalidierung und Pfad-Hardening prufen."
+  coverage_percent: 8

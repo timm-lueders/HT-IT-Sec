@@ -1,57 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "dxgmms2.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1198080
+  binary_name: "dxgmms2."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
-  notes: "DirectX Graphics MMS. GPU-API, User-to-Kernel-Callbacks."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "DirectX Graphics MMS. GPU-Kernel-API."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  entry_point: ""
   function_count: ~1500
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: False
-  notes: "CFG aktiv."
-import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
 findings:
-  - id: "DXGMMS2-001"
+  - id: "DXG-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "DXG-001:GPU-Puffer-Mapping via MDL -- User-Mode-Shader-Daten im Kernel"
-    function: "N/A"
-    address: "N/A"
-    description: "DXG-001:GPU-Puffer-Mapping via MDL -- User-Mode-Shader-Daten im Kernel"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "GPU-Buffer-Zugriffe auf Bounds-Checks prufen."
+    title: "GPU-Puffer-Mapping -- User-Mode-Shader-Daten im Kernel."
+    description: "GPU-Puffer-Mapping -- User-Mode-Shader-Daten im Kernel.. MmMapLockedPagesSpecifyCache; IoAllocateMdl."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
-  sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
-  edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "MEDIUM"
-  critical_findings: 0
   high_findings: 0
-  medium_findings: 2
+  medium_findings: 1
   low_findings: 0
-  recommendation: "GPU-Buffer-Zugriffe auf Bounds-Checks prufen."
+  recommendation: "DirectX Graphics MMS. GPU-Kernel-API."
   coverage_percent: 5

@@ -154,24 +154,40 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Größe:</b> 987,584 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 2223</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">Alle Schutzmechanismen aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>Druckertreiber-Laden -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>UNSAFE -- memcpy_s existiert parallel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> malloc/free/realloc</td><td>Heap -- Double-Free/UAF moglich</td><td>CWE-415/CWE-416</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> NdrServerCallAll/NdrAsyncServerCall/RpcServerRegisterIf</td><td>RPC-Server -- Remote-Angriffsflache</td><td>CWE-20</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> RpcImpersonateClient/RevertToSelf</td><td>Token-Impersonation -- Client-Rechte ubernehmen</td><td>CWE-269</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>Druckertreiber-Laden -- PrintNightmare-Vektor</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> DuplicateTokenEx/ImpersonateLoggedOnUser</td><td>Token-Duplizierung</td><td>CWE-269</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> SetTokenInformation/AdjustTokenPrivileges</td><td>Token-Privilege-Eskalation</td><td>CWE-269</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>UNSAFE</td><td>CWE-119</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
+    <div class="grid2">
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>RPC-Clients</td><td>Remote via NdrServerCall</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>LoadLibraryExW</td><td>EXTERNAL</td></tr><tr><td>Sink</td><td>RpcImpersonateClient</td><td>EXTERNAL</td></tr></table></div>
+    </div>
+    <div class="mermaid" style="margin-top:15px">
+graph LR
+    RPC_Clients["RPC-Clients"] -->|"UNCHECKED"| LoadLibraryExW["LoadLibraryExW"]
+    RPC_Clients["RPC-Clients"] -->|"UNCHECKED"| RpcImpersonateClient["RpcImpersonateClient"]
+</div>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>RPC-Clients</td><td>LoadLibraryExW</td><td>RPC-Marshalling -> DLL-Pfad</td></tr><tr><td>UNCHECKED</td><td>RPC-Clients</td><td>RpcImpersonateClient</td><td>Token-Validierung</td></tr></table>
+    </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
     </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-426: Druckertreiber-Laden via LoadLibraryExW</b>
-        <p style="margin-top:6px;font-size:0.9rem">PrintNightmare: spoolsv.exe ladt Druckertreiber-DLLs mit SYSTEM-Rechten. Angreifer konnen bösartige DLLs als Treiber installieren.</p>
-        <div class="finding-info">Funktion: N/A @ N/A<br>
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-426: PrintNightmare: Druckertreiber-DLL-Laden mit SYSTEM-Rechten</b>
+        <p style="margin-top:6px;font-size:0.9rem">spoolsv.exe ist ein RPC-Server mit Token-Impersonation und DLL-Laden.
+Die Kombination RpcImpersonateClient + LoadLibraryExW ermoglicht
+einem entfernten Angreifer das Laden bösartiger DLLs als Druckertreiber.
+2.223 Funktionen und umfangreiche RPC-Schnittstelle bieten groBe
+Angriffsflache.
+</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
         Taint-Path: -<br>
-        Empfehlung: Treiber-Signaturprufung und Pfad-Validierung sicherstellen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+        Empfehlung: RPC-Authentifizierung prufen. Treiber-Signaturvalidierung vor LoadLibraryExW.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
     <div><b>Funktionen:</b> 2223</div>
-    <div><b>Coverage:</b> 2%</div>
-    <div><b>Analyst:</b> opencode Pipeline</div>
-    <div><b>Dauer:</b> 5 min</div>
+    <div><b>Coverage:</b> 5%</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
     <div class="grid4">
@@ -181,8 +197,8 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:2%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">PrintNightmare-Mitigationen prufen. RPC-Schnittstelle auf Authentifizierung testen.</p></div></main>
+    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:5%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">PrintNightmare-Klasse. RPC+Token+DLL-Laden. Signaturprufung und Pfad-Hardening zwingend.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:49 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 03:32 -- <span class="cursor"></span></footer>
 </body></html>

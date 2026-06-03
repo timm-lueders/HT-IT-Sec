@@ -150,49 +150,59 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid4">
     <div><b>Typ:</b> user_exe</div>
     <div><b>Arch:</b> x64</div>
-    <div><b>Entry:</b> <span style="font-family:monospace"></span></div>
-    <div><b>Größe:</b> 958,464 bytes</div>
+    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
+    <div><b>Größe:</b> 966,128 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 1329</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv.</p></div><div class="card"><h3>Taint-Graph</h3>
+    <div><b>Funktionen:</b> 2349</div>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> LoadLibraryExW</td><td>DLL-Laden von Credential-Providern -- Pfad-Hijacking zu SYSTEM-RCE</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>UNSAFE -- _o_memcpy_s existiert parallel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _o___stdio_common_vswprintf</td><td>Format-String ohne _s</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> HeapAlloc/HeapFree</td><td>Heap-Management -- Double-Free/UAF</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _o_wcscpy_s/_o_wcscat_s/_o_wcstok_s</td><td>Safe String-Varianten (korrekt)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> _o_memcpy_s</td><td>Safe Memory-Copy (korrekt)</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph</h3>
     <div class="grid2">
-    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>User Input (Console/Network/File)</td><td>External Input</td></tr></table></div>
-    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL:msvcrt.dll</td></tr><tr><td>Sink</td><td>LoadLibraryExW</td><td>EXTERNAL:kernel32.dll</td></tr></table></div>
+    <div><b>Sources (User Input)</b><table><tr><th>Name</th><th>Typ</th></tr><tr><td>Source</td><td>Registry (Credential-Provider-Pfade)</td><td>Konfiguration</td></tr><tr><td>Source</td><td>SAS (Secure Attention Sequence)</td><td>Tastatur-Input</td></tr></table></div>
+    <div><b>Sinks (Dangerous Ops)</b><table><tr><th>Name</th><th>Adresse</th></tr><tr><td>Sink</td><td>LoadLibraryExW</td><td>EXTERNAL:kernel32.dll</td></tr><tr><td>Sink</td><td>memcpy</td><td>EXTERNAL:ucrtbase.dll</td></tr></table></div>
     </div>
     <div class="mermaid" style="margin-top:15px">
 graph LR
-    User_Input["User Input"] -->|"UNCHECKED"| memcpy["memcpy"]
+    Registry["Registry"] -->|"UNCHECKED"| LoadLibraryExW["LoadLibraryExW"]
 </div>
-    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>User Input</td><td>memcpy</td><td>Nicht verifiziert</td></tr></table>
+    <hr><table><tr><th>Status</th><th>Von</th><th>Nach</th><th>Check</th></tr><tr><td>UNCHECKED</td><td>Registry</td><td>LoadLibraryExW</td><td>Pfad-Validierung unbekannt</td></tr></table>
     </div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
-    </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-MEDIUM">
-        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-119: WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren</b>
-        <p style="margin-top:6px;font-size:0.9rem">WLG-001:Notification-Package-DLL-Laden -- Pfad-Manipulation kann zu SYSTEM-RCE fuhren</p>
-        <div class="finding-info">Funktion: N/A @ N/A<br>
-        Taint-Path: User Input -> Parser -> memcpy<br>
-        Empfehlung: DLL-Signaturprufung und Pfad-Hardening sicherstellen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    </table></div><div class="card"><h3>Findings (2)</h3><div class="finding finding-HIGH">
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-426: Credential-Provider-DLL-Laden via LoadLibraryExW</b>
+        <p style="margin-top:6px;font-size:0.9rem">winlogon.exe ladt GINA/Credential-Provider-DLLs uber LoadLibraryExW.
+Ein Angreifer mit Schreibzugriff auf den DLL-Pfad kann bösartigen Code
+mit SYSTEM-Rechten ausfuhren. 2.349 Funktionen deuten auf komplexe
+Authentifizierungslogik hin. memcpy wird parallel zu _o_memcpy_s genutzt
+-- inkonsistente Sicherheitspraxis.
+</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
+        Taint-Path: Registry -> DLL-Pfad -> LoadLibraryExW -> SYSTEM-Code-Ausfuhrung<br>
+        Empfehlung: DLL-Signaturprufung. Pfad-Hardening gegen Hijacking.</div></div><div class="finding finding-MEDIUM">
+        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-119: memcpy parallel zu _o_memcpy_s</b>
+        <p style="margin-top:6px;font-size:0.9rem">Inkonsistente API-Nutzung: memcpy und _o_memcpy_s existieren nebeneinander.</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
+        Taint-Path: -<br>
+        Empfehlung: Alle memcpy-Aufrufe auf _o_memcpy_s migrieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 1329</div>
-    <div><b>Coverage:</b> 5%</div>
-    <div><b>Analyst:</b> opencode Pipeline -- Deep-Scan</div>
-    <div><b>Dauer:</b> 10 min</div>
+    <div><b>Funktionen:</b> 2349</div>
+    <div><b>Coverage:</b> 8%</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Dauer:</b> 15 min</div>
     </div>
     <hr>
     <div class="grid4">
     <div>CRITICAL<br><span class="count">0</span></div>
-    <div>HIGH<br><span class="count">0</span></div>
+    <div>HIGH<br><span class="count">1</span></div>
     <div>MEDIUM<br><span class="count">1</span></div>
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
-    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:5%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">DLL-Signaturprufung und Pfad-Hardening sicherstellen.</p></div></main>
+    <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:8%"></div></div>
+    <p style="margin-top:8px;font-size:0.85rem">DLL-Hijacking via Credential-Provider-Pfad. Signaturvalidierung und Pfad-Hardening prufen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:49 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 03:32 -- <span class="cursor"></span></footer>
 </body></html>

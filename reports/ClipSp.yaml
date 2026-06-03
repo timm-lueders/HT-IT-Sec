@@ -1,36 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "ClipSp.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1144832
+  binary_name: "ClipSp."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  notes: "Clipboard Service. User-to-Kernel-Datentransfer."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "Clipboard Service. User-to-Kernel."
 binary_info:
   architecture: "x64"
-  function_count: 0
+  base_address: "0x140000000"
+  function_count: ~1100
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: false
 findings:
   - id: "CLP-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "CLP-001:Clipboard-Format-Verarbeitung -- User-Mode-Daten im Kernel verarbeiten"
-    description: "CLP-001:Clipboard-Format-Verarbeitung -- User-Mode-Daten im Kernel verarbeiten"
-    taint_path: "External Input -> Kernel Buffer -> memcpy"
-    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+    title: "Clipboard-Format -- User-Daten im Kernel verarbeiten."
+    description: "Clipboard-Format -- User-Daten im Kernel verarbeiten.. memcpy; MmMapLockedPages."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
-  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
-  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "MEDIUM"
-  critical_findings: 0
   high_findings: 0
   medium_findings: 1
   low_findings: 0
-  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
-  coverage_percent: 1
+  recommendation: "Clipboard Service. User-to-Kernel."
+  coverage_percent: 5

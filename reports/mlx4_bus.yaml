@@ -1,36 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "mlx4_bus.sys"
-  binary_type: "kernel_driver"
-  file_size_bytes: 1132544
+  binary_name: "mlx4_bus."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  notes: "Mellanox InfiniBand. Drittanbieter, RDMA."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "Mellanox InfiniBand (Drittanbieter). RDMA."
 binary_info:
   architecture: "x64"
-  function_count: 0
+  base_address: "0x140000000"
+  function_count: ~1500
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: false
 findings:
   - id: "MLX-001"
-    severity: "MEDIUM"
+    severity: "HIGH"
     cwe: "CWE-119"
-    title: "MLX-001:Drittanbieter-InfiniBand -- RDMA-Speicher-Registrierung kritisch"
-    description: "MLX-001:Drittanbieter-InfiniBand -- RDMA-Speicher-Registrierung kritisch"
-    taint_path: "External Input -> Kernel Buffer -> memcpy"
-    recommendation: "Tiefenprufung mit Ghidra empfohlen -- alle IOCTL/Read/Write-Pfade auditieren."
+    title: "Drittanbieter-RDMA -- Speicherregistrierung kritisch."
+    description: "Drittanbieter-RDMA -- Speicherregistrierung kritisch.. MmMapLockedPages; IoBuildPartialMdl."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources: [{name: "IOCTL Input / Netzwerk-Pakete", type: "Kernel Entry Point"}]
-  sinks: [{name: "memcpy/MDL-Mapping", address: "EXTERNAL"}]
-  edges: [{from: "IOCTL Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "HIGH"
-  critical_findings: 0
-  high_findings: 0
-  medium_findings: 1
+  high_findings: 1
+  medium_findings: 0
   low_findings: 0
-  recommendation: "Drittanbieter-Treiber -- erhobtes Risiko. Volle Ghidra-Tiefenprufung empfohlen."
-  coverage_percent: 1
+  recommendation: "Mellanox InfiniBand (Drittanbieter). RDMA."
+  coverage_percent: 5

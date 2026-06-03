@@ -1,57 +1,39 @@
-meta:
-  template_version: "1.0"
+﻿meta:
   binary_name: "lsass.exe"
   binary_type: "user_exe"
-  file_size_bytes: 83968
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
-  notes: "Local Security Authority. Token, Kerberos, NTLM-Authentifizierung."
-binary_info:
-  architecture: "x64"
-  base_address: "0x140000000"
-  entry_point: ""
-  function_count: ~100
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
-  high_entropy_aslr: True
-  notes: "CFG aktiv."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  notes: "Local Security Authority Subsystem. ~100 Funktionen. RPC-Server, SSPI, Kerberos/NTLM."
+binary_info: { architecture: "x64", function_count: "~100" }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true }
 import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
+  high:
+    - { api: "LoadLibraryExW", risk: "DLL-Laden von Authentifizierungs-Packages", cwe: "CWE-426" }
+    - { api: "NdrServerCallAll/NdrServerCall2", risk: "RPC-Server -- Remote-Angriffsflache", cwe: "CWE-20" }
+  medium:
+    - { api: "SspirAcquireCredentialsHandle", risk: "SSPI-Credential-Verarbeitung", cwe: "CWE-287" }
+    - { api: "SspirProcessSecurityContext", risk: "SSPI-Token-Validierung", cwe: "CWE-287" }
+    - { api: "OpenProcessToken/GetTokenInformation", risk: "Token-Zugriff", cwe: "CWE-269" }
 findings:
-  - id: "LSASS-001"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "LSA-001:Authentifizierungs-Package -- Token-Manipulation moglich"
-    function: "N/A"
-    address: "N/A"
-    description: "LSA-001:Authentifizierungs-Package -- Token-Manipulation moglich"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "NTLM/Kerberos-Authentifizierungspfade auf Schwachstellen prufen."
+  - id: "LSA-001"
+    severity: "HIGH"
+    cwe: "CWE-20"
+    title: "RPC-Server -- Remote-Angriffsflache via NdrServerCallAll"
+    description: |
+      lsass.exe ist ein RPC-Server (NdrServerCallAll/NdrServerCall2) mit
+      RpcServerUseProtseqEpW zur Endpoint-Registrierung. SSPI-Credential-
+      Handling (SspirAcquireCredentialsHandle, SspirProcessSecurityContext)
+      verarbeitet Authentifizierungs-Tokens. Ein Bug im RPC-Marshalling
+      oder Token-Parsing kann zur SYSTEM-Kompromittierung fuhren.
+    taint_path: "RPC-Client -> NdrServerCall -> SSPI -> Token -> SYSTEM"
+    recommendation: "RPC-Schnittstelle auf Input-Validierung prufen. SSPI-Token-Parsing auf Buffer-Overflow testen."
 taint_graph:
-  sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
-  sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
-  edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+  sources: [{name: "RPC-Clients", type: "Remote via NdrServerCall"}]
+  sinks: [{name: "SSPI / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "RPC-Clients", to: "SSPI", bounded: false, check_location: "RPC-Marshalling"}]
 summary:
   overall_risk: "HIGH"
-  critical_findings: 0
   high_findings: 1
-  medium_findings: 0
-  low_findings: 1
-  recommendation: "NTLM/Kerberos-Authentifizierungspfade auf Schwachstellen prufen."
-  coverage_percent: 5
+  medium_findings: 3
+  recommendation: "RPC+SSPI-Angriffsflache. Token-Validierung und DLL-Laden hart absichern."
+  coverage_percent: 15

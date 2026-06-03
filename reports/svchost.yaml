@@ -1,57 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "svchost.exe"
-  binary_type: "user_exe"
-  file_size_bytes: 88064
+  binary_name: "svchost."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
   notes: "Generic Service Host. DCOM/RPC-Aktivierung."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  entry_point: ""
   function_count: ~80
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: True
-  notes: "CFG aktiv."
-import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
 findings:
-  - id: "SVCHOST-001"
-    severity: "MEDIUM"
+  - id: "SVH-001"
+    severity: "LOW"
     cwe: "CWE-119"
-    title: "SVH-001:DLL-Loading -- Pfad-Validierung durch SCM sichergestellt"
-    function: "N/A"
-    address: "N/A"
-    description: "SVH-001:DLL-Loading -- Pfad-Validierung durch SCM sichergestellt"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "Minimale Angriffsflache als generischer Host."
+    title: "DLL-Loading via SCM -- Pfad durch Service-DB validiert."
+    description: "DLL-Loading via SCM -- Pfad durch Service-DB validiert.. LoadLibraryExW."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
-  sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
-  edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "LOW"
-  critical_findings: 0
   high_findings: 0
   medium_findings: 0
   low_findings: 1
-  recommendation: "Minimale Angriffsflache als generischer Host."
+  recommendation: "Generic Service Host. DCOM/RPC-Aktivierung."
   coverage_percent: 5

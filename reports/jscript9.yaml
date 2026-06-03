@@ -1,139 +1,26 @@
-meta:
-  template_version: "1.0"
+﻿meta:
   binary_name: "jscript9.dll"
-  binary_type: "user_dll"
-  binary_path: "C:/Windows/System32/jscript9.dll"
+  binary_type: "user_dll"  
   file_size_bytes: 4844672
   analysis_date: "2026-06-02"
-  analyst: "opencode + GhidraMCP Pipeline"
-  analysis_duration_minutes: 15
-  notes: "Microsoft Chakra JavaScript Engine (Edge Legacy). 16.719 Funktionen. Massivste Angriffsflache im Windows-OKosystem."
-
-binary_info:
-  architecture: "x64"
-  base_address: "0x180000000"
-  entry_point: "0x1801b7050 (DllMain)"
-  function_count: 16719
-  symbol_count: 17232
-  compiler_hint: "msvc"
-  subsystem: "windows_gui"
-  notes: "JIT-Compiler (VirtualProtect + FlushInstructionCache), Garbage Collector (WriteWatch)"
-
-pe_security:
-  aslr: true
-  dep: true
-  cfg: true
-  high_entropy_aslr: false
-  notes: "CFG aktiv. High-Entropy fehlt (DLL)."
-
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  notes: "Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X). GC mit WriteWatch. ChakraCore."
+binary_info: { architecture: "x64", base_address: "0x180000000", function_count: 16719 }
+pe_security: { aslr: true, dep: true, cfg: true }
 import_risk_map:
   high:
-    - api: "VirtualProtect"
-      risk: "JIT: Andert Seitenschutz auf PAGE_EXECUTE_READWRITE -- W+X!"
-      cwe: "CWE-122"
-    - api: "FlushInstructionCache"
-      risk: "JIT: Erzwingt Instruction-Cache-Flush nach Code-Generierung"
-      cwe: "CWE-122"
+    - { api: "VirtualProtect", risk: "JIT: W+X-Speicher fur generierten Code", cwe: "CWE-122" }
+    - { api: "FlushInstructionCache", risk: "JIT: I-Cache-Flush nach Code-Gen", cwe: "CWE-122" }
+    - { api: "memcpy", risk: "UNSAFE parallel zu memcpy_s", cwe: "CWE-119" }
   medium:
-    - api: "memcpy"
-      risk: "UNSAFE -- daneben existiert memcpy_s. Warum beide?"
-      cwe: "CWE-119"
-    - api: "memmove"
-      risk: "UNSAFE -- daneben existiert memmove_s"
-      cwe: "CWE-119"
-    - api: "LoadLibraryExA"
-      risk: "DLL-Loading -- potenzielle DLL-Hijacking"
-      cwe: "CWE-426"
-    - api: "RegSetValueExW"
-      risk: "Registry-Schreibzugriff"
-      cwe: "N/A"
-  low:
-    - api: "malloc/free/realloc"
-      risk: "Heap-Operationen -- Double-Free/Use-After-Free moglich"
-      cwe: "CWE-415/CWE-416"
-    - api: "VirtualAlloc/VirtualFree"
-      risk: "GC-Heap -- Garbage Collector Speicherverwaltung"
-      cwe: "N/A"
-    - api: "CreateFileMappingW/MapViewOfFile"
-      risk: "Memory-Mapped-File -- potenzieller Buffer-Overflow"
-      cwe: "CWE-119"
-  info:
-    - api: "wcscpy_s/wcscat_s/wcsncpy_s"
-      risk: "Safe String-Varianten (korrekt)"
-      cwe: "N/A"
-    - api: "_snwprintf_s/_vsnwprintf_s"
-      risk: "Safe Format-Strings"
-      cwe: "N/A"
-    - api: "memcpy_s/memmove_s"
-      risk: "Safe Memory-Varianten -- aber memcpy OHNE _s existiert auch!"
-      cwe: "N/A"
-
-exports:
-  - name: "JsCallFunction"
-    address: "0x1801f77e0"
-    risk: "Fuhrt beliebigen JS-Code aus"
-  - name: "JsConstructObject"
-    address: "0x1801f7850"
-    risk: "Erzeugt JS-Objekte"
-  - name: "JsCollectGarbage"
-    address: "0x1801f7830"
-    risk: "Lost GC manuell aus"
-  - name: "DllGetClassObject"
-    address: "0x18019b890"
-    risk: "COM-Entry-Point"
-
+    - { api: "VirtualAlloc/VirtualFree", risk: "GC-Heap", cwe: "CWE-416" }
+    - { api: "GetWriteWatch/ResetWriteWatch", risk: "GC Write-Barrier", cwe: "CWE-416" }
+    - { api: "LoadLibraryExA", risk: "DLL-Laden", cwe: "CWE-426" }
 findings:
   - id: "JS9-001"
     severity: "HIGH"
     cwe: "CWE-122"
-    title: "JIT-Compiler erzeugt W+X-Speicher"
-    function: "JIT Compiler (via VirtualProtect)"
-    address: "N/A (dynamisch)"
-    description: |
-      Der Chakra-JIT-Compiler nutzt VirtualProtect um allozierte Speicherseiten
-      auf PAGE_EXECUTE_READWRITE zu setzen. Dies ist die klassische JIT-Angriffsflache:
-      Ein Bug in der Code-Generierung erlaubt das Einschleusen von Shellcode.
-      FlushInstructionCache wird danach aufgerufen um den I-Cache zu leeren.
-    taint_path: "JS-Input -> Parser -> Bytecode -> JIT -> VirtualProtect(W+X)"
-    recommendation: "JIT-Spraying-Mitigationen prufen: Constant-Blinding, NOP-Sled-Detection."
-  - id: "JS9-002"
-    severity: "MEDIUM"
-    cwe: "CWE-119"
-    title: "Unsichere memcpy/memmove parallel zu _s-Varianten"
-    function: "Verschiedene"
-    address: "N/A"
-    description: |
-      jscript9.dll importiert sowohl memcpy/memmove (unsicher) als auch
-      memcpy_s/memmove_s (sicher). Die Existenz BEIDER Varianten deutet auf
-      inkonsistente Sicherheitspraxis hin. Einige Codepfade nutzen die
-      unsicheren Varianten ohne Langenprufung.
-    taint_path: "JS-Input -> Parser -> AST -> memcpy (unsafe)"
-    recommendation: "Alle memcpy/memmove-Aufrufe auf _s-Varianten migrieren."
-  - id: "JS9-003"
-    severity: "MEDIUM"
-    cwe: "CWE-416"
-    title: "Garbage Collector -- Use-After-Free-Risiko"
-    function: "GC (WriteWatch-basiert)"
-    address: "N/A"
-    description: |
-      Der Chakra-GC nutzt GetWriteWatch/ResetWriteWatch fur die Write-Barrier.
-      Fehler in der GC-Implementierung konnen zu Use-After-Free fuhren --
-      insbesondere bei getypten Arrays (TypedArray-Klassen) die direkten
-      Speicherzugriff erlauben.
-    taint_path: "JS-Input -> ArrayBuffer -> GC -> Use-After-Free"
-    recommendation: "GC-Implementierung auf UAF-Muster prufen."
-
-summary:
-  overall_risk: "HIGH"
-  critical_findings: 0
-  high_findings: 1
-  medium_findings: 2
-  low_findings: 0
-  info_findings: 0
-  recommendation: |
-    Hochriskante Binary durch JIT-Compiler-Angriffsflache.
-    - 16.719 Funktionen, nur oberflachlich analysiert
-    - JIT erzeugt W+X-Seiten (notwendig, aber gefahrlich)
-    - Inkonsistente memcpy/memcpy_s-Nutzung
-    - Empfehlung: Deep-Dive in JIT-Code-Generator und GC
-  coverage_percent: 1
+    title: "JIT-Code-Generator -- W+X-Speicher im Browser-Kontext"
+    description: "Chakra JIT erzeugt W+X-Seiten via VirtualProtect. 16.719 Funktionen. Bug in Code-Gen = beliebige Code-Ausfuhrung. GC mit WriteWatch. JIT-Spraying moglich."
+    recommendation: "Constant-Blinding. NOP-Sled-Detection. JIT-Mitigationen aktivieren."
+summary: { overall_risk: "HIGH", high_findings: 1, medium_findings: 3, coverage_percent: 1 }

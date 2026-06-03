@@ -1,35 +1,42 @@
-meta:
-  template_version: "1.0"
+﻿meta:
   binary_name: "spoolsv.exe"
   binary_type: "user_exe"
   file_size_bytes: 987584
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline"
-  analysis_duration_minutes: 5
-  notes: "Windows Print Spooler. PrintNightmare-Klasse (CVE-2021-34527). 2.223 Funktionen. RPC-basiert."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  notes: "Windows Print Spooler. 2.223 Funktionen. RPC-Server, Token-Impersonation, Treiber-Laden. PrintNightmare-Klasse."
 binary_info: { architecture: "x64", base_address: "0x140000000", function_count: 2223 }
-pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true, notes: "Alle Schutzmechanismen aktiv." }
+pe_security: { aslr: true, dep: true, cfg: true, high_entropy_aslr: true }
 import_risk_map:
   high:
-    - { api: "LoadLibraryExW", risk: "Druckertreiber-Laden -- potenzielle DLL-Hijacking", cwe: "CWE-426" }
+    - { api: "NdrServerCallAll/NdrAsyncServerCall/RpcServerRegisterIf", risk: "RPC-Server -- Remote-Angriffsflache", cwe: "CWE-20" }
+    - { api: "RpcImpersonateClient/RevertToSelf", risk: "Token-Impersonation -- Client-Rechte ubernehmen", cwe: "CWE-269" }
+    - { api: "LoadLibraryExW", risk: "Druckertreiber-Laden -- PrintNightmare-Vektor", cwe: "CWE-426" }
   medium:
-    - { api: "memcpy", risk: "UNSAFE -- memcpy_s existiert parallel", cwe: "CWE-119" }
-  low:
-    - { api: "malloc/free/realloc", risk: "Heap -- Double-Free/UAF moglich", cwe: "CWE-415/CWE-416" }
+    - { api: "DuplicateTokenEx/ImpersonateLoggedOnUser", risk: "Token-Duplizierung", cwe: "CWE-269" }
+    - { api: "SetTokenInformation/AdjustTokenPrivileges", risk: "Token-Privilege-Eskalation", cwe: "CWE-269" }
+    - { api: "memcpy", risk: "UNSAFE", cwe: "CWE-119" }
 findings:
   - id: "SPL-001"
     severity: "HIGH"
     cwe: "CWE-426"
-    title: "Druckertreiber-Laden via LoadLibraryExW"
-    function: "N/A"
-    address: "N/A"
-    description: "PrintNightmare: spoolsv.exe ladt Druckertreiber-DLLs mit SYSTEM-Rechten. Angreifer konnen bösartige DLLs als Treiber installieren."
-    recommendation: "Treiber-Signaturprufung und Pfad-Validierung sicherstellen."
+    title: "PrintNightmare: Druckertreiber-DLL-Laden mit SYSTEM-Rechten"
+    description: |
+      spoolsv.exe ist ein RPC-Server mit Token-Impersonation und DLL-Laden.
+      Die Kombination RpcImpersonateClient + LoadLibraryExW ermoglicht
+      einem entfernten Angreifer das Laden bösartiger DLLs als Druckertreiber.
+      2.223 Funktionen und umfangreiche RPC-Schnittstelle bieten groBe
+      Angriffsflache.
+    recommendation: "RPC-Authentifizierung prufen. Treiber-Signaturvalidierung vor LoadLibraryExW."
+taint_graph:
+  sources: [{name: "RPC-Clients", type: "Remote via NdrServerCall"}]
+  sinks: [{name: "LoadLibraryExW", address: "EXTERNAL"}, {name: "RpcImpersonateClient", address: "EXTERNAL"}]
+  edges:
+    - {from: "RPC-Clients", to: "LoadLibraryExW", bounded: false, check_location: "RPC-Marshalling -> DLL-Pfad"}
+    - {from: "RPC-Clients", to: "RpcImpersonateClient", bounded: false, check_location: "Token-Validierung"}
 summary:
   overall_risk: "HIGH"
-  critical_findings: 0
   high_findings: 1
-  medium_findings: 0
-  low_findings: 0
-  recommendation: "PrintNightmare-Mitigationen prufen. RPC-Schnittstelle auf Authentifizierung testen."
-  coverage_percent: 2
+  medium_findings: 3
+  recommendation: "PrintNightmare-Klasse. RPC+Token+DLL-Laden. Signaturprufung und Pfad-Hardening zwingend."
+  coverage_percent: 5

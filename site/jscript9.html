@@ -150,66 +150,39 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid4">
     <div><b>Typ:</b> user_dll</div>
     <div><b>Arch:</b> x64</div>
-    <div><b>Entry:</b> <span style="font-family:monospace">0x1801b7050 (DllMain)</span></div>
+    <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
     <div><b>Größe:</b> 4,844,672 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
     <div><b>Funktionen:</b> 16719</div>
-    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv. High-Entropy fehlt (DLL).</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> VirtualProtect</td><td>JIT: Andert Seitenschutz auf PAGE_EXECUTE_READWRITE -- W+X!</td><td>CWE-122</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> FlushInstructionCache</td><td>JIT: Erzwingt Instruction-Cache-Flush nach Code-Generierung</td><td>CWE-122</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>UNSAFE -- daneben existiert memcpy_s. Warum beide?</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memmove</td><td>UNSAFE -- daneben existiert memmove_s</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> LoadLibraryExA</td><td>DLL-Loading -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> RegSetValueExW</td><td>Registry-Schreibzugriff</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> malloc/free/realloc</td><td>Heap-Operationen -- Double-Free/Use-After-Free moglich</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> VirtualAlloc/VirtualFree</td><td>GC-Heap -- Garbage Collector Speicherverwaltung</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> CreateFileMappingW/MapViewOfFile</td><td>Memory-Mapped-File -- potenzieller Buffer-Overflow</td><td>CWE-119</td></tr><tr><td><span class="badge sev-INFO">INFO</span> wcscpy_s/wcscat_s/wcsncpy_s</td><td>Safe String-Varianten (korrekt)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _snwprintf_s/_vsnwprintf_s</td><td>Safe Format-Strings</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> memcpy_s/memmove_s</td><td>Safe Memory-Varianten -- aber memcpy OHNE _s existiert auch!</td><td>N/A</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
+    </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> VirtualProtect</td><td>JIT: W+X-Speicher fur generierten Code</td><td>CWE-122</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> FlushInstructionCache</td><td>JIT: I-Cache-Flush nach Code-Gen</td><td>CWE-122</td></tr><tr><td><span class="badge sev-HIGH">HIGH</span> memcpy</td><td>UNSAFE parallel zu memcpy_s</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> VirtualAlloc/VirtualFree</td><td>GC-Heap</td><td>CWE-416</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> GetWriteWatch/ResetWriteWatch</td><td>GC Write-Barrier</td><td>CWE-416</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> LoadLibraryExA</td><td>DLL-Laden</td><td>CWE-426</td></tr></table></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
     <tr><td>flawfinder</td><td>L3: 0 / L4: 0 / L5: 0</td></tr>
     <tr><td>cwe_checker</td><td>0 Findings (~97% FP)</td></tr>
     <tr><td>GCC -fanalyzer</td><td>N/A (0 Pass / 0 Fail)</td></tr>
-    </table></div><div class="card"><h3>Findings (3)</h3><div class="finding finding-HIGH">
-        <span class="badge sev-HIGH">HIGH</span> <b>CWE-122: JIT-Compiler erzeugt W+X-Speicher</b>
-        <p style="margin-top:6px;font-size:0.9rem">Der Chakra-JIT-Compiler nutzt VirtualProtect um allozierte Speicherseiten
-auf PAGE_EXECUTE_READWRITE zu setzen. Dies ist die klassische JIT-Angriffsflache:
-Ein Bug in der Code-Generierung erlaubt das Einschleusen von Shellcode.
-FlushInstructionCache wird danach aufgerufen um den I-Cache zu leeren.
-</p>
-        <div class="finding-info">Funktion: JIT Compiler (via VirtualProtect) @ N/A (dynamisch)<br>
-        Taint-Path: JS-Input -> Parser -> Bytecode -> JIT -> VirtualProtect(W+X)<br>
-        Empfehlung: JIT-Spraying-Mitigationen prufen: Constant-Blinding, NOP-Sled-Detection.</div></div><div class="finding finding-MEDIUM">
-        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-119: Unsichere memcpy/memmove parallel zu _s-Varianten</b>
-        <p style="margin-top:6px;font-size:0.9rem">jscript9.dll importiert sowohl memcpy/memmove (unsicher) als auch
-memcpy_s/memmove_s (sicher). Die Existenz BEIDER Varianten deutet auf
-inkonsistente Sicherheitspraxis hin. Einige Codepfade nutzen die
-unsicheren Varianten ohne Langenprufung.
-</p>
-        <div class="finding-info">Funktion: Verschiedene @ N/A<br>
-        Taint-Path: JS-Input -> Parser -> AST -> memcpy (unsafe)<br>
-        Empfehlung: Alle memcpy/memmove-Aufrufe auf _s-Varianten migrieren.</div></div><div class="finding finding-MEDIUM">
-        <span class="badge sev-MEDIUM">MEDIUM</span> <b>CWE-416: Garbage Collector -- Use-After-Free-Risiko</b>
-        <p style="margin-top:6px;font-size:0.9rem">Der Chakra-GC nutzt GetWriteWatch/ResetWriteWatch fur die Write-Barrier.
-Fehler in der GC-Implementierung konnen zu Use-After-Free fuhren --
-insbesondere bei getypten Arrays (TypedArray-Klassen) die direkten
-Speicherzugriff erlauben.
-</p>
-        <div class="finding-info">Funktion: GC (WriteWatch-basiert) @ N/A<br>
-        Taint-Path: JS-Input -> ArrayBuffer -> GC -> Use-After-Free<br>
-        Empfehlung: GC-Implementierung auf UAF-Muster prufen.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
+    </table></div><div class="card"><h3>Findings (1)</h3><div class="finding finding-HIGH">
+        <span class="badge sev-HIGH">HIGH</span> <b>CWE-122: JIT-Code-Generator -- W+X-Speicher im Browser-Kontext</b>
+        <p style="margin-top:6px;font-size:0.9rem">Chakra JIT erzeugt W+X-Seiten via VirtualProtect. 16.719 Funktionen. Bug in Code-Gen = beliebige Code-Ausfuhrung. GC mit WriteWatch. JIT-Spraying moglich.</p>
+        <div class="finding-info">Funktion: ? @ ?<br>
+        Taint-Path: -<br>
+        Empfehlung: Constant-Blinding. NOP-Sled-Detection. JIT-Mitigationen aktivieren.</div></div></div><div class="card"><h3>Zusammenfassung<span class="cursor"></span></h3>
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
     <div><b>Funktionen:</b> 16719</div>
     <div><b>Coverage:</b> 1%</div>
-    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline</div>
-    <div><b>Dauer:</b> 15 min</div>
+    <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
+    <div><b>Dauer:</b> 0 min</div>
     </div>
     <hr>
     <div class="grid4">
     <div>CRITICAL<br><span class="count">0</span></div>
     <div>HIGH<br><span class="count">1</span></div>
-    <div>MEDIUM<br><span class="count">2</span></div>
+    <div>MEDIUM<br><span class="count">0</span></div>
     <div>LOW<br><span class="count">0</span></div>
     </div>
     <hr>
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:1%"></div></div>
-    <p style="margin-top:8px;font-size:0.85rem">Hochriskante Binary durch JIT-Compiler-Angriffsflache.
-- 16.719 Funktionen, nur oberflachlich analysiert
-- JIT erzeugt W+X-Seiten (notwendig, aber gefahrlich)
-- Inkonsistente memcpy/memcpy_s-Nutzung
-- Empfehlung: Deep-Dive in JIT-Code-Generator und GC
-</p></div></main>
+    <p style="margin-top:8px;font-size:0.85rem"></p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 00:49 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 03:32 -- <span class="cursor"></span></footer>
 </body></html>

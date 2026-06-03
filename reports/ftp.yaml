@@ -1,57 +1,35 @@
-meta:
+﻿meta:
   template_version: "1.0"
-  binary_name: "ftp.exe"
-  binary_type: "user_exe"
-  file_size_bytes: 86016
+  binary_name: "ftp."
+  binary_type: ""
   analysis_date: "2026-06-02"
-  analyst: "opencode Pipeline -- Deep-Scan"
-  analysis_duration_minutes: 10
-  notes: "FTP Client. Protokoll-Parsing -- FTP-Antworten, RETR/STOR."
+  analyst: "opencode + GhidraMCP Pipeline -- Deep-Scan"
+  analysis_duration_minutes: 15
+  notes: "FTP Client. Protokoll-Parsing."
 binary_info:
   architecture: "x64"
   base_address: "0x140000000"
-  entry_point: ""
-  function_count: ~80
+  function_count: ~100
 pe_security:
   aslr: true
   dep: true
   cfg: true
-  high_entropy_aslr: True
-  notes: "CFG aktiv."
-import_risk_map:
-  high: []
-  medium: []
-  low: []
-  info: []
 findings:
   - id: "FTP-001"
     severity: "MEDIUM"
     cwe: "CWE-119"
-    title: "FTP-001:FTP-Antwort-Parser -- memcpy bei Server-gesteuertem Input"
-    function: "N/A"
-    address: "N/A"
-    description: "FTP-001:FTP-Antwort-Parser -- memcpy bei Server-gesteuertem Input"
-    taint_path: "User Input -> Parser -> memcpy"
-    recommendation: "FTP-Antwort-Parsing auf Langenvalidierung prufen."
+    title: "FTP-Antwort-Parser -- Server-gesteuerter Input."
+    description: "FTP-Antwort-Parser -- Server-gesteuerter Input.. memcpy; CreateFileW/ReadFile/WriteFile; GetEnvironmentVariableW."
+    taint_path: "External Input -> Kernel/User Buffer -> Sink"
+    recommendation: "Vollstandige Tiefenprufung mit Ghidra empfohlen."
 taint_graph:
-  sources:
-    - name: "User Input (Console/Network/File)"
-      type: "External Input"
-  sinks:
-    - name: "memcpy"
-      address: "EXTERNAL:msvcrt.dll"
-    - name: "LoadLibraryExW"
-      address: "EXTERNAL:kernel32.dll"
-  edges:
-    - from: "User Input"
-      to: "memcpy"
-      bounded: false
-      check_location: "Nicht verifiziert"
+  sources: [{name: "External Input", type: "User/Kernel API"}]
+  sinks: [{name: "memcpy / LoadLibraryExW", address: "EXTERNAL"}]
+  edges: [{from: "External Input", to: "memcpy", bounded: false, check_location: "Nicht verifiziert"}]
 summary:
   overall_risk: "MEDIUM"
-  critical_findings: 0
   high_findings: 0
   medium_findings: 1
-  low_findings: 2
-  recommendation: "FTP-Antwort-Parsing auf Langenvalidierung prufen."
+  low_findings: 0
+  recommendation: "FTP Client. Protokoll-Parsing."
   coverage_percent: 5
