@@ -6,13 +6,13 @@ meta:
   analysis_date: '2026-06-02'
   analyst: opencode Pipeline
   analysis_duration_minutes: 5
-  notes: SMB 2.0 Server Driver. Netzwerk-Protokoll-Parsing auf Kernel-Ebene. 1.176
-    Funktionen. Remote-Angriffsflache.
+  notes: 'SMB 2.0 Server Driver. Netzwerk-Protokoll-Parsing auf Kernel-Ebene. 1.176
+    Funktionen. Remote-Angriffsflache. | BN: 1300 funcs | BN: 1300 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
   entry_point: '0x14009d010'
-  function_count: 1176
+  function_count: 1300
 pe_security:
   aslr: true
   dep: true
@@ -78,36 +78,48 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 699 Findings.
+  binary_ninja:
+    function_count: 1300
+    notes: BN 5.3.9434 - Full batch scan
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
   - id: pr
     name: ProbeForRead
     type: Buffer Probe
+    status: BOUNDED
   sinks:
   - id: md
     name: MDL-Mapping
-    addr: EXTERNAL
+    addr: ntoskrnl
     risk: CWE-119
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
   - from: ioctl
     to: pr
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Validierung\"\n    pr{{ProbeForRead}}\n  end\n  subgraph \"Sinks\"\n    md[\"\
-    MDL-Mapping\"]\n  end\n    ioctl -->|\"Buffer Probe\"| pr\n    pr ==>|\"EXTERNAL\"\
-    | md\n    style md fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    pr{{ ProbeForRead  Buffer Probe\
+    \ }}\n    style pr fill:#00fd00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\
+    \n    md[\"MDL-Mapping<br/>ntoskrnl\"]\n    style md fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    ioctl --> pr\n    mdl --> pr\n    sysbuf --> pr\n    pr --> md\n \
+    \   pr --> c7"

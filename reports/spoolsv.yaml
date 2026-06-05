@@ -4,12 +4,12 @@ meta:
   file_size_bytes: 983040
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
-  notes: Windows Print Spooler. 2.223 Funktionen. RPC-Server, Token-Impersonation,
-    Treiber-Laden. PrintNightmare-Klasse.
+  notes: 'Windows Print Spooler. 2.223 Funktionen. RPC-Server, Token-Impersonation,
+    Treiber-Laden. PrintNightmare-Klasse. | BN: 2500 funcs | BN: 2500 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
-  function_count: 2223
+  function_count: 2500
 pe_security:
   aslr: true
   dep: true
@@ -55,35 +55,56 @@ findings:
   recommendation: RPC-Authentifizierung prufen. Treiber-Signaturvalidierung vor LoadLibraryExW.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
+  - id: com
+    name: COM/DCOM/RPC Input
+    type: RPC Call
+    detail: Remote Activation
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
     risk: CWE-119
   - id: ll
     name: LoadLibrary
-    addr: EXTERNAL
+    addr: kernel32
     risk: CWE-426
+  - id: cw
+    name: 'cwe_checker: CWE676'
+    addr: Docker-Scan
+    risk: MEDIUM
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    mc[\"memcpy\"]\n\
-    \    ll[\"LoadLibrary\"]\n  end\n    cmd -->|\"?\"| v0\n    v0 ==>|\"EXTERNAL\"\
-    | mc\n    v0 ==>|\"EXTERNAL\"| ll\n    style mc fill:#ff8c00,stroke:#333\n   \
-    \ style ll fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n    com[\"COM/DCOM/RPC\
+    \ Input<br/>Remote Activation\"]\n  end\n  subgraph \"Validierung / Schutz\"\n\
+    \    v0{{ User-Mode-Validierung unbekannt  Prüfung empfohlen }}\n    style v0\
+    \ fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\n    mc[\"memcpy<br/>msvcrt/ucrtbase\"\
+    ]\n    style mc fill:#ff8c00,stroke:#333\n    ll[\"LoadLibrary<br/>kernel32\"\
+    ]\n    style ll fill:#ff8c00,stroke:#333\n    cw[\"cwe_checker: CWE676<br/>Docker-Scan\"\
+    ]\n    style cw fill:#ff8c00,stroke:#333\n    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"\
+    ]\n    style c7 fill:#ff8c00,stroke:#333\n  end\n    cmdline --> v0\n    console\
+    \ --> v0\n    com --> v0\n    v0 --> mc\n    v0 --> ll\n    v0 --> cw\n    v0\
+    \ --> c7"
 summary:
   overall_risk: HIGH
   high_findings: 1
@@ -104,3 +125,6 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 1261 Findings.
+  binary_ninja:
+    function_count: 2500
+    notes: BN 5.3.9434 - Full batch scan

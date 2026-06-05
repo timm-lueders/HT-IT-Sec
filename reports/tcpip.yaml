@@ -4,11 +4,12 @@ meta:
   file_size_bytes: 3479000
   analysis_date: '2026-06-03'
   analyst: opencode + GhidraMCP
-  notes: TCP/IP Stack. ~5.000 Funktionen. Gesamter Windows-Netzwerk-Stack.
+  notes: 'TCP/IP Stack. ~5.000 Funktionen. Gesamter Windows-Netzwerk-Stack. | BN:
+    5800 funcs | BN: 5800 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
-  function_count: 5000
+  function_count: 5800
 pe_security:
   aslr: true
   dep: true
@@ -36,6 +37,9 @@ tools_output:
     cwe476_null_deref: 356
     cwe676_dangerous_func: 0
     notes: 'cwe_checker: 3216 Findings.'
+  binary_ninja:
+    function_count: 5800
+    notes: BN 5.3.9434 - Full batch scan
 findings:
 - id: TCPIP-001
   severity: HIGH
@@ -48,35 +52,45 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
-  - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+  - id: sapi
+    name: Safe APIs (memcpy_s etc.)
+    type: String/Mem Safety
+    status: BOUNDED
   sinks:
   - id: md
     name: MDL-Mapping
-    addr: EXTERNAL
+    addr: ntoskrnl
     risk: CWE-119
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
   - from: ioctl
-    to: v0
+    to: sapi
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Sinks\"\n    md[\"MDL-Mapping\"]\n  end\n    ioctl -->|\"?\"| v0\n    v0 ==>|\"\
-    EXTERNAL\"| md\n    style md fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    sapi{{ Safe APIs  memcpy_s\
+    \ etc.   String/Mem Safety }}\n    style sapi fill:#00fd00,stroke:#333\n  end\n\
+    \  subgraph \"Sinks Gefahren\"\n    md[\"MDL-Mapping<br/>ntoskrnl\"]\n    style\
+    \ md fill:#ff8c00,stroke:#333\n    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"\
+    ]\n    style c7 fill:#ff8c00,stroke:#333\n  end\n    ioctl --> sapi\n    mdl -->\
+    \ sapi\n    sysbuf --> sapi\n    sapi --> md\n    sapi --> c7"
 summary:
   overall_risk: HIGH
   high_findings: 1

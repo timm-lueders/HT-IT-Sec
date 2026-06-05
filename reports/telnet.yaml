@@ -6,7 +6,8 @@ meta:
   analysis_date: '2026-06-02'
   analyst: opencode Pipeline -- Deep-Scan
   analysis_duration_minutes: 10
-  notes: Telnet Client. 130 Funktionen. Netzwerk-Protokoll-Parsing.
+  notes: 'Telnet Client. 130 Funktionen. Netzwerk-Protokoll-Parsing. | BN: 130 funcs
+    | BN: 130 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
@@ -38,28 +39,46 @@ findings:
     auditierbar.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: s0
-    name: Unbekannt
-    addr: '?'
+    name: Keine Sinks via Import identifiziert
+    addr: '-'
+    risk: ''
+  - id: cw
+    name: 'cwe_checker: CWE676'
+    addr: Docker-Scan
+    risk: MEDIUM
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    s0[\"Unbekannt\"\
-    ]\n  end\n    cmd -->|\"?\"| v0\n    v0 -->|\"?\"| s0"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n  end\n  subgraph\
+    \ \"Validierung / Schutz\"\n    v0{{ User-Mode-Validierung unbekannt  Prüfung\
+    \ empfohlen }}\n    style v0 fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks\
+    \ Gefahren\"\n    s0[\"Keine Sinks via Import identifiziert<br/>-\"]\n    cw[\"\
+    cwe_checker: CWE676<br/>Docker-Scan\"]\n    style cw fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    cmdline --> v0\n    console --> v0\n    v0 --> s0\n    v0 --> cw\n\
+    \    v0 --> c7"
 summary:
   overall_risk: MEDIUM
   critical_findings: 0
@@ -82,3 +101,6 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 163 Findings.
+  binary_ninja:
+    function_count: 130
+    notes: BN 5.3.9434 - Full batch scan

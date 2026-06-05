@@ -153,24 +153,29 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
     <div><b>Größe:</b> 1,144,304 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 1200</div>
+    <div><b>Funktionen:</b> 1400</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Quellen Input"
-    cmd["GetCommandLineW"]
-    con["ReadConsoleW"]
+  subgraph "Eingabe-Quellen"
+    cmdline["GetCommandLineW<br/>Process Startup"]
+    console["ReadConsoleW<br/>Interactive Mode"]
   end
-  subgraph "Sinks"
-    s0["Unbekannt"]
+  subgraph "Validierung / Schutz"
+    v0{{ User-Mode-Validierung unbekannt  Prüfung empfohlen }}
+    style v0 fill:#ff8c00,stroke:#333
   end
-    cmd -->|"?"| v0
-    v0 -->|"?"| s0</div>
+  subgraph "Sinks Gefahren"
+    s0["Keine Sinks via Import identifiziert<br/>-"]
+  end
+    cmdline --> v0
+    console --> v0
+    v0 --> s0</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW</td><td>Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW</td><td>Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>Unbekannt</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW</td><td>Command Line Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW</td><td>Console Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>Keine Sinks via Import identifiziert</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>Unbekannte Validierung</td><td>?</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>User-Mode-Validierung unbekannt</td><td>Prüfung empfohlen</td><td style='font-size:0.8rem'>-</td></tr></table>
         <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
@@ -186,7 +191,7 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-MEDIUM">MEDIUM</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 1200</div>
+    <div><b>Funktionen:</b> 1400</div>
     <div><b>Coverage:</b> 5%</div>
     <div><b>Analyst:</b> opencode + GhidraMCP Pipeline</div>
     <div><b>Dauer:</b> 0 min</div>
@@ -202,5 +207,5 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div class="progress-bar risk-MEDIUM"><div class="progress-fill" style="width:5%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">Clipboard. User-to-Kernel.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-05 13:41 -- <span class="cursor"></span></footer>
 </body></html>

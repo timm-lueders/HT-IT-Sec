@@ -11,12 +11,13 @@ meta:
   analysis_duration_minutes: 45
   ghidra_version: 12.0.4
   ghidra_mcp_version: 5.10.0
-  notes: BitLocker-VerSchlüsselungstreiber. 15 Memory-Blocks, 1558 Funktionen.
+  notes: 'BitLocker-VerSchlüsselungstreiber. 15 Memory-Blocks, 1558 Funktionen. |
+    BN: 1563 funcs | BN: 1563 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
   entry_point: 0x1400d1010 -> 0x1400d1700 (FvevolDriverEntry)
-  function_count: 1558
+  function_count: 1563
   symbol_count: 1912
   compiler_hint: msvc
   subsystem: native
@@ -432,47 +433,65 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
   - id: pw
     name: ProbeForWrite
     type: Buffer Probe
+    status: BOUNDED
+  - id: bc
+    name: Mehrstufige Bounds-Checks
+    type: Size Validation
+    status: BOUNDED
   sinks:
   - id: zw
-    name: ZwWriteFile
-    addr: EXTERNAL
+    name: Disk Write
+    addr: ntoskrnl/kernel32
+    risk: ''
   - id: zr
-    name: ZwReadFile
-    addr: EXTERNAL
+    name: Disk Read
+    addr: ntoskrnl/kernel32
+    risk: ''
   - id: bc
-    name: BCryptEncrypt
-    addr: EXTERNAL
+    name: BCrypt Encrypt/Decrypt
+    addr: bcrypt
+    risk: ''
   - id: md
     name: MDL-Mapping
-    addr: EXTERNAL
+    addr: ntoskrnl
     risk: CWE-119
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
   - from: ioctl
     to: pw
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Validierung\"\n    pw{{ProbeForWrite}}\n  end\n  subgraph \"Sinks\"\n    zw[\"\
-    ZwWriteFile\"]\n    zr[\"ZwReadFile\"]\n    bc[\"BCryptEncrypt\"]\n    md[\"MDL-Mapping\"\
-    ]\n  end\n    ioctl -->|\"Buffer Probe\"| pw\n    pw -->|\"EXTERNAL\"| zw\n  \
-    \  pw -->|\"EXTERNAL\"| zr\n    pw -->|\"EXTERNAL\"| bc\n    pw ==>|\"EXTERNAL\"\
-    | md\n    style md fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    pw{{ ProbeForWrite  Buffer\
+    \ Probe }}\n    style pw fill:#00fd00,stroke:#333\n    bc{{ Mehrstufige Bounds-Checks\
+    \  Size Validation }}\n    style bc fill:#00fd00,stroke:#333\n  end\n  subgraph\
+    \ \"Sinks Gefahren\"\n    zw[\"Disk Write<br/>ntoskrnl/kernel32\"]\n    zr[\"\
+    Disk Read<br/>ntoskrnl/kernel32\"]\n    bc[\"BCrypt Encrypt/Decrypt<br/>bcrypt\"\
+    ]\n    md[\"MDL-Mapping<br/>ntoskrnl\"]\n    style md fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    ioctl --> pw\n    mdl --> pw\n    sysbuf --> pw\n    pw --> zw\n \
+    \   pw --> zr\n    pw --> bc\n    pw --> md\n    bc --> zw\n    bc --> zr\n  \
+    \  bc --> bc\n    bc --> md"
 tools_output:
   flawfinder:
     level_3_hits: 0
@@ -487,6 +506,9 @@ tools_output:
     cwe476_null_deref: 25
     cwe676_dangerous_func: 0
     notes: 'cwe_checker: 969 Findings.'
+  binary_ninja:
+    function_count: 1563
+    notes: BN 5.3.9434 - Full batch scan
 artifacts:
 - file: fvevol_audited.sys
   type: patched_binary

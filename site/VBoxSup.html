@@ -153,37 +153,46 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">0x140019190 (DriverEntry)</span></div>
     <div><b>Größe:</b> 1,062,048 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 1863</div>
+    <div><b>Funktionen:</b> 2183</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">CFG aktiv. High-Entropy fur Kernel-Treiber irrelevant.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> IoBuildPartialMdl</td><td>Double-Fetch (TOCTOU) bei MDL-Manipulation</td><td>CWE-367</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmProbeAndLockPages</td><td>User-Mode-Puffer in Kernel locken -- braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages</td><td>MDL-Mapping -- Zugriff auf User-Puffer im Kernel</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ZwCreateFile/ZwReadFile/ZwQueryDirectoryFile</td><td>File-System-Zugriff aus Kernel -- Pfad-Traversal moglich</td><td>CWE-22</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ObReferenceObjectByHandle</td><td>Handle-Validierung -- muss vor Zugriff erfolgen</td><td>CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForRead</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ProbeForWrite</td><td>Buffer-Validierung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> ExGetPreviousMode</td><td>User/Kernel-Mode-Check (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SeCaptureSubjectContext</td><td>Security-Token-Prufung (KORREKT vorhanden)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ASM* (asm helpers)</td><td>Kritische Sektionen, atomare Operationen, CPUID</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Quellen Input"
-    ioctl["DeviceIoControl"]
-    read["IRP_MJ_READ"]
-    write["IRP_MJ_WRITE"]
+  subgraph "Eingabe-Quellen"
+    ioctl["DeviceIoControl Input<br/>Irp->UserBuffer @0x70"]
+    mdl["IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress @0x10"]
+    sysbuf["IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer"]
   end
-  subgraph "Validierung"
-    pw{{ProbeForWrite}}
-    pr{{ProbeForRead}}
-    pm{{ExGetPreviousMode}}
-    sc{{SeCaptureSubjectContext}}
+  subgraph "Validierung / Schutz"
+    pw{{ ProbeForWrite  Buffer Probe }}
+    style pw fill:#00fd00,stroke:#333
+    pr{{ ProbeForRead  Buffer Probe }}
+    style pr fill:#00fd00,stroke:#333
+    pm{{ ExGetPreviousMode  User/Kernel Check }}
+    style pm fill:#00fd00,stroke:#333
+    sc{{ SeCaptureSubjectContext  Security Token Check }}
+    style sc fill:#00fd00,stroke:#333
   end
-  subgraph "Sinks"
-    zr["ZwReadFile"]
-    md["MDL-Mapping"]
+  subgraph "Sinks Gefahren"
+    zr["Disk Read<br/>ntoskrnl/kernel32"]
+    md["MDL-Mapping<br/>ntoskrnl"]
+    style md fill:#ff8c00,stroke:#333
   end
-    ioctl -->|"Buffer Probe"| pw
-    ioctl -->|"Buffer Probe"| pr
-    ioctl -->|"Mode Check"| pm
-    ioctl -->|"Security"| sc
-    sc -->|"EXTERNAL"| zr
-    sc ==>|"EXTERNAL"| md
-    style md fill:#ff8c00,stroke:#333</div>
+    ioctl --> pw
+    mdl --> pw
+    sysbuf --> pw
+    pw --> zr
+    pw --> md
+    pr --> zr
+    pr --> md
+    pm --> zr
+    pm --> md
+    sc --> zr
+    sc --> md</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_WRITE</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>ZwReadFile</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>MDL-Mapping</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl Input</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ/WRITE Mdl</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP SystemBuffer</td><td>METHOD_BUFFERED</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>Disk Read</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>MDL-Mapping</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ProbeForWrite</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ProbeForRead</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ExGetPreviousMode</td><td>Mode Check</td><td style='font-size:0.8rem'>-</td></tr><tr><td>SeCaptureSubjectContext</td><td>Security</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ProbeForWrite</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ProbeForRead</td><td>Buffer Probe</td><td style='font-size:0.8rem'>-</td></tr><tr><td>ExGetPreviousMode</td><td>User/Kernel Check</td><td style='font-size:0.8rem'>-</td></tr><tr><td>SeCaptureSubjectContext</td><td>Security Token Check</td><td style='font-size:0.8rem'>-</td></tr></table>
         <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
@@ -234,7 +243,7 @@ Angriffsflache (CWE-120).
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-MEDIUM">MEDIUM</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 1863</div>
+    <div><b>Funktionen:</b> 2183</div>
     <div><b>Coverage:</b> 8%</div>
     <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
     <div><b>Dauer:</b> 20 min</div>
@@ -257,5 +266,5 @@ und SeCaptureSubjectContext sind vorhanden. Hauptkritikpunkte:
 Insgesamt: Professioneller Treiber mit Security-Awareness.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-05 13:41 -- <span class="cursor"></span></footer>
 </body></html>

@@ -11,12 +11,13 @@ meta:
   analysis_duration_minutes: 25
   ghidra_version: 12.0.4
   ghidra_mcp_version: 5.10.0
-  notes: Windows-Befehlszeileninterpreter. 10 Memory-Blocks, 1133 Funktionen.
+  notes: 'Windows-Befehlszeileninterpreter. 10 Memory-Blocks, 1133 Funktionen. | BN:
+    735 funcs | BN: 735 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
   entry_point: 0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)
-  function_count: 1133
+  function_count: 735
   symbol_count: 7880
   compiler_hint: msvc
   subsystem: windows_cui
@@ -197,38 +198,68 @@ findings:
     nie einen leeren String zurückgibt.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   validators:
-  - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+  - id: heap
+    name: HeapEnableTerminationOnCorruption
+    type: Heap Hardening
+    status: BOUNDED
+  - id: bc
+    name: Mehrstufige Bounds-Checks
+    type: Size Validation
+    status: BOUNDED
+  - id: fmt
+    name: Safe Format-Strings (_s)
+    type: Format String Safety
+    status: BOUNDED
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
     risk: CWE-119
   - id: mm
     name: memmove
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
+    risk: ''
   - id: cp
     name: CreateProcess
-    addr: EXTERNAL
+    addr: kernel32
     risk: CWE-78
+  - id: cw
+    name: 'cwe_checker: CWE676'
+    addr: Docker-Scan
+    risk: MEDIUM
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
-  - from: cmd
-    to: v0
+  - from: cmdline
+    to: heap
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    mc[\"memcpy\"]\n\
-    \    mm[\"memmove\"]\n    cp[\"CreateProcess\"]\n  end\n    cmd -->|\"?\"| v0\n\
-    \    v0 ==>|\"EXTERNAL\"| mc\n    v0 -->|\"EXTERNAL\"| mm\n    v0 ==>|\"EXTERNAL\"\
-    | cp\n    style mc fill:#ff8c00,stroke:#333\n    style cp fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n  end\n  subgraph\
+    \ \"Validierung / Schutz\"\n    heap{{ HeapEnableTerminationOnCorruption  Heap\
+    \ Hardening }}\n    style heap fill:#00fd00,stroke:#333\n    bc{{ Mehrstufige\
+    \ Bounds-Checks  Size Validation }}\n    style bc fill:#00fd00,stroke:#333\n \
+    \   fmt{{ Safe Format-Strings  _s   Format String Safety }}\n    style fmt fill:#00fd00,stroke:#333\n\
+    \  end\n  subgraph \"Sinks Gefahren\"\n    mc[\"memcpy<br/>msvcrt/ucrtbase\"]\n\
+    \    style mc fill:#ff8c00,stroke:#333\n    mm[\"memmove<br/>msvcrt/ucrtbase\"\
+    ]\n    cp[\"CreateProcess<br/>kernel32\"]\n    style cp fill:#ff8c00,stroke:#333\n\
+    \    cw[\"cwe_checker: CWE676<br/>Docker-Scan\"]\n    style cw fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    cmdline --> heap\n    console --> heap\n    heap --> mc\n    heap\
+    \ --> mm\n    heap --> cp\n    heap --> cw\n    bc --> mc\n    bc --> mm\n   \
+    \ bc --> cp\n    bc --> cw\n    fmt --> mc\n    fmt --> mm\n    fmt --> cp\n \
+    \   fmt --> cw"
 tools_output:
   flawfinder:
     level_3_hits: 0
@@ -243,6 +274,9 @@ tools_output:
     cwe476_null_deref: 15
     cwe676_dangerous_func: 148
     notes: 'cwe_checker: 542 Findings.'
+  binary_ninja:
+    function_count: 735
+    notes: BN 5.3.9434 - Full batch scan
 artifacts:
 - file: cmd_audited.exe
   type: patched_binary

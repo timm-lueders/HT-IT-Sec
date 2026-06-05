@@ -4,14 +4,14 @@ meta:
   file_size_bytes: 1854880
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
-  notes: Chelsio T5/T6 10/25/40/100GbE Netzwerktreiber. 642 Funktionen. WDF-basiert.
+  notes: 'Chelsio T5/T6 10/25/40/100GbE Netzwerktreiber. 642 Funktionen. WDF-basiert.
     VF-SR-IOV. NUR safe APIs (memcpy_s, strncpy_s, sprintf_s). Beeindruckend sauberer
-    Drittanbieter-Treiber.
+    Drittanbieter-Treiber. | BN: 800 funcs | BN: 800 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
   entry_point: '0x14002b620'
-  function_count: 642
+  function_count: 800
   compiler_hint: msvc + WDF
 pe_security:
   aslr: true
@@ -65,38 +65,49 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
-  - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+  - id: mix
+    name: memcpy+memcpy_s gemischt
+    type: ⚠️ Inkonsistente API-Nutzung
+    status: CONDITIONAL
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
-    risk: CWE-119
+    addr: msvcrt/ucrtbase
+    risk: ''
   - id: zr
-    name: ZwReadFile
-    addr: EXTERNAL
+    name: Disk Read
+    addr: ntoskrnl/kernel32
+    risk: ''
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
   - from: ioctl
-    to: v0
+    to: mix
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Sinks\"\n    mc[\"memcpy\"]\n    zr[\"ZwReadFile\"]\n  end\n    ioctl -->|\"?\"\
-    | v0\n    v0 ==>|\"EXTERNAL\"| mc\n    v0 -->|\"EXTERNAL\"| zr\n    style mc fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    mix{{ memcpy+memcpy_s gemischt\
+    \  ⚠️ Inkonsistente API-Nutzung }}\n    style mix fill:#ffc107,stroke:#333\n \
+    \ end\n  subgraph \"Sinks Gefahren\"\n    mc[\"memcpy<br/>msvcrt/ucrtbase\"]\n\
+    \    zr[\"Disk Read<br/>ntoskrnl/kernel32\"]\n    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"\
+    ]\n    style c7 fill:#ff8c00,stroke:#333\n  end\n    ioctl --> mix\n    mdl -->\
+    \ mix\n    sysbuf --> mix\n    mix --> mc\n    mix --> zr\n    mix --> c7"
 summary:
   overall_risk: LOW
   high_findings: 0
@@ -117,3 +128,6 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 387 Findings.
+  binary_ninja:
+    function_count: 800
+    notes: BN 5.3.9434 - Full batch scan

@@ -153,29 +153,35 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">?</span></div>
     <div><b>Größe:</b> 1,861,104 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 3697</div>
+    <div><b>Funktionen:</b> 4200</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-HIGH">HIGH</span> HalPrivateDispatchTable</td><td>Direkter HAL-Zugriff -- undokumentierte Schnittstelle</td><td>CWE-676</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapLockedPages + MmMapLockedPagesSpecifyCache</td><td>MDL-Mapping fur Netzwerk-Puffer -- muss validiert sein</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> _vsnwprintf</td><td>Format-String OHNE _s -- gefahrlich</td><td>CWE-134</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmUserProbeAddress + ExGetPreviousMode</td><td>User-Mode-Validierung vorhanden -- korrekt</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> wcscpy_s</td><td>Safe String-Variante</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlCopyUnicodeString</td><td>String-Kopie -- braucht validierten Puffer</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> MmIsDriverVerifying + MmBadPointer</td><td>Driver-Verifier-Support -- lobenswert</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> IoConnectInterruptEx</td><td>Interrupt-Handling</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> KeQueryDpcWatchdogInformation</td><td>DPC-Watchdog -- Timeout-Erkennung</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ExAllocatePool3</td><td>Pool-Allokation (modernste API)</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Quellen Input"
-    ioctl["DeviceIoControl"]
-    read["IRP_MJ_READ"]
-    write["IRP_MJ_WRITE"]
+  subgraph "Eingabe-Quellen"
+    ioctl["DeviceIoControl Input<br/>Irp->UserBuffer @0x70"]
+    mdl["IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress @0x10"]
+    sysbuf["IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer"]
   end
-  subgraph "Validierung"
-    pm{{ExGetPreviousMode}}
+  subgraph "Validierung / Schutz"
+    pm{{ ExGetPreviousMode  User/Kernel Check }}
+    style pm fill:#00fd00,stroke:#333
   end
-  subgraph "Sinks"
-    md["MDL-Mapping"]
+  subgraph "Sinks Gefahren"
+    md["MDL-Mapping<br/>ntoskrnl"]
+    style md fill:#ff8c00,stroke:#333
+    c7["cwe_checker: CWE787<br/>Docker-Scan"]
+    style c7 fill:#ff8c00,stroke:#333
   end
-    ioctl -->|"Mode Check"| pm
-    pm ==>|"EXTERNAL"| md
-    style md fill:#ff8c00,stroke:#333</div>
+    ioctl --> pm
+    mdl --> pm
+    sysbuf --> pm
+    pm --> md
+    pm --> c7</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_WRITE</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>MDL-Mapping</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl Input</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ/WRITE Mdl</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP SystemBuffer</td><td>METHOD_BUFFERED</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>MDL-Mapping</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>cwe_checker: CWE787</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ExGetPreviousMode</td><td>Mode Check</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>ExGetPreviousMode</td><td>User/Kernel Check</td><td style='font-size:0.8rem'>-</td></tr></table>
         <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
@@ -207,7 +213,7 @@ fur User-Mode-Validierung und MmIsDriverVerifying fur Test-Support.
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-HIGH">HIGH</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 3697</div>
+    <div><b>Funktionen:</b> 4200</div>
     <div><b>Coverage:</b> 2%</div>
     <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
     <div><b>Dauer:</b> 15 min</div>
@@ -223,5 +229,5 @@ fur User-Mode-Validierung und MmIsDriverVerifying fur Test-Support.
     <div class="progress-bar risk-HIGH"><div class="progress-fill" style="width:2%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">Hochste Prioritat. Remote-Kernel-Angriffsflache. 3.697 Funktionen. Netzwerk-Fuzzing dringend empfohlen.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-05 13:41 -- <span class="cursor"></span></footer>
 </body></html>

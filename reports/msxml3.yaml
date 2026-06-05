@@ -4,10 +4,11 @@ meta:
   file_size_bytes: 1593344
   analysis_date: '2026-06-03'
   analyst: opencode + GhidraMCP
-  notes: MSXML 3.0 XML-Parser. ~3.000 Funktionen. XSLT, Schema, DOM, DSig.
+  notes: 'MSXML 3.0 XML-Parser. ~3.000 Funktionen. XSLT, Schema, DOM, DSig. | BN:
+    3500 funcs | BN: 6753 funcs'
 binary_info:
   architecture: x64
-  function_count: 3000
+  function_count: 6753
 pe_security:
   aslr: true
   dep: true
@@ -32,6 +33,9 @@ tools_output:
     cwe476_null_deref: 66
     cwe676_dangerous_func: 241
     notes: 'cwe_checker: 3138 Findings.'
+  binary_ninja:
+    function_count: 6753
+    notes: BN 5.3.9434 - Full batch scan
 findings:
 - id: MSX-001
   severity: HIGH
@@ -43,36 +47,55 @@ findings:
   recommendation: Entity-Expansion-Limits. XXE-Protection aktivieren.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   - id: com
-    name: COM/DCOM
-    type: RPC
+    name: COM/DCOM/RPC Input
+    type: RPC Call
+    detail: Remote Activation
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
     risk: CWE-119
   - id: bc
-    name: BCryptEncrypt
-    addr: EXTERNAL
+    name: BCrypt Encrypt/Decrypt
+    addr: bcrypt
+    risk: ''
+  - id: cw
+    name: 'cwe_checker: CWE676'
+    addr: Docker-Scan
+    risk: MEDIUM
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n    com[\"COM/DCOM\"]\n  end\n  subgraph \"Sinks\"\
-    \n    mc[\"memcpy\"]\n    bc[\"BCryptEncrypt\"]\n  end\n    cmd -->|\"?\"| v0\n\
-    \    v0 ==>|\"EXTERNAL\"| mc\n    v0 -->|\"EXTERNAL\"| bc\n    style mc fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n    com[\"COM/DCOM/RPC\
+    \ Input<br/>Remote Activation\"]\n  end\n  subgraph \"Validierung / Schutz\"\n\
+    \    v0{{ User-Mode-Validierung unbekannt  Prüfung empfohlen }}\n    style v0\
+    \ fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\n    mc[\"memcpy<br/>msvcrt/ucrtbase\"\
+    ]\n    style mc fill:#ff8c00,stroke:#333\n    bc[\"BCrypt Encrypt/Decrypt<br/>bcrypt\"\
+    ]\n    cw[\"cwe_checker: CWE676<br/>Docker-Scan\"]\n    style cw fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    cmdline --> v0\n    console --> v0\n    com --> v0\n    v0 --> mc\n\
+    \    v0 --> bc\n    v0 --> cw\n    v0 --> c7"
 summary:
   overall_risk: HIGH
   high_findings: 1

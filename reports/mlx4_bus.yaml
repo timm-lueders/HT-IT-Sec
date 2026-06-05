@@ -3,12 +3,12 @@ meta:
   binary_type: user_exe
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline
-  notes: Mellanox InfiniBand Bus-Treiber. RDMA.
+  notes: 'Mellanox InfiniBand Bus-Treiber. RDMA. | BN: 2000 funcs | BN: 2000 funcs'
   file_size_bytes: 1132336
   template_version: '1.0'
 binary_info:
   architecture: x64
-  function_count: 1800
+  function_count: 2000
 pe_security:
   aslr: true
   dep: true
@@ -22,29 +22,40 @@ findings:
   recommendation: Ghidra-Tiefenprufung fur IOCTL/Read/Write-Handler.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: s0
-    name: Unbekannt
-    addr: '?'
+    name: Keine Sinks via Import identifiziert
+    addr: '-'
+    risk: ''
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    s0[\"Unbekannt\"\
-    ]\n  end\n    cmd -->|\"?\"| v0\n    v0 -->|\"?\"| s0"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n  end\n  subgraph\
+    \ \"Validierung / Schutz\"\n    v0{{ User-Mode-Validierung unbekannt  Prüfung\
+    \ empfohlen }}\n    style v0 fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks\
+    \ Gefahren\"\n    s0[\"Keine Sinks via Import identifiziert<br/>-\"]\n  end\n\
+    \    cmdline --> v0\n    console --> v0\n    v0 --> s0"
 summary:
   overall_risk: MEDIUM
   recommendation: Mellanox InfiniBand Bus-Treiber. RDMA.
   coverage_percent: 5
+tools_output:
+  binary_ninja:
+    function_count: 2000
+    notes: BN 5.3.9434 - Full batch scan

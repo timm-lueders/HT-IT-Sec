@@ -6,12 +6,12 @@ meta:
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   analysis_duration_minutes: 15
-  notes: Network Driver Interface Specification. 3.697 Funktionen. Kern des Windows-Netzwerk-Stacks.
-    Paket-Parsing auf Kernel-Ebene.
+  notes: 'Network Driver Interface Specification. 3.697 Funktionen. Kern des Windows-Netzwerk-Stacks.
+    Paket-Parsing auf Kernel-Ebene. | BN: 4200 funcs | BN: 4200 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
-  function_count: 3697
+  function_count: 4200
   symbol_count: 4768
   compiler_hint: msvc
   subsystem: native
@@ -93,36 +93,45 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
   - id: pm
     name: ExGetPreviousMode
-    type: Mode Check
+    type: User/Kernel Check
+    status: BOUNDED
   sinks:
   - id: md
     name: MDL-Mapping
-    addr: EXTERNAL
+    addr: ntoskrnl
     risk: CWE-119
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
   - from: ioctl
     to: pm
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Validierung\"\n    pm{{ExGetPreviousMode}}\n  end\n  subgraph \"Sinks\"\n    md[\"\
-    MDL-Mapping\"]\n  end\n    ioctl -->|\"Mode Check\"| pm\n    pm ==>|\"EXTERNAL\"\
-    | md\n    style md fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    pm{{ ExGetPreviousMode  User/Kernel\
+    \ Check }}\n    style pm fill:#00fd00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\
+    \n    md[\"MDL-Mapping<br/>ntoskrnl\"]\n    style md fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    ioctl --> pm\n    mdl --> pm\n    sysbuf --> pm\n    pm --> md\n \
+    \   pm --> c7"
 summary:
   overall_risk: HIGH
   critical_findings: 0
@@ -145,3 +154,6 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 2484 Findings.
+  binary_ninja:
+    function_count: 4200
+    notes: BN 5.3.9434 - Full batch scan

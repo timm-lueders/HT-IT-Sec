@@ -153,30 +153,52 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">0x140027b30 -> 0x1400279a0 (WinMainCRTStartup) -> 0x140033a6c (main)</span></div>
     <div><b>Größe:</b> 339,968 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">CED4AA0B4CBF72E2520E0A2CCFF79370</span></div>
-    <div><b>Funktionen:</b> 1133</div>
+    <div><b>Funktionen:</b> 735</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>OK <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div><p style="margin-top:8px;font-size:0.85rem;color:#888">Alle 4 Schutzmechanismen aktiv (ASLR, DEP, CFG, High-Entropy-ASLR). HeapEnableTerminationOnCorruption aktiv.</p></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> memcpy</td><td>14 Aufrufstellen via cwe_checker identifiziert -- brauchen alle Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ExpandEnvironmentStringsW</td><td>Klassischer Buffer-Overflow-Vektor bei Umgebungsvariablen-Expansion</td><td>CWE-120</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessW</td><td>Prozess-Erstellung -- Command Injection bei ungeprüftem Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> CreateProcessAsUserW</td><td>Prozess-Erstellung mit User-Kontext -- same risk</td><td>CWE-78</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ShellExecuteWorker</td><td>Shell-Ausführung -- hochstes Risiko bei User-Input</td><td>CWE-78</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memmove</td><td>Puffer-Sink, braucht Bounds-Check</td><td>CWE-119</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memset</td><td>Puffer-Initialisierung -- sicher bei fester Größe</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> GetFullPathNameW</td><td>Pfad-Expansion -- kann Puffer überlaufen</td><td>CWE-120</td></tr><tr><td><span class="badge sev-LOW">LOW</span> SearchPathW</td><td>DLL/EXE-Suchpfad -- potenzielle DLL-Hijacking</td><td>CWE-426</td></tr><tr><td><span class="badge sev-LOW">LOW</span> HeapAlloc/HeapReAlloc/HeapFree</td><td>Heap-Operationen -- Double-Free/Use-After-Free möglich</td><td>CWE-415/CWE-416</td></tr><tr><td><span class="badge sev-LOW">LOW</span> RtlDosPathNameToNtPathName_U</td><td>Pfad-Konvertierung -- braucht validierten Input</td><td>CWE-120</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf_s</td><td>Safe Format-String (mit _s-Suffix = Längenbegrenzung)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> _o___stdio_common_vswprintf</td><td>Format-String (ohne _s -- unsicherer, aber nur intern)</td><td>CWE-134</td></tr><tr><td><span class="badge sev-INFO">INFO</span> GetCommandLineW</td><td>Command-Line Source -- Startpunkt der Taint-Analyse</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> ReadConsoleW</td><td>Console-Input Source</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> SetConsoleCtrlHandler</td><td>Signal-Handler -- korrekt registriert</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Quellen Input"
-    cmd["GetCommandLineW"]
-    con["ReadConsoleW"]
+  subgraph "Eingabe-Quellen"
+    cmdline["GetCommandLineW<br/>Process Startup"]
+    console["ReadConsoleW<br/>Interactive Mode"]
   end
-  subgraph "Sinks"
-    mc["memcpy"]
-    mm["memmove"]
-    cp["CreateProcess"]
+  subgraph "Validierung / Schutz"
+    heap{{ HeapEnableTerminationOnCorruption  Heap Hardening }}
+    style heap fill:#00fd00,stroke:#333
+    bc{{ Mehrstufige Bounds-Checks  Size Validation }}
+    style bc fill:#00fd00,stroke:#333
+    fmt{{ Safe Format-Strings  _s   Format String Safety }}
+    style fmt fill:#00fd00,stroke:#333
   end
-    cmd -->|"?"| v0
-    v0 ==>|"EXTERNAL"| mc
-    v0 -->|"EXTERNAL"| mm
-    v0 ==>|"EXTERNAL"| cp
+  subgraph "Sinks Gefahren"
+    mc["memcpy<br/>msvcrt/ucrtbase"]
     style mc fill:#ff8c00,stroke:#333
-    style cp fill:#ff8c00,stroke:#333</div>
+    mm["memmove<br/>msvcrt/ucrtbase"]
+    cp["CreateProcess<br/>kernel32"]
+    style cp fill:#ff8c00,stroke:#333
+    cw["cwe_checker: CWE676<br/>Docker-Scan"]
+    style cw fill:#ff8c00,stroke:#333
+    c7["cwe_checker: CWE787<br/>Docker-Scan"]
+    style c7 fill:#ff8c00,stroke:#333
+  end
+    cmdline --> heap
+    console --> heap
+    heap --> mc
+    heap --> mm
+    heap --> cp
+    heap --> cw
+    bc --> mc
+    bc --> mm
+    bc --> cp
+    bc --> cw
+    fmt --> mc
+    fmt --> mm
+    fmt --> cp
+    fmt --> cw</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW</td><td>Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW</td><td>Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>memcpy</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>memmove</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>CreateProcess</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>GetCommandLineW</td><td>Command Line Args</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>ReadConsoleW</td><td>Console Input</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>memcpy</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>memmove</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>CreateProcess</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>cwe_checker: CWE676</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>cwe_checker: CWE787</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>Unbekannte Validierung</td><td>?</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>HeapEnableTerminationOnCorruption</td><td>Heap Hardening</td><td style='font-size:0.8rem'>-</td></tr><tr><td>Mehrstufige Bounds-Checks</td><td>Size Validation</td><td style='font-size:0.8rem'>-</td></tr><tr><td>Safe Format-Strings (_s)</td><td>Format String Safety</td><td style='font-size:0.8rem'>-</td></tr></table>
         <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
@@ -227,7 +249,7 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 1133</div>
+    <div><b>Funktionen:</b> 735</div>
     <div><b>Coverage:</b> 5%</div>
     <div><b>Analyst:</b> opencode + GhidraMCP Pipeline v5.10.0</div>
     <div><b>Dauer:</b> 25 min</div>
@@ -253,5 +275,5 @@ wäre ein NULL-Deref gewesen. Wurde vor Compile gefixt.
   priorisieren.
 </p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-05 13:41 -- <span class="cursor"></span></footer>
 </body></html>

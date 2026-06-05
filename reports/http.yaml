@@ -4,13 +4,14 @@ meta:
   file_size_bytes: 2180584
   analysis_date: '2026-06-03'
   analyst: opencode + GhidraMCP -- Deep-Scan
-  notes: HTTP Server Driver. 4.132 Funktionen. Remote-Kernel-Angriffsflache. IoBuildPartialMdl,
-    MmProbeAndLockPages, IP-Parsing, Server-Silos. CVE-2015-1635 (MS15-034).
+  notes: 'HTTP Server Driver. 4.132 Funktionen. Remote-Kernel-Angriffsflache. IoBuildPartialMdl,
+    MmProbeAndLockPages, IP-Parsing, Server-Silos. CVE-2015-1635 (MS15-034). | BN:
+    4800 funcs | BN: 4800 funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
   entry_point: 0x1401e2010 (DriverEntry)
-  function_count: 4132
+  function_count: 4800
   symbol_count: 4598
 pe_security:
   aslr: true
@@ -69,33 +70,40 @@ summary:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
   - id: pm
     name: ExGetPreviousMode
-    type: Mode Check
+    type: User/Kernel Check
+    status: BOUNDED
   sinks:
   - id: md
     name: MDL-Mapping
-    addr: EXTERNAL
+    addr: ntoskrnl
     risk: CWE-119
   edges:
   - from: ioctl
     to: pm
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Validierung\"\n    pm{{ExGetPreviousMode}}\n  end\n  subgraph \"Sinks\"\n    md[\"\
-    MDL-Mapping\"]\n  end\n    ioctl -->|\"Mode Check\"| pm\n    pm ==>|\"EXTERNAL\"\
-    | md\n    style md fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    pm{{ ExGetPreviousMode  User/Kernel\
+    \ Check }}\n    style pm fill:#00fd00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\
+    \n    md[\"MDL-Mapping<br/>ntoskrnl\"]\n    style md fill:#ff8c00,stroke:#333\n\
+    \  end\n    ioctl --> pm\n    mdl --> pm\n    sysbuf --> pm\n    pm --> md"
+tools_output:
+  binary_ninja:
+    function_count: 4800
+    notes: BN 5.3.9434 - Full batch scan

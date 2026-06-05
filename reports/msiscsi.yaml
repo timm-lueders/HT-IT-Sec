@@ -4,10 +4,11 @@ meta:
   file_size_bytes: 333240
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: 'Ghidra-Schatzt: ~600 Funktionen (basierend auf DateigroBe). iSCSI Initiator'
+  notes: 'Ghidra-Schatzt: ~600 Funktionen (basierend auf DateigroBe). iSCSI Initiator
+    | BN: 468 funcs | BN: 468 funcs'
 binary_info:
   architecture: x64
-  function_count: 600
+  function_count: 468
 pe_security:
   aslr: true
   dep: true
@@ -23,35 +24,44 @@ findings:
 taint_graph:
   sources:
   - id: ioctl
-    name: DeviceIoControl
+    name: DeviceIoControl Input
     type: IOCTL
-    irp: Irp->UserBuffer @0x70
-  - id: read
-    name: IRP_MJ_READ
+    detail: Irp->UserBuffer @0x70
+  - id: mdl
+    name: IRP_MJ_READ/WRITE Mdl
     type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
-  - id: write
-    name: IRP_MJ_WRITE
-    type: DIRECT_IO
-    irp: Irp->MdlAddress @0x10
+    detail: Irp->MdlAddress @0x10
+  - id: sysbuf
+    name: IRP SystemBuffer
+    type: METHOD_BUFFERED
+    detail: Irp->AssociatedIrp.SystemBuffer
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: Kernel-API-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: s0
-    name: Unbekannt
-    addr: '?'
+    name: Keine Sinks via Import identifiziert
+    addr: '-'
+    risk: ''
   edges:
   - from: ioctl
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    ioctl[\"DeviceIoControl\"\
-    ]\n    read[\"IRP_MJ_READ\"]\n    write[\"IRP_MJ_WRITE\"]\n  end\n  subgraph \"\
-    Sinks\"\n    s0[\"Unbekannt\"]\n  end\n    ioctl -->|\"?\"| v0\n    v0 -->|\"\
-    ?\"| s0"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    ioctl[\"DeviceIoControl\
+    \ Input<br/>Irp->UserBuffer @0x70\"]\n    mdl[\"IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress\
+    \ @0x10\"]\n    sysbuf[\"IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer\"\
+    ]\n  end\n  subgraph \"Validierung / Schutz\"\n    v0{{ Kernel-API-Validierung\
+    \ unbekannt  Prüfung empfohlen }}\n    style v0 fill:#ff8c00,stroke:#333\n  end\n\
+    \  subgraph \"Sinks Gefahren\"\n    s0[\"Keine Sinks via Import identifiziert<br/>-\"\
+    ]\n  end\n    ioctl --> v0\n    mdl --> v0\n    sysbuf --> v0\n    v0 --> s0"
 summary:
   overall_risk: MEDIUM
   recommendation: iSCSI Initiator
   coverage_percent: 1
+tools_output:
+  binary_ninja:
+    function_count: 468
+    notes: BN 5.3.9434 - Full batch scan

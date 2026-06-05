@@ -4,11 +4,11 @@ meta:
   file_size_bytes: 172032
   analysis_date: '2026-06-03'
   analyst: opencode Pipeline
-  notes: MS DTC -- 168KB. Distributed Transactions.
+  notes: 'MS DTC -- 168KB. Distributed Transactions. | BN: 280 funcs | BN: 280 funcs'
   template_version: '1.0'
 binary_info:
   architecture: x64
-  function_count: 250
+  function_count: 280
 pe_security:
   aslr: true
   dep: true
@@ -23,29 +23,40 @@ findings:
   recommendation: Tiefenprufung empfohlen.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: s0
-    name: Unbekannt
-    addr: '?'
+    name: Keine Sinks via Import identifiziert
+    addr: '-'
+    risk: ''
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    s0[\"Unbekannt\"\
-    ]\n  end\n    cmd -->|\"?\"| v0\n    v0 -->|\"?\"| s0"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n  end\n  subgraph\
+    \ \"Validierung / Schutz\"\n    v0{{ User-Mode-Validierung unbekannt  Prüfung\
+    \ empfohlen }}\n    style v0 fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks\
+    \ Gefahren\"\n    s0[\"Keine Sinks via Import identifiziert<br/>-\"]\n  end\n\
+    \    cmdline --> v0\n    console --> v0\n    v0 --> s0"
 summary:
   overall_risk: MEDIUM
   recommendation: MS DTC -- 168KB. Distributed Transactions.
   coverage_percent: 3
+tools_output:
+  binary_ninja:
+    function_count: 280
+    notes: BN 5.3.9434 - Full batch scan

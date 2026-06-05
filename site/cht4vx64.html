@@ -153,28 +153,36 @@ pre{background:rgba(0,0,0,0.5);border:1px solid #333;border-radius:6px;padding:1
     <div><b>Entry:</b> <span style="font-family:monospace">0x14002b620</span></div>
     <div><b>Größe:</b> 1,854,880 bytes</div>
     <div><b>MD5:</b> <span style="font-family:monospace;font-size:0.75rem">?</span></div>
-    <div><b>Funktionen:</b> 642</div>
+    <div><b>Funktionen:</b> 800</div>
     </div></div><div class="card"><h3>PE Security</h3><div class="grid4"><div>OK <span style="color:#888;font-size:0.8rem">ASLR</span></div><div>OK <span style="color:#888;font-size:0.8rem">DEP/NX</span></div><div>OK <span style="color:#888;font-size:0.8rem">CFG</span></div><div>FEHLT <span style="color:#888;font-size:0.8rem">High-Entropy</span></div></div></div><div class="card"><h3>Import Risk Map</h3><table><tr><th>API</th><th>Risiko</th><th>CWE</th></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> Vf_read_reg/Vf_write_reg</td><td>Hardware-Register-Zugriff -- PCIe BAR-Mapping</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> MmMapIoSpaceEx/MmUnmapIoSpace</td><td>I/O-Space-Mapping</td><td>CWE-119</td></tr><tr><td><span class="badge sev-MEDIUM">MEDIUM</span> ZwCreateFile/ZwReadFile</td><td>Firmware-Datei-Zugriff</td><td>CWE-22</td></tr><tr><td><span class="badge sev-LOW">LOW</span> memcpy_s</td><td>Safe Memory-Copy (KORREKT)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> strncpy_s + sprintf_s</td><td>Safe String-Varianten (KORREKT)</td><td>N/A</td></tr><tr><td><span class="badge sev-LOW">LOW</span> KeRegisterBugCheckReasonCallback</td><td>BugCheck-Callback (korrekt)</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> WdfVersionBind/Unbind</td><td>WDF-Framework -- strukturierter Treiber</td><td>N/A</td></tr><tr><td><span class="badge sev-INFO">INFO</span> Vf_* (50+ Chelsio-APIs)</td><td>VF-Management, RSS, MAC-Filter</td><td>N/A</td></tr></table></div><div class="card"><h3>Taint-Graph (Detail)</h3>
         <div class="mermaid" style="margin:15px 0">graph TD
-  subgraph "Quellen Input"
-    ioctl["DeviceIoControl"]
-    read["IRP_MJ_READ"]
-    write["IRP_MJ_WRITE"]
+  subgraph "Eingabe-Quellen"
+    ioctl["DeviceIoControl Input<br/>Irp->UserBuffer @0x70"]
+    mdl["IRP_MJ_READ/WRITE Mdl<br/>Irp->MdlAddress @0x10"]
+    sysbuf["IRP SystemBuffer<br/>Irp->AssociatedIrp.SystemBuffer"]
   end
-  subgraph "Sinks"
-    mc["memcpy"]
-    zr["ZwReadFile"]
+  subgraph "Validierung / Schutz"
+    mix{{ memcpy+memcpy_s gemischt  ⚠️ Inkonsistente API-Nutzung }}
+    style mix fill:#ffc107,stroke:#333
   end
-    ioctl -->|"?"| v0
-    v0 ==>|"EXTERNAL"| mc
-    v0 -->|"EXTERNAL"| zr
-    style mc fill:#ff8c00,stroke:#333</div>
+  subgraph "Sinks Gefahren"
+    mc["memcpy<br/>msvcrt/ucrtbase"]
+    zr["Disk Read<br/>ntoskrnl/kernel32"]
+    c7["cwe_checker: CWE787<br/>Docker-Scan"]
+    style c7 fill:#ff8c00,stroke:#333
+  end
+    ioctl --> mix
+    mdl --> mix
+    sysbuf --> mix
+    mix --> mc
+    mix --> zr
+    mix --> c7</div>
         <details><summary style='cursor:pointer;color:#a4c574'>Details einblenden</summary>
         <div class="grid2" style="margin-top:10px">
-        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_WRITE</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
-        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>memcpy</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>ZwReadFile</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
+        <div><b>Sources (Input)</b><table><tr><th>Name</th><th>Typ</th><th>IRP-Feld</th></tr><tr><td>DeviceIoControl Input</td><td>IOCTL</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP_MJ_READ/WRITE Mdl</td><td>DIRECT_IO</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr><tr><td>IRP SystemBuffer</td><td>METHOD_BUFFERED</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table></div>
+        <div><b>Sinks (Output)</b><table><tr><th>Name</th><th>Typ</th><th>Adresse</th></tr><tr><td>memcpy</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>Disk Read</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr><tr><td>cwe_checker: CWE787</td><td>?</td><td style='font-family:monospace;font-size:0.75rem'>?</td></tr></table></div>
         </div>
-        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>Unbekannte Validierung</td><td>?</td><td style='font-size:0.8rem'>-</td></tr></table>
+        <h4 style='margin-top:10px'>Validators</h4><table><tr><th>Validator</th><th>Typ</th><th>Note</th></tr><tr><td>memcpy+memcpy_s gemischt</td><td>⚠️ Inkonsistente API-Nutzung</td><td style='font-size:0.8rem'>-</td></tr></table>
         <h4 style='margin-top:10px'>Edges (Data Flow)</h4><table><tr><th>Status</th><th>Operation</th><th>Note</th><th>Address</th></tr><tr><td><span class='badge sev-LOW'>BOUNDED</span></td><td>Data Flow</td><td style='font-size:0.8rem'>-</td><td style='font-family:monospace;font-size:0.75rem'>-</td></tr></table>
         </details></div><div class="card"><h3>Automatisierte Tools</h3>
     <table>
@@ -194,7 +202,7 @@ Einer der am besten geschriebenen Drittanbieter-Treiber im Audit.
     <div class="grid2">
     <div><b>Risiko:</b> <span class="badge sev-LOW">LOW</span></div>
     <div><b>Analyse-Datum:</b> 2026-06-02</div>
-    <div><b>Funktionen:</b> 642</div>
+    <div><b>Funktionen:</b> 800</div>
     <div><b>Coverage:</b> 10%</div>
     <div><b>Analyst:</b> opencode + GhidraMCP Pipeline -- Deep-Scan</div>
     <div><b>Dauer:</b> 0 min</div>
@@ -210,5 +218,5 @@ Einer der am besten geschriebenen Drittanbieter-Treiber im Audit.
     <div class="progress-bar risk-LOW"><div class="progress-fill" style="width:10%"></div></div>
     <p style="margin-top:8px;font-size:0.85rem">Sauber programmiert. Hardware-Register-Validierung beibehalten.</p></div></main>
 <aside></aside>
-<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-03 16:59 -- <span class="cursor"></span></footer>
+<footer>Binary Security Audit Pipeline v1.0 -- 2026-06-05 13:41 -- <span class="cursor"></span></footer>
 </body></html>

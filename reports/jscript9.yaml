@@ -4,12 +4,12 @@ meta:
   file_size_bytes: 4829184
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
-  notes: Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X).
-    GC mit WriteWatch. ChakraCore.
+  notes: 'Chakra JavaScript Engine. 16.719 Funktionen. JIT mit VirtualProtect(W+X).
+    GC mit WriteWatch. ChakraCore. | BN: 18000 funcs | BN: 18000 funcs'
 binary_info:
   architecture: x64
   base_address: '0x180000000'
-  function_count: 16719
+  function_count: 18000
 pe_security:
   aslr: true
   dep: true
@@ -50,35 +50,46 @@ summary:
   coverage_percent: 1
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
   - id: com
-    name: COM/DCOM
-    type: RPC
+    name: COM/DCOM/RPC Input
+    type: RPC Call
+    detail: Remote Activation
   validators:
   - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+    name: User-Mode-Validierung unbekannt
+    type: Prüfung empfohlen
+    status: UNCHECKED
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
     risk: CWE-119
   - id: ll
     name: LoadLibrary
-    addr: EXTERNAL
+    addr: kernel32
     risk: CWE-426
   edges:
-  - from: cmd
+  - from: cmdline
     to: v0
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n    com[\"COM/DCOM\"]\n  end\n  subgraph \"Sinks\"\
-    \n    mc[\"memcpy\"]\n    ll[\"LoadLibrary\"]\n  end\n    cmd -->|\"?\"| v0\n\
-    \    v0 ==>|\"EXTERNAL\"| mc\n    v0 ==>|\"EXTERNAL\"| ll\n    style mc fill:#ff8c00,stroke:#333\n\
-    \    style ll fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n    com[\"COM/DCOM/RPC\
+    \ Input<br/>Remote Activation\"]\n  end\n  subgraph \"Validierung / Schutz\"\n\
+    \    v0{{ User-Mode-Validierung unbekannt  Prüfung empfohlen }}\n    style v0\
+    \ fill:#ff8c00,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\n    mc[\"memcpy<br/>msvcrt/ucrtbase\"\
+    ]\n    style mc fill:#ff8c00,stroke:#333\n    ll[\"LoadLibrary<br/>kernel32\"\
+    ]\n    style ll fill:#ff8c00,stroke:#333\n  end\n    cmdline --> v0\n    console\
+    \ --> v0\n    com --> v0\n    v0 --> mc\n    v0 --> ll"
+tools_output:
+  binary_ninja:
+    function_count: 18000
+    notes: BN 5.3.9434 - Full batch scan

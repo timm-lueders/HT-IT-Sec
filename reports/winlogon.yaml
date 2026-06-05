@@ -6,12 +6,13 @@ meta:
   analysis_date: '2026-06-02'
   analyst: opencode + GhidraMCP Pipeline -- Deep-Scan
   analysis_duration_minutes: 15
-  notes: Windows Logon Process. 2.349 Funktionen. SAS, GINA/Credential-Providers,
-    Authentifizierung. Kritischster User-Mode-Prozess.
+  notes: 'Windows Logon Process. 2.349 Funktionen. SAS, GINA/Credential-Providers,
+    Authentifizierung. Kritischster User-Mode-Prozess. | BN: 2187 funcs | BN: 2187
+    funcs'
 binary_info:
   architecture: x64
   base_address: '0x140000000'
-  function_count: 2349
+  function_count: 2187
   symbol_count: 3359
 pe_security:
   aslr: true
@@ -66,35 +67,56 @@ findings:
   recommendation: Alle memcpy-Aufrufe auf _o_memcpy_s migrieren.
 taint_graph:
   sources:
-  - id: cmd
+  - id: cmdline
     name: GetCommandLineW
-    type: Args
-  - id: con
+    type: Command Line Args
+    detail: Process Startup
+  - id: console
     name: ReadConsoleW
-    type: Input
+    type: Console Input
+    detail: Interactive Mode
+  - id: com
+    name: COM/DCOM/RPC Input
+    type: RPC Call
+    detail: Remote Activation
   validators:
-  - id: v0
-    name: Unbekannte Validierung
-    type: '?'
+  - id: mix
+    name: memcpy+memcpy_s gemischt
+    type: ⚠️ Inkonsistente API-Nutzung
+    status: CONDITIONAL
   sinks:
   - id: mc
     name: memcpy
-    addr: EXTERNAL
+    addr: msvcrt/ucrtbase
     risk: CWE-119
   - id: ll
     name: LoadLibrary
-    addr: EXTERNAL
+    addr: kernel32
     risk: CWE-426
+  - id: cw
+    name: 'cwe_checker: CWE676'
+    addr: Docker-Scan
+    risk: MEDIUM
+  - id: c7
+    name: 'cwe_checker: CWE787'
+    addr: Docker-Scan
+    risk: MEDIUM
   edges:
-  - from: cmd
-    to: v0
+  - from: cmdline
+    to: mix
     label: Data Flow
     status: BOUNDED
-  graph_mermaid: "graph TD\n  subgraph \"Quellen Input\"\n    cmd[\"GetCommandLineW\"\
-    ]\n    con[\"ReadConsoleW\"]\n  end\n  subgraph \"Sinks\"\n    mc[\"memcpy\"]\n\
-    \    ll[\"LoadLibrary\"]\n  end\n    cmd -->|\"?\"| v0\n    v0 ==>|\"EXTERNAL\"\
-    | mc\n    v0 ==>|\"EXTERNAL\"| ll\n    style mc fill:#ff8c00,stroke:#333\n   \
-    \ style ll fill:#ff8c00,stroke:#333"
+  graph_mermaid: "graph TD\n  subgraph \"Eingabe-Quellen\"\n    cmdline[\"GetCommandLineW<br/>Process\
+    \ Startup\"]\n    console[\"ReadConsoleW<br/>Interactive Mode\"]\n    com[\"COM/DCOM/RPC\
+    \ Input<br/>Remote Activation\"]\n  end\n  subgraph \"Validierung / Schutz\"\n\
+    \    mix{{ memcpy+memcpy_s gemischt  ⚠️ Inkonsistente API-Nutzung }}\n    style\
+    \ mix fill:#ffc107,stroke:#333\n  end\n  subgraph \"Sinks Gefahren\"\n    mc[\"\
+    memcpy<br/>msvcrt/ucrtbase\"]\n    style mc fill:#ff8c00,stroke:#333\n    ll[\"\
+    LoadLibrary<br/>kernel32\"]\n    style ll fill:#ff8c00,stroke:#333\n    cw[\"\
+    cwe_checker: CWE676<br/>Docker-Scan\"]\n    style cw fill:#ff8c00,stroke:#333\n\
+    \    c7[\"cwe_checker: CWE787<br/>Docker-Scan\"]\n    style c7 fill:#ff8c00,stroke:#333\n\
+    \  end\n    cmdline --> mix\n    console --> mix\n    com --> mix\n    mix -->\
+    \ mc\n    mix --> ll\n    mix --> cw\n    mix --> c7"
 summary:
   overall_risk: HIGH
   high_findings: 1
@@ -116,3 +138,6 @@ tools_output:
     cwe134_format_string: 0
     estimated_false_positive_rate: 97
     notes: Docker cwe_checker abgeschlossen. 1358 Findings.
+  binary_ninja:
+    function_count: 2187
+    notes: BN 5.3.9434 - Full batch scan
